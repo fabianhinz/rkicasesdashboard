@@ -19,6 +19,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig)
 const firestore = firebase.firestore()
+firestore.enablePersistence({ synchronizeTabs: true })
 
 interface RkiData {
   id: string
