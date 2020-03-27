@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import 'firebase/firestore'
 import firebase from 'firebase/app'
 import { LineChart, ResponsiveContainer, Line, Tooltip, YAxis } from 'recharts'
-import { Grid, CssBaseline, Box, Card, CardHeader, CardContent, ThemeProvider, createMuiTheme, Chip, Divider, Link, Container, makeStyles, createStyles } from '@material-ui/core'
+import { Grid, CssBaseline, Box, Card, CardHeader, CardContent, ThemeProvider, createMuiTheme, Chip, Divider, Link, Container, makeStyles, createStyles, Paper, Typography, Fab } from '@material-ui/core'
 import { red, teal, amber } from '@material-ui/core/colors';
-import { Skull, Sigma, Percent } from 'mdi-material-ui'
+import { Skull, Sigma, Percent, Calendar, UnfoldMoreHorizontal } from 'mdi-material-ui'
 import Skeleton from '@material-ui/lab/Skeleton';
+import clsx from 'clsx';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCiBLIlEJpEjuLCaDCc7Uk_CLEpnQW2340",
@@ -37,8 +38,15 @@ interface TooltipProps {
   payload: { color: string; value: any; payload: RkiData }[]
 }
 
+interface Summary {
+  lastUpdate: Date
+  cases: number
+  deaths: number
+  rate: number
+}
+
 type State = string
-type CasesMap = Map<State, Omit<RkiData, "state">[]>
+type CasesByState = Map<State, Omit<RkiData, "state">[]>
 
 const createDateFromTimestamp = (timestamp: firebase.firestore.Timestamp) =>
   new firebase.firestore.Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate()
@@ -58,15 +66,17 @@ const theme = createMuiTheme({
         textAlign: 'center',
 
       },
-      title: {
-        fontFamily: 'Ubuntu'
-      }
     },
     MuiLink: {
       root: {
         fontSize: '1rem',
         fontFamily: 'Ubuntu'
       }
+    },
+    MuiTypography: {
+      h5: {
+        fontFamily: 'Ubuntu'
+      },
     }
   }
 })
@@ -77,40 +87,78 @@ const useStyles = makeStyles(theme => createStyles({
     paddingBottom: theme.spacing(3),
     userSelect: 'none'
   },
-  casesChip: {
+  backgroundAmber: {
     backgroundColor: amber.A400,
-    color: '#000'
   },
-  rateChip: {
+  backgroundTeal: {
     backgroundColor: teal.A400,
-    color: '#000'
   },
-  deathsChip: {
+  backgroundRed: {
     backgroundColor: red.A400,
   },
-  chipIcon: {
+  colorBlack: {
     color: '#000'
+  },
+  paperSummary: {
+    padding: theme.spacing(1),
+    minWidth: 160,
+    minHeight: 80,
+    justifyContent: 'space-evenly',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    boxShadow: theme.shadows[4]
+  },
+  fab: {
+    position: 'fixed',
+    bottom: `max(env(safe-area-inset-bottom), ${theme.spacing(3)}px)`,
+    right: theme.spacing(3)
+  },
+  itemSummary: {
+    position: 'sticky',
+    top: `calc(env(safe-area-inset-top) + ${theme.spacing(1)}px)`,
+    zIndex: theme.zIndex.appBar
   }
 }))
 
 const App = () => {
-  const [cases, setCases] = useState<CasesMap>(new Map())
+  const [casesByState, setCasesByState] = useState<CasesByState>(new Map())
+  const [summary, setSummary] = useState<Summary | null>(null)
 
   const classes = useStyles()
 
   useEffect(() => firestore
     .collection("rkicases")
+    .orderBy("state", "asc")
     .orderBy("timestamp", "asc")
-    .orderBy("cases", "desc")
-    .onSnapshot(rkicases => {
-      const docs = rkicases.docs.map(doc => ({ ...doc.data() }) as RkiData)
+    .onSnapshot(snapshot => {
+      const docs = snapshot.docs.map(doc => ({ ...doc.data() }) as RkiData)
       const states = new Set(docs.map(({ state }) => state))
 
       const newCases = new Map()
       states.forEach(state => newCases.set(state, docs.filter(doc => doc.state === state)))
-      setCases(newCases)
+      setCasesByState(newCases)
     })
     , [])
+
+  useEffect(() => firestore
+    .collection("rkicases")
+    .orderBy("timestamp", "desc")
+    .limit(16)
+    .onSnapshot(snapshot => {
+      const docs = snapshot.docs.map(doc => ({ ...doc.data() }) as RkiData)
+
+      setSummary({
+        lastUpdate: createDateFromTimestamp((docs[0].timestamp)),
+        cases: docs.reduce((acc, doc) => acc += doc.cases, 0),
+        rate: docs.reduce((acc, doc) => acc += doc.rate, 0) / docs.length,
+        deaths: docs.reduce((acc, doc) => acc += doc.deaths, 0)
+      })
+    }), [])
+
+  const handleFabClick = () => window.scrollY === 0
+    ? window.scrollTo({ top: document.body.clientHeight, behavior: 'smooth' })
+    : window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
     <div className={classes.app}>
@@ -119,8 +167,44 @@ const App = () => {
 
         <Container maxWidth="xl">
           <Grid container spacing={4}>
-            {[...cases.entries()].map(([state, data]) =>
-              <Grid item xs={12} sm={6} lg={4} key={state}>
+            <Grid item xs={12} className={classes.itemSummary}>
+              <Grid container spacing={2} justify="center">
+                <Grid item >
+                  <Paper className={classes.paperSummary}>
+                    <Calendar />
+                    {summary ? <Typography variant="h6"> {summary.lastUpdate.toLocaleDateString()}</Typography> : <Skeleton variant="text" width="70%" />}
+                  </Paper>
+                </Grid>
+
+                <Grid item >
+                  <Paper className={clsx(classes.paperSummary, classes.backgroundAmber)}>
+                    <Sigma className={classes.colorBlack} />
+                    {summary ? <Typography className={classes.colorBlack} variant="h6">{summary.cases}</Typography> : <Skeleton variant="text" width="70%" />}
+                  </Paper>
+                </Grid>
+
+                <Grid item >
+                  <Paper className={clsx(classes.paperSummary, classes.backgroundTeal)}>
+                    <Percent className={classes.colorBlack} />
+                    {summary ? <Typography className={classes.colorBlack} variant="h6">{summary.rate}</Typography> : <Skeleton variant="text" width="70%" />}
+                  </Paper>
+                </Grid>
+
+                <Grid item >
+                  <Paper className={clsx(classes.paperSummary, classes.backgroundRed)}>
+                    <Skull />
+                    {summary ? <Typography variant="h6">{summary.deaths}</Typography> : <Skeleton variant="text" width="70%" />}
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Divider variant="middle" />
+            </Grid>
+
+            {[...casesByState.entries()].map(([state, data]) =>
+              <Grid item xs={12} sm={6} lg={4} xl={3} key={state}>
                 <Card elevation={4}>
                   <CardHeader title={state} />
                   <CardContent>
@@ -135,13 +219,13 @@ const App = () => {
                                 <Box padding={2}>
                                   <Grid container wrap="nowrap" spacing={2}>
                                     <Grid item>
-                                      <Chip className={classes.casesChip} icon={<Sigma className={classes.chipIcon} />} label={payload[0].value} />
+                                      <Chip className={clsx(classes.backgroundAmber, classes.colorBlack)} icon={<Sigma className={classes.colorBlack} />} label={payload[0].value} />
                                     </Grid>
                                     <Grid item>
-                                      <Chip className={classes.rateChip} icon={<Percent className={classes.chipIcon} />} label={payload[1].value} />
+                                      <Chip className={clsx(classes.backgroundTeal, classes.colorBlack)} icon={<Percent className={classes.colorBlack} />} label={payload[1].value} />
                                     </Grid>
                                     <Grid item>
-                                      <Chip className={classes.deathsChip} icon={<Skull />} label={payload[2].value} />
+                                      <Chip className={classes.backgroundRed} icon={<Skull />} label={payload[2].value} />
                                     </Grid>
                                   </Grid>
                                 </Box>
@@ -158,7 +242,8 @@ const App = () => {
                   </CardContent>
                 </Card>
               </Grid>)}
-            {cases.size === 0 && new Array(16).fill(1).map((_dummy, index) =>
+
+            {casesByState.size === 0 && new Array(16).fill(1).map((_dummy, index) =>
               <Grid item xs={12} sm={6} lg={4} key={index}>
                 <Card elevation={4}>
                   <CardHeader title={<Skeleton variant="text" width="40%" />} />
@@ -168,8 +253,13 @@ const App = () => {
                 </Card>
               </Grid>
             )}
+
             <Grid item xs={12}>
-              <Grid container justify="flex-end" spacing={2}>
+              <Divider variant="middle" />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Grid container justify="center" spacing={2}>
                 <Grid item>
                   <Link href="https://github.com/fabianhinz/rkicasesapi">Datenquelle</Link>
                 </Grid>
@@ -183,6 +273,10 @@ const App = () => {
             </Grid>
           </Grid>
         </Container>
+
+        <Fab className={classes.fab} onClick={handleFabClick}>
+          <UnfoldMoreHorizontal />
+        </Fab>
       </ThemeProvider >
     </div>
   );
