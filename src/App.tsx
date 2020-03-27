@@ -119,9 +119,18 @@ const useStyles = makeStyles(theme => createStyles({
     position: 'sticky',
     top: `calc(env(safe-area-inset-top) + ${theme.spacing(1)}px)`,
     zIndex: theme.zIndex.appBar
+  },
+  containerSummary: {
+    [theme.breakpoints.between("xs", "md")]: {
+      flexWrap: "nowrap",
+      overflowX: 'auto',
+      justifyContent: 'flex-start'
+    },
   }
 }))
-
+/*
+* ToDo: eslint, prettier, component struktur
+*/
 const App = () => {
   const [casesByState, setCasesByState] = useState<CasesByState>(new Map())
   const [summary, setSummary] = useState<Summary | null>(null)
@@ -171,9 +180,9 @@ const App = () => {
         <CssBaseline />
 
         <Container maxWidth="xl">
-          <Grid container spacing={4}>
+          <Grid container spacing={3} >
             <Grid item xs={12} className={classes.itemSummary}>
-              <Grid container spacing={2} justify="center">
+              <Grid container spacing={2} justify="center" className={classes.containerSummary}>
                 <Grid item >
                   <Paper className={classes.paperSummary}>
                     <Calendar />
@@ -205,16 +214,16 @@ const App = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Divider variant="middle" />
+              <Divider />
             </Grid>
 
             <Grid item xs={12}>
-              <Grid container spacing={2}>
+              <Grid container spacing={1}>
                 <Grid item>
-                  <Chip icon={<CurrentAc />} label="log" onClick={() => setScale(!scale)} color={scale ? "primary" : "default"} />
+                  <Chip icon={<CurrentAc />} label="Log" onClick={() => setScale(!scale)} color={scale ? "primary" : "default"} />
                 </Grid>
                 <Grid item>
-                  <Chip icon={<Axis />} label="Beschriftung" onClick={() => setAxis(!axis)} color={axis ? "primary" : "default"} size="medium" />
+                  <Chip icon={<Axis />} label="Achsen" onClick={() => setAxis(!axis)} color={axis ? "primary" : "default"} size="medium" />
                 </Grid>
                 <Grid item>
                   <Chip icon={<InformationOutline />} label="Legende" onClick={() => setLegend(!legend)} color={legend ? "primary" : "default"} size="medium" />
@@ -278,7 +287,7 @@ const App = () => {
             )}
 
             <Grid item xs={12}>
-              <Divider variant="middle" />
+              <Divider />
             </Grid>
 
             <Grid item xs={12}>
