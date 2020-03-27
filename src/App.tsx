@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import 'firebase/firestore'
 import firebase from 'firebase/app'
-import { LineChart, ResponsiveContainer, Line, Tooltip, YAxis } from 'recharts'
-import { Grid, CssBaseline, Box, Card, CardHeader, CardContent, ThemeProvider, createMuiTheme, Chip, Divider, Link, Container, makeStyles, createStyles, Paper, Typography, Fab } from '@material-ui/core'
+import { LineChart, ResponsiveContainer, Line, Tooltip, YAxis, Legend } from 'recharts'
+import { Grid, CssBaseline, Box, Card, CardHeader, CardContent, ThemeProvider, createMuiTheme, Chip, Divider, Link, Container, makeStyles, createStyles, Paper, Typography, Fab, } from '@material-ui/core'
 import { red, teal, amber } from '@material-ui/core/colors';
-import { Skull, Sigma, Percent, Calendar, UnfoldMoreHorizontal } from 'mdi-material-ui'
+import { Skull, Sigma, Percent, Calendar, UnfoldMoreHorizontal, CurrentAc, Axis, InformationOutline } from 'mdi-material-ui'
 import Skeleton from '@material-ui/lab/Skeleton';
 import clsx from 'clsx';
+import { scaleSymlog } from 'd3-scale';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCiBLIlEJpEjuLCaDCc7Uk_CLEpnQW2340",
@@ -125,6 +126,10 @@ const App = () => {
   const [casesByState, setCasesByState] = useState<CasesByState>(new Map())
   const [summary, setSummary] = useState<Summary | null>(null)
 
+  const [scale, setScale] = useState(false)
+  const [axis, setAxis] = useState(false)
+  const [legend, setLegend] = useState(false)
+
   const classes = useStyles()
 
   useEffect(() => firestore
@@ -203,6 +208,20 @@ const App = () => {
               <Divider variant="middle" />
             </Grid>
 
+            <Grid item xs={12}>
+              <Grid container spacing={2}>
+                <Grid item>
+                  <Chip icon={<CurrentAc />} label="log" onClick={() => setScale(!scale)} color={scale ? "primary" : "default"} />
+                </Grid>
+                <Grid item>
+                  <Chip icon={<Axis />} label="Beschriftung" onClick={() => setAxis(!axis)} color={axis ? "primary" : "default"} size="medium" />
+                </Grid>
+                <Grid item>
+                  <Chip icon={<InformationOutline />} label="Legende" onClick={() => setLegend(!legend)} color={legend ? "primary" : "default"} size="medium" />
+                </Grid>
+              </Grid>
+            </Grid>
+
             {[...casesByState.entries()].map(([state, data]) =>
               <Grid item xs={12} sm={6} lg={4} xl={3} key={state}>
                 <Card elevation={4}>
@@ -231,11 +250,15 @@ const App = () => {
                                 </Box>
                               </Card>}
                           </>} />
-                        <YAxis hide yAxisId="left" />
-                        <YAxis hide yAxisId="right" orientation="right" />
+
+                        <YAxis hide={!axis} yAxisId="left" scale={scale ? scaleSymlog() : "auto"} orientation="left" />
+                        <YAxis hide={!axis} yAxisId="right" scale={scale ? scaleSymlog() : "auto"} orientation="right" />
+
                         <Line yAxisId="left" type="monotone" stroke={amber.A400} strokeWidth={3} dataKey="cases" />
-                        <Line yAxisId="right" type="monotone" stroke={teal.A400} strokeWidth={3} dataKey="rate" />
-                        <Line yAxisId="right" type="monotone" stroke={red.A400} strokeWidth={3} dataKey="deaths" />
+                        <Line yAxisId={"right"} type="monotone" stroke={teal.A400} strokeWidth={3} dataKey="rate" />
+                        <Line yAxisId={"right"} type="monotone" stroke={red.A400} strokeWidth={3} dataKey="deaths" />
+
+                        {legend && <Legend verticalAlign="top" formatter={(value: "cases" | "rate" | "deaths") => value === "cases" ? "Anzahl" : value === "rate" ? "Fälle / 100 000" : "Todesfälle"} />}
                       </LineChart>
                     </ResponsiveContainer>
 
