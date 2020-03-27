@@ -103,13 +103,7 @@ const App = () => {
     .orderBy("timestamp", "asc")
     .orderBy("cases", "desc")
     .onSnapshot(rkicases => {
-      const docs = rkicases.docs.map(doc => {
-        const data = doc.data() as RkiData
-        return {
-          ...data,
-          state: data.state.replace(/\u00AD/g, "")
-        } as RkiData
-      })
+      const docs = rkicases.docs.map(doc => ({ ...doc.data() }) as RkiData)
       const states = new Set(docs.map(({ state }) => state))
 
       const newCases = new Map()
@@ -119,7 +113,6 @@ const App = () => {
     , [])
 
   return (
-
     <div className={classes.app}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -192,7 +185,6 @@ const App = () => {
         </Container>
       </ThemeProvider >
     </div>
-
   );
 }
 
