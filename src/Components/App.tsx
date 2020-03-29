@@ -17,13 +17,12 @@ import { amber, red, teal } from '@material-ui/core/colors'
 import Skeleton from '@material-ui/lab/Skeleton'
 import clsx from 'clsx'
 import { scaleSymlog } from 'd3-scale'
-import firebase from 'firebase'
 import { Calendar, Percent, Sigma, Skull } from 'mdi-material-ui'
 import React, { useEffect, useState } from 'react'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
 
 import { CasesByState, RkiData, Settings as SettingsModel, Summary } from '../model/model'
-import { createDateFromTimestamp } from '../services/firebase'
+import { createDateFromTimestamp, firestore } from '../services/firebase'
 import Themeprovider from './Provider/Themeprovider'
 import Settings from './Settings/Settings'
 
@@ -95,8 +94,7 @@ const App = () => {
 
     useEffect(
         () =>
-            firebase
-                .firestore()
+            firestore
                 .collection('rkicases')
                 .orderBy('state', 'asc')
                 .orderBy('timestamp', 'asc')
@@ -118,8 +116,7 @@ const App = () => {
 
     useEffect(
         () =>
-            firebase
-                .firestore()
+            firestore
                 .collection('rkicases')
                 .orderBy('timestamp', 'desc')
                 .limit(16)
