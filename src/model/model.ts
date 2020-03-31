@@ -2,7 +2,7 @@ export interface RkiData {
     id: string
     state: string
     cases: number
-    delta: string
+    delta: number
     rate: number
     deaths: number
     mostAffected: string

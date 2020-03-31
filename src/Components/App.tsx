@@ -70,15 +70,7 @@ const App = () => {
                 .orderBy('state', 'asc')
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snapshot => {
-                    const docs = snapshot.docs.map(doc => {
-                        const data = doc.data() as RkiData
-                        return {
-                            ...data,
-                            delta: Number(
-                                data.delta.replace('*', '').replace('+', '').replace('.', '')
-                            ),
-                        }
-                    })
+                    const docs = snapshot.docs.map(doc => ({ ...doc.data() } as RkiData))
                     const states = new Set(docs.map(({ state }) => state))
 
                     const newCases = new Map()
@@ -115,13 +107,7 @@ const App = () => {
                             docs.reduce((acc, doc) => (acc += doc.rate), 0) / docs.length
                         ),
                         deaths: docs.reduce((acc, doc) => (acc += doc.deaths), 0),
-                        delta: docs.reduce(
-                            (acc, doc) =>
-                                (acc += Number(
-                                    doc.delta.replace('*', '').replace('+', '').replace('.', '')
-                                )),
-                            0
-                        ),
+                        delta: docs.reduce((acc, doc) => (acc += doc.delta), 0),
                     })
                 }),
         [enabledStates]
