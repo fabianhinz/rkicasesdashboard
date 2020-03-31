@@ -5,12 +5,13 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from './Components/App'
+import Themeprovider from './Components/Provider/Themeprovider'
 import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
-    <React.StrictMode>
+    <Themeprovider>
         <App />
-    </React.StrictMode>,
+    </Themeprovider>,
     document.getElementById('root')
 )
 
