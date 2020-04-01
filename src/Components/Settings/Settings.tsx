@@ -137,6 +137,7 @@ const Settings = ({
                 <div className={classes.container}>
                     <Grid container spacing={2} direction="column">
                         <Grid item>
+                            <ListSubheader disableGutters>Bundesländer</ListSubheader>
                             <Grid container spacing={2}>
                                 {states.map(state => (
                                     <Grid item key={state}>
@@ -151,9 +152,7 @@ const Settings = ({
                         </Grid>
 
                         <Grid item>
-                            <ListSubheader disableSticky disableGutters>
-                                Diagramm
-                            </ListSubheader>
+                            <ListSubheader disableGutters>Ansicht</ListSubheader>
                             <List disablePadding>
                                 <ListItem disableGutters>
                                     <ListItemIcon>
@@ -185,11 +184,6 @@ const Settings = ({
                                     </ListItemIcon>
                                     <ListItemText primary="Legende" />
                                 </ListItem>
-                            </List>
-                            <ListSubheader disableSticky disableGutters>
-                                Sonstiges
-                            </ListSubheader>
-                            <List disablePadding>
                                 <ListItem disableGutters>
                                     <ListItemIcon>
                                         <Switch

@@ -32,4 +32,4 @@ export interface Settings {
 export type VisibleCharts = Record<
     keyof Pick<RkiData, 'delta' | 'cases' | 'rate' | 'deaths'>,
     boolean
->
+> & { [index: string]: boolean }
