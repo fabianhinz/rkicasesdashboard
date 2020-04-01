@@ -1,7 +1,9 @@
 import { createMuiTheme, CssBaseline, PaletteType, ThemeProvider } from '@material-ui/core'
 import { amber, teal } from '@material-ui/core/colors'
-import { FC, useContext, useState } from 'react'
+import { FC, useContext, useEffect, useState } from 'react'
 import React from 'react'
+
+import { getOrThrow } from '../../services/db'
 
 const sharedTheme = createMuiTheme({
     overrides: {
@@ -61,6 +63,10 @@ export const useThemeContext = () => useContext(Context) as ThemeContext
 
 const Themeprovider: FC = ({ children }) => {
     const [theme, setTheme] = useState<PaletteType>('dark')
+
+    useEffect(() => {
+        getOrThrow<PaletteType>('theme').then(setTheme).catch(console.error)
+    }, [])
 
     return (
         <Context.Provider value={{ theme, setTheme }}>

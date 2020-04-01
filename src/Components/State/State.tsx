@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, Grid, GridSize } from '@material-ui/core
 import { amber, lime, red, teal } from '@material-ui/core/colors'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import { scaleSymlog } from 'd3-scale'
-import React from 'react'
-import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
+import React, { useMemo } from 'react'
+import { Legend, Line, LineChart, LineProps, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
 
 import { Settings, State as StateModel, StateData, VisibleCharts } from '../../model/model'
 import StateTooltip, { TooltipProps } from './StateTooltip'
@@ -25,6 +25,11 @@ const State = ({
     gridBreakpointProps,
     visibleCharts,
 }: Props) => {
+    const sharedLineProps: Partial<LineProps> = useMemo(
+        () => ({ dot: false, type: 'monotone', strokeWidth: 3 }),
+        []
+    )
+
     if (enabledStates.size > 0 && !enabledStates.has(state)) return <></>
 
     return (
@@ -32,7 +37,7 @@ const State = ({
             <Card>
                 <CardHeader title={state} />
                 <CardContent>
-                    <ResponsiveContainer height="100%" width="100%" aspect={21 / 9}>
+                    <ResponsiveContainer height="100%" width="100%" aspect={18 / 9}>
                         <LineChart data={data}>
                             <Tooltip
                                 content={({ payload, active }: TooltipProps) => (
@@ -52,31 +57,27 @@ const State = ({
 
                             <Line
                                 hide={!visibleCharts.delta}
-                                type="monotone"
                                 stroke={lime.A400}
-                                strokeWidth={3}
                                 dataKey="delta"
+                                {...sharedLineProps}
                             />
                             <Line
                                 hide={!visibleCharts.cases}
-                                type="monotone"
                                 stroke={amber.A400}
-                                strokeWidth={3}
                                 dataKey="cases"
+                                {...sharedLineProps}
                             />
                             <Line
                                 hide={!visibleCharts.rate}
-                                type="monotone"
                                 stroke={teal.A400}
-                                strokeWidth={3}
                                 dataKey="rate"
+                                {...sharedLineProps}
                             />
                             <Line
                                 hide={!visibleCharts.deaths}
-                                type="monotone"
                                 stroke={red.A400}
-                                strokeWidth={3}
                                 dataKey="deaths"
+                                {...sharedLineProps}
                             />
 
                             {settings.showLegend && (

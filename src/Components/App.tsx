@@ -21,6 +21,7 @@ import {
     Summary as SummaryModel,
     VisibleCharts,
 } from '../model/model'
+import { getOrThrow } from '../services/db'
 import { createDateFromTimestamp, firestore } from '../services/firebase'
 import Settings from './Settings/Settings'
 import State from './State/State'
@@ -62,6 +63,12 @@ const App = () => {
     })
 
     const classes = useStyles()
+
+    useEffect(() => {
+        getOrThrow<SettingsModel>('settings').then(setSettings).catch(console.error)
+        getOrThrow<Set<string>>('enabledStates').then(setEnabledStates).catch(console.error)
+        getOrThrow<VisibleCharts>('visibleCharts').then(setVisibleCharts).catch(console.error)
+    }, [])
 
     useEffect(
         () =>
@@ -150,16 +157,20 @@ const App = () => {
                     ))}
 
                     {casesByState.size === 0 &&
-                        new Array(16).fill(1).map((_dummy, index) => (
-                            <Grid item {...gridBreakpointProps} key={index}>
-                                <Card elevation={4}>
-                                    <CardHeader title={<Skeleton variant="text" width="40%" />} />
-                                    <CardContent>
-                                        <Skeleton variant="rect" width="100%" height={280} />
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                        new Array(enabledStates.size > 0 ? enabledStates.size : 16)
+                            .fill(1)
+                            .map((_dummy, index) => (
+                                <Grid item {...gridBreakpointProps} key={index}>
+                                    <Card elevation={4}>
+                                        <CardHeader
+                                            title={<Skeleton variant="text" width="40%" />}
+                                        />
+                                        <CardContent>
+                                            <Skeleton variant="rect" width="100%" height={280} />
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            ))}
 
                     <Grid item xs={12}>
                         <Divider />

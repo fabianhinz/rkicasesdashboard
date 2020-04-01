@@ -4,6 +4,7 @@ import { AccountMultiple, ChartTimelineVariant, Sigma, Skull } from 'mdi-materia
 import React from 'react'
 
 import { Summary as SummaryModel, VisibleCharts } from '../../model/model'
+import db from '../../services/db'
 import SummaryPaper from './SummaryPaper'
 
 const useStyles = makeStyles(theme =>
@@ -29,8 +30,12 @@ interface Props {
 const Summary = ({ onVisibleChartsChange, summary, visibleCharts }: Props) => {
     const classes = useStyles()
 
-    const handleSummaryClick = (key: keyof VisibleCharts) => () =>
-        onVisibleChartsChange({ ...visibleCharts, [key]: !visibleCharts[key] })
+    const handleSummaryClick = (key: keyof VisibleCharts) => () => {
+        const newVisibleCharts = { ...visibleCharts, [key]: !visibleCharts[key] }
+        onVisibleChartsChange(newVisibleCharts)
+
+        db.data.put(newVisibleCharts, 'visibleCharts')
+    }
 
     return (
         <Grid container justify="center" spacing={2} className={classes.containerSummary}>
