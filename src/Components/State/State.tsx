@@ -3,9 +3,19 @@ import { amber, lime, red, teal } from '@material-ui/core/colors'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import { scaleSymlog } from 'd3-scale'
 import React, { useMemo } from 'react'
-import { Legend, Line, LineChart, LineProps, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
+import {
+    Legend,
+    Line,
+    LineChart,
+    LineProps,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
 
 import { Settings, State as StateModel, StateData, VisibleCharts } from '../../model/model'
+import { createDateFromTimestamp } from '../../services/firebase'
 import StateTooltip, { TooltipProps } from './StateTooltip'
 
 interface Props {
@@ -37,7 +47,7 @@ const State = ({
             <Card>
                 <CardHeader title={state} />
                 <CardContent>
-                    <ResponsiveContainer height="100%" width="100%" aspect={18 / 9}>
+                    <ResponsiveContainer width="100%" aspect={3}>
                         <LineChart data={data}>
                             <Tooltip
                                 content={({ payload, active }: TooltipProps) => (
@@ -53,6 +63,13 @@ const State = ({
                                 hide={!settings.showAxis}
                                 scale={settings.log ? scaleSymlog() : 'auto'}
                                 orientation="left"
+                            />
+                            <XAxis
+                                dataKey="delta"
+                                tickFormatter={props => {
+                                    console.log(props)
+                                    return undefined
+                                }}
                             />
 
                             <Line
