@@ -2,35 +2,61 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport"
-    content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover" />
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover" />
 
-  <link rel="preconnect" href="https://firebasestorage.googleapis.com">
-  <link rel="preconnect" href="https://www.googleapis.com">
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+    <link rel="preconnect" href="https://www.googleapis.com">
 
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
 
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <script async src="https://cdn.jsdelivr.net/npm/pwacompat@2.0.9/pwacompat.min.js"
-    integrity="sha384-VcI6S+HIsE80FVM1jgbd6WDFhzKYA0PecD/LcIyMQpT4fMJdijBh0I7Iblaacawc"
-    crossorigin="anonymous"></script>
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script async src="https://cdn.jsdelivr.net/npm/pwacompat@2.0.9/pwacompat.min.js"
+        integrity="sha384-VcI6S+HIsE80FVM1jgbd6WDFhzKYA0PecD/LcIyMQpT4fMJdijBh0I7Iblaacawc"
+        crossorigin="anonymous"></script>
 
-  <title>rkicasesdashboard</title>
+    <title>rkicasesdashboard</title>
 </head>
 <style>
-  #root {
-    padding-top: env(safe-area-inset-top);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+    #root {
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    @media (pointer: fine) {
+        ::-webkit-scrollbar {
+            background-color: #00000000;
+            width: 0.5em;
+            height: 0.5em;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #757575;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-button {
+            display: none;
+        }
+    }
+
+    body {
+        margin: 0;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    html {
+        min-height: 100vh;
+    }
 </style>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
 </body>
 
 </html>

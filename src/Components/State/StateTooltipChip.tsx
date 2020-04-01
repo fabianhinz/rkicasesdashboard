@@ -7,6 +7,8 @@ const useStyles = makeStyles(theme =>
     createStyles({
         root: {
             backgroundColor: ({ backgroundColor }: StyleProps) => backgroundColor,
+            width: '100%',
+            justifyContent: 'flex-start',
         },
         icon: {
             color: ({ backgroundColor }: StyleProps) =>

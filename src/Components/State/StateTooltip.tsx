@@ -1,4 +1,4 @@
-import { Box, Card, CardHeader, Divider, Grid } from '@material-ui/core'
+import { Box, Card, CardHeader, createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
 import { amber, lime, red, teal } from '@material-ui/core/colors'
 import { AccountMultiple, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React, { ReactText } from 'react'
@@ -6,6 +6,14 @@ import React, { ReactText } from 'react'
 import { RkiData, VisibleCharts } from '../../model/model'
 import { createDateFromTimestamp } from '../../services/firebase'
 import StateTooltipChip from './StateTooltipChip'
+
+const useStyles = makeStyles(() =>
+    createStyles({
+        card: {
+            width: 250,
+        },
+    })
+)
 
 export interface TooltipProps {
     active: boolean
@@ -19,6 +27,8 @@ export interface TooltipProps {
 }
 
 const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
+    const classes = useStyles()
+
     if (!active || payload.length < 1) return <></>
 
     const values = {
@@ -29,7 +39,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
     }
 
     return (
-        <Card elevation={8}>
+        <Card elevation={8} className={classes.card}>
             <CardHeader
                 title={
                     <>
@@ -41,7 +51,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
             <Box padding={2}>
                 <Grid container spacing={1}>
                     {visibleCharts.cases && (
-                        <Grid item>
+                        <Grid item xs={6}>
                             <StateTooltipChip
                                 backgroundColor={amber.A400}
                                 icon={<Sigma />}
@@ -51,7 +61,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.delta && (
-                        <Grid item>
+                        <Grid item xs={6}>
                             <StateTooltipChip
                                 backgroundColor={lime.A400}
                                 icon={<ChartTimelineVariant />}
@@ -61,7 +71,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.rate && (
-                        <Grid item>
+                        <Grid item xs={6}>
                             <StateTooltipChip
                                 backgroundColor={teal.A400}
                                 icon={<AccountMultiple />}
@@ -71,7 +81,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.deaths && (
-                        <Grid item>
+                        <Grid item xs={6}>
                             <StateTooltipChip
                                 backgroundColor={red.A400}
                                 icon={<Skull />}
