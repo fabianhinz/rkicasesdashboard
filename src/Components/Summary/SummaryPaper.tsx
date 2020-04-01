@@ -2,7 +2,7 @@ import { ButtonBase, createStyles, makeStyles, Paper, Typography } from '@materi
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { ReactText } from 'react'
 
-type StyleProps = Pick<Props, 'backgroundColor' | 'selected'>
+type StyleProps = Pick<Props, 'backgroundColor' | 'selected' | 'legend'>
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -10,8 +10,8 @@ const useStyles = makeStyles(theme =>
             padding: theme.spacing(2),
             boxShadow: ({ selected }: StyleProps) =>
                 selected ? theme.shadows[4] : theme.shadows[1],
-            minHeight: 90,
-            minWidth: 160,
+            height: ({ legend }: StyleProps) => (legend ? 110 : 90),
+            width: 160,
             transition: theme.transitions.create('all', {
                 easing: theme.transitions.easing.easeOut,
             }),
@@ -28,25 +28,29 @@ const useStyles = makeStyles(theme =>
 
 interface Props {
     value?: ReactText
+    legend?: string
     onClick: () => void
     selected: boolean
     icon: JSX.Element
     backgroundColor: string
 }
 
-const SummaryPaper = ({ onClick, value, icon, selected, backgroundColor }: Props) => {
-    const classes = useStyles({ backgroundColor, selected })
+const SummaryPaper = ({ onClick, legend, value, icon, selected, backgroundColor }: Props) => {
+    const classes = useStyles({ backgroundColor, selected, legend })
 
     return (
         <ButtonBase className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
                 {icon}
-
                 {value ? (
-                    <Typography variant="h6">{value}</Typography>
+                    <Typography gutterBottom variant="h6">
+                        {value}
+                    </Typography>
                 ) : (
-                    <Skeleton variant="text" width="100%" height={30} />
+                    <Skeleton variant="text" width="100%" height={39} />
                 )}
+
+                {legend && <Typography variant="caption">{legend}</Typography>}
             </Paper>
         </ButtonBase>
     )

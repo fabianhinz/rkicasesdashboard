@@ -11,7 +11,7 @@ import {
     makeStyles,
 } from '@material-ui/core'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
-import Skeleton from '@material-ui/lab/Skeleton'
+import { Skeleton } from '@material-ui/lab'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import {
@@ -35,9 +35,11 @@ const useStyles = makeStyles(theme =>
             userSelect: 'none',
         },
         itemSummary: {
-            position: 'sticky',
-            top: 'calc(env(safe-area-inset-top) + 12px)',
-            zIndex: theme.zIndex.appBar,
+            [theme.breakpoints.up('md')]: {
+                position: 'sticky',
+                top: 'calc(env(safe-area-inset-top) + 12px)',
+                zIndex: theme.zIndex.appBar,
+            },
         },
         paperLegend: {
             padding: theme.spacing(2),
@@ -125,8 +127,8 @@ const App = () => {
             settings.grid
                 ? {
                       xs: 12,
-                      sm: 6,
-                      lg: 4,
+                      md: 6,
+                      xl: 4,
                   }
                 : { xs: 12 },
         [settings.grid]
@@ -139,12 +141,13 @@ const App = () => {
                     <Grid item xs={12} className={classes.itemSummary}>
                         <Summary
                             summary={summary}
+                            settings={settings}
                             visibleCharts={visibleCharts}
                             onVisibleChartsChange={setVisibleCharts}
                         />
                     </Grid>
 
-                    {[...casesByState.entries()].map(([state, data]) => (
+                    {[...casesByState.entries()].map(([state, data], index) => (
                         <State
                             state={state}
                             data={data}
