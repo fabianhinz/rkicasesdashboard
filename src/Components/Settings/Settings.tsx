@@ -19,6 +19,7 @@ import { Close, Settings as SettingsIcon, WeatherNight, WeatherSunny } from 'mdi
 import React, { useState } from 'react'
 
 import { Settings as SettingsModel } from '../../model/model'
+import db from '../../services/db'
 import { useThemeContext } from '../Provider/Themeprovider'
 
 const useStyles = makeStyles(theme =>
@@ -93,7 +94,10 @@ const Settings = ({
         _e: React.ChangeEvent<HTMLInputElement>,
         value: boolean
     ) => {
-        onSettingsChange({ ...settings, [key]: value })
+        const newSettings = { ...settings, [key]: value }
+        onSettingsChange(newSettings)
+
+        db.data.put(newSettings, 'settings')
     }
 
     const closeDialog = () => setOpen(false)
@@ -103,12 +107,17 @@ const Settings = ({
             if (prev.has(state)) prev.delete(state)
             else prev.add(state)
 
+            db.data.put(prev, 'enabledStates')
             return new Set(prev)
         })
     }
 
     const handleThemeFabClick = () => {
-        setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))
+        setTheme(prev => {
+            const newTheme = prev === 'dark' ? 'light' : 'dark'
+            db.data.put(newTheme, 'theme')
+            return newTheme
+        })
     }
 
     return (
