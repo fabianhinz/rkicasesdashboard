@@ -16,7 +16,4 @@ firebase.initializeApp(firebaseConfig)
 const firestore = firebase.firestore()
 firestore.enablePersistence({ synchronizeTabs: true })
 
-const createDateFromTimestamp = (timestamp: firebase.firestore.Timestamp) =>
-    new firebase.firestore.Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate()
-
-export { createDateFromTimestamp, firestore }
+export { firestore }

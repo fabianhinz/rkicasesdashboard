@@ -1,5 +1,5 @@
 import { createMuiTheme, CssBaseline, PaletteType, ThemeProvider } from '@material-ui/core'
-import { amber, teal } from '@material-ui/core/colors'
+import { blue, green, lightBlue, lightGreen } from '@material-ui/core/colors'
 import { FC, useContext, useEffect, useState } from 'react'
 import React from 'react'
 
@@ -37,8 +37,8 @@ const sharedTheme = createMuiTheme({
 const lightTheme = createMuiTheme({
     ...sharedTheme,
     palette: {
-        primary: amber,
-        secondary: teal,
+        primary: green,
+        secondary: blue,
         type: 'light',
     },
 })
@@ -46,8 +46,8 @@ const lightTheme = createMuiTheme({
 const darkTheme = createMuiTheme({
     ...sharedTheme,
     palette: {
-        primary: amber,
-        secondary: teal,
+        primary: lightGreen,
+        secondary: lightBlue,
         type: 'dark',
     },
 })

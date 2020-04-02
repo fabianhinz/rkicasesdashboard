@@ -1,10 +1,11 @@
 import {
+    Button,
+    Checkbox,
     Chip,
     createStyles,
     Drawer,
     Fab,
     Grid,
-    IconButton,
     List,
     ListItem,
     ListItemIcon,
@@ -15,11 +16,13 @@ import {
     Typography,
     useMediaQuery,
 } from '@material-ui/core'
-import { Close, Settings as SettingsIcon, WeatherNight, WeatherSunny } from 'mdi-material-ui'
-import React, { useState } from 'react'
+import { Close, Eye, WeatherNight, WeatherSunny } from 'mdi-material-ui'
+import React from 'react'
 
 import { Settings as SettingsModel } from '../../model/model'
 import db from '../../services/db'
+import { useConfigContext } from '../Provider/Configprovider'
+import { useDataContext } from '../Provider/Dataprovider'
 import { useThemeContext } from '../Provider/Themeprovider'
 
 const useStyles = makeStyles(theme =>
@@ -33,12 +36,7 @@ const useStyles = makeStyles(theme =>
             boxShadow: theme.shadows[0],
         },
         paper: {
-            [theme.breakpoints.between('xs', 'md')]: {
-                width: 320,
-            },
-            [theme.breakpoints.up('lg')]: {
-                width: 425,
-            },
+            width: 320,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -69,47 +67,36 @@ const useStyles = makeStyles(theme =>
     })
 )
 
-interface Props extends SettingsModel {
-    states: string[]
-    enabledStates: Set<string>
-    onEnabledStatesChange: React.Dispatch<React.SetStateAction<Set<string>>>
-    onSettingsChange: (model: SettingsModel) => void
+interface Props {
+    open: boolean
+    onOpenChange: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Settings = ({
-    states,
-    enabledStates,
-    onEnabledStatesChange,
-    onSettingsChange,
-    ...settings
-}: Props) => {
-    // ? max width of Container + 425 paper width
-    const highRes = useMediaQuery('(min-width: 2860px)')
-    const [open, setOpen] = useState(false)
+const Settings = ({ open, onOpenChange }: Props) => {
+    const { theme, setTheme } = useThemeContext()
+    const { data } = useDataContext()
+    const { config, configDispatch } = useConfigContext()
+
     const classes = useStyles()
 
-    const { theme, setTheme } = useThemeContext()
+    const lowRes = useMediaQuery('(max-width: 768px)')
 
     const handleChange = (key: Partial<keyof SettingsModel>) => (
         _e: React.ChangeEvent<HTMLInputElement>,
         value: boolean
     ) => {
-        const newSettings = { ...settings, [key]: value }
-        onSettingsChange(newSettings)
-
-        db.data.put(newSettings, 'settings')
+        const settings = { ...config.settings, [key]: value }
+        configDispatch({ type: 'settingsChange', settings })
+        db.data.put(settings, 'settings')
     }
 
-    const closeDialog = () => setOpen(false)
-
     const handleChipClick = (state: string) => () => {
-        onEnabledStatesChange(prev => {
-            if (prev.has(state)) prev.delete(state)
-            else prev.add(state)
+        const enabledStates = new Set(config.enabledStates)
+        if (enabledStates.has(state)) enabledStates.delete(state)
+        else enabledStates.add(state)
 
-            db.data.put(prev, 'enabledStates')
-            return new Set(prev)
-        })
+        db.data.put(enabledStates, 'enabledStates')
+        configDispatch({ type: 'enabledStatesChange', enabledStates })
     }
 
     const handleThemeFabClick = () => {
@@ -120,16 +107,26 @@ const Settings = ({
         })
     }
 
+    const handleSelectAllBtnClick = () => {
+        const enabledStates: Set<string> =
+            config.enabledStates.size === 16 ? new Set() : new Set(data.byState.keys())
+        db.data.put(enabledStates, 'enabledStates')
+        configDispatch({
+            type: 'enabledStatesChange',
+            enabledStates,
+        })
+    }
+
     return (
         <>
             <Drawer
                 PaperProps={{ className: classes.paper }}
-                variant={highRes ? 'persistent' : 'temporary'}
+                variant={lowRes ? 'temporary' : 'persistent'}
                 anchor="right"
                 open={open}
-                onClose={closeDialog}>
+                onClose={() => onOpenChange(false)}>
                 <div className={classes.header}>
-                    <Typography variant="h6">Einstellungen</Typography>
+                    <Typography variant="h6">Fallzahlen in Deutschland</Typography>
                     <Fab onClick={handleThemeFabClick} className={classes.themeFab} size="small">
                         {theme === 'light' ? <WeatherNight /> : <WeatherSunny />}
                     </Fab>
@@ -137,14 +134,33 @@ const Settings = ({
                 <div className={classes.container}>
                     <Grid container spacing={2} direction="column">
                         <Grid item>
-                            <ListSubheader disableGutters>Bundesländer</ListSubheader>
+                            <ListSubheader disableSticky disableGutters>
+                                Bundesländer
+                            </ListSubheader>
                             <Grid container spacing={2}>
-                                {states.map(state => (
+                                <Grid item xs={12}>
+                                    <Button
+                                        fullWidth
+                                        onClick={handleSelectAllBtnClick}
+                                        startIcon={
+                                            <Checkbox
+                                                checked={config.enabledStates.size === 16}
+                                                disableRipple
+                                            />
+                                        }>
+                                        alle auswählen
+                                    </Button>
+                                </Grid>
+                                {[...data.byState.keys()].map(state => (
                                     <Grid item key={state}>
                                         <Chip
                                             label={state}
                                             onClick={handleChipClick(state)}
-                                            color={enabledStates.has(state) ? 'primary' : 'default'}
+                                            color={
+                                                config.enabledStates.has(state)
+                                                    ? 'primary'
+                                                    : 'default'
+                                            }
                                         />
                                     </Grid>
                                 ))}
@@ -152,13 +168,15 @@ const Settings = ({
                         </Grid>
 
                         <Grid item>
-                            <ListSubheader disableGutters>Ansicht</ListSubheader>
+                            <ListSubheader disableSticky disableGutters>
+                                Ansicht
+                            </ListSubheader>
                             <List disablePadding>
                                 <ListItem disableGutters>
                                     <ListItemIcon>
                                         <Switch
                                             edge="start"
-                                            checked={settings.log}
+                                            checked={config.settings.log}
                                             onChange={handleChange('log')}
                                         />
                                     </ListItemIcon>
@@ -168,7 +186,7 @@ const Settings = ({
                                     <ListItemIcon>
                                         <Switch
                                             edge="start"
-                                            checked={settings.showAxis}
+                                            checked={config.settings.showAxis}
                                             onChange={handleChange('showAxis')}
                                         />
                                     </ListItemIcon>
@@ -178,7 +196,7 @@ const Settings = ({
                                     <ListItemIcon>
                                         <Switch
                                             edge="start"
-                                            checked={settings.showLegend}
+                                            checked={config.settings.showLegend}
                                             onChange={handleChange('showLegend')}
                                         />
                                     </ListItemIcon>
@@ -188,7 +206,7 @@ const Settings = ({
                                     <ListItemIcon>
                                         <Switch
                                             edge="start"
-                                            checked={settings.grid}
+                                            checked={config.settings.grid}
                                             onChange={handleChange('grid')}
                                         />
                                     </ListItemIcon>
@@ -199,14 +217,14 @@ const Settings = ({
                     </Grid>
                 </div>
                 <div className={classes.action}>
-                    <IconButton onClick={closeDialog}>
-                        <Close />
-                    </IconButton>
+                    <Button fullWidth onClick={() => onOpenChange(false)} startIcon={<Close />}>
+                        schließen
+                    </Button>
                 </div>
             </Drawer>
 
-            <Fab className={classes.fab} onClick={() => setOpen(!open)}>
-                <SettingsIcon />
+            <Fab className={classes.fab} onClick={() => onOpenChange(true)}>
+                <Eye />
             </Fab>
         </>
     )

@@ -1,11 +1,10 @@
 export interface RkiData {
-    id: string
     state: string
     cases: number
     delta: number
     rate: number
     deaths: number
-    mostAffected: string
+    mostAffected?: string
     timestamp: firebase.firestore.Timestamp
 }
 
@@ -17,10 +16,7 @@ export interface Summary {
     delta: number
 }
 
-export type State = string
-
-export type CasesByState = Map<State, StateData>
-export type StateData = Omit<RkiData, 'state'>[]
+export type StateData = Omit<RkiData, 'state'>
 
 export interface Settings {
     log: boolean

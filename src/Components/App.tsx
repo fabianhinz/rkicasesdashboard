@@ -1,31 +1,28 @@
 import {
-    Card,
-    CardContent,
-    CardHeader,
     Container,
     createStyles,
     Divider,
     Grid,
     GridSize,
+    LinearProgress,
     Link,
     makeStyles,
+    useMediaQuery,
 } from '@material-ui/core'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
-import { Skeleton } from '@material-ui/lab'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import {
-    CasesByState,
-    RkiData,
-    Settings as SettingsModel,
-    Summary as SummaryModel,
-    VisibleCharts,
-} from '../model/model'
-import { getOrThrow } from '../services/db'
-import { createDateFromTimestamp, firestore } from '../services/firebase'
+import { RkiData, StateData } from '../model/model'
+import { firestore } from '../services/firebase'
+import { useConfigContext } from './Provider/Configprovider'
+import { useDataContext } from './Provider/Dataprovider'
 import Settings from './Settings/Settings'
 import State from './State/State'
 import Summary from './Summary/Summary'
+
+interface StyleProps {
+    settingsOpen: boolean
+}
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -41,36 +38,39 @@ const useStyles = makeStyles(theme =>
                 zIndex: theme.zIndex.appBar,
             },
         },
-        paperLegend: {
-            padding: theme.spacing(2),
+        loadingContainer: {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+        },
+        linearProgress: {
+            height: 6,
+            width: 300,
+        },
+        container: {
+            '@media(min-width: 769px) and (max-width: 2559px)': {
+                paddingRight: ({ settingsOpen }: StyleProps) => (settingsOpen ? 344 : 24),
+            },
+            '@media(min-width: 2560px)': {
+                paddingRight: 24,
+            },
         },
     })
 )
 
 const App = () => {
-    const [enabledStates, setEnabledStates] = useState<Set<string>>(new Set())
-    const [casesByState, setCasesByState] = useState<CasesByState>(new Map())
-    const [summary, setSummary] = useState<SummaryModel | null>(null)
-    const [visibleCharts, setVisibleCharts] = useState<VisibleCharts>({
-        delta: true,
-        cases: true,
-        rate: true,
-        deaths: true,
-    })
-    const [settings, setSettings] = useState<SettingsModel>({
-        log: false,
-        showAxis: false,
-        showLegend: false,
-        grid: true,
-    })
+    const { data, dataDispatch } = useDataContext()
+    const { config } = useConfigContext()
 
-    const classes = useStyles()
+    const highRes = useMediaQuery('(min-width: 1101px)')
+    const [settingsOpen, setSettingsOpen] = useState(false)
+
+    const classes = useStyles({ settingsOpen })
 
     useEffect(() => {
-        getOrThrow<SettingsModel>('settings').then(setSettings).catch(console.error)
-        getOrThrow<Set<string>>('enabledStates').then(setEnabledStates).catch(console.error)
-        getOrThrow<VisibleCharts>('visibleCharts').then(setVisibleCharts).catch(console.error)
-    }, [])
+        setSettingsOpen(highRes)
+    }, [highRes])
 
     useEffect(
         () =>
@@ -79,20 +79,35 @@ const App = () => {
                 .orderBy('state', 'asc')
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snapshot => {
-                    const docs = snapshot.docs.map(doc => ({ ...doc.data() } as RkiData))
-                    const states = new Set(docs.map(({ state }) => state))
+                    const byDay: Map<string, StateData> = new Map()
+                    const byState: Map<string, StateData[]> = new Map()
 
-                    const newCases = new Map()
-                    states.forEach(state =>
-                        newCases.set(
+                    const docs = snapshot.docs.map(doc => doc.data() as RkiData)
+
+                    new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
+                        const day = docs.filter(doc => doc.timestamp.seconds === seconds)
+
+                        byDay.set(day[0].timestamp.toDate().toLocaleDateString(), {
+                            cases: day.reduce((acc, doc) => (acc += doc.cases), 0),
+                            rate: Math.ceil(
+                                day.reduce((acc, doc) => (acc += doc.rate), 0) / day.length
+                            ),
+                            deaths: day.reduce((acc, doc) => (acc += doc.deaths), 0),
+                            delta: day.reduce((acc, doc) => (acc += doc.delta), 0),
+                            timestamp: day[0].timestamp,
+                        })
+                    })
+                    dataDispatch({ type: 'byDayChange', byDay })
+
+                    new Set(docs.map(({ state }) => state)).forEach(state =>
+                        byState.set(
                             state,
                             docs.filter(doc => doc.state === state)
                         )
                     )
-
-                    setCasesByState(newCases)
+                    dataDispatch({ type: 'byStateChange', byState })
                 }),
-        []
+        [dataDispatch]
     )
 
     useEffect(
@@ -106,74 +121,75 @@ const App = () => {
                     const docs = snapshot.docs
                         .map(doc => ({ ...doc.data() } as RkiData))
                         .filter(({ state }) =>
-                            enabledStates.size > 0 ? enabledStates.has(state) : true
+                            config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
                         )
 
-                    setSummary({
-                        lastUpdate: createDateFromTimestamp(docs[0].timestamp),
-                        cases: docs.reduce((acc, doc) => (acc += doc.cases), 0),
-                        rate: Math.ceil(
-                            docs.reduce((acc, doc) => (acc += doc.rate), 0) / docs.length
-                        ),
-                        deaths: docs.reduce((acc, doc) => (acc += doc.deaths), 0),
-                        delta: docs.reduce((acc, doc) => (acc += doc.delta), 0),
+                    dataDispatch({
+                        type: 'summaryChange',
+                        summary: {
+                            lastUpdate: docs[0].timestamp.toDate(),
+                            cases: docs.reduce((acc, doc) => (acc += doc.cases), 0),
+                            rate: Math.ceil(
+                                docs.reduce((acc, doc) => (acc += doc.rate), 0) / docs.length
+                            ),
+                            deaths: docs.reduce((acc, doc) => (acc += doc.deaths), 0),
+                            delta: docs.reduce((acc, doc) => (acc += doc.delta), 0),
+                        },
                     })
                 }),
-        [enabledStates]
+        [config.enabledStates, dataDispatch]
     )
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
-            settings.grid
+            config.settings.grid
                 ? {
                       xs: 12,
-                      md: 6,
+                      lg: 6,
                       xl: 4,
                   }
                 : { xs: 12 },
-        [settings.grid]
+        [config.settings.grid]
     )
+
+    if (data.loading)
+        return (
+            <div className={classes.loadingContainer}>
+                <LinearProgress className={classes.linearProgress} variant="query" />
+            </div>
+        )
 
     return (
         <div className={classes.app}>
-            <Container maxWidth="xl">
+            <Container maxWidth="xl" className={classes.container}>
                 <Grid container spacing={3}>
                     <Grid item xs={12} className={classes.itemSummary}>
-                        <Summary
-                            summary={summary}
-                            settings={settings}
-                            visibleCharts={visibleCharts}
-                            onVisibleChartsChange={setVisibleCharts}
-                        />
+                        <Summary />
                     </Grid>
 
-                    {[...casesByState.entries()].map(([state, data], index) => (
-                        <State
-                            state={state}
-                            data={data}
-                            settings={settings}
-                            enabledStates={enabledStates}
-                            gridBreakpointProps={gridBreakpointProps}
-                            visibleCharts={visibleCharts}
-                            key={state}
-                        />
-                    ))}
+                    {config.enabledStates.size === 0 && (
+                        <Grid item xs={12}>
+                            <State
+                                title="Deutschland"
+                                data={[...data.byDay.values()]}
+                                settings={config.settings}
+                                visibleCharts={config.visibleCharts}
+                            />
+                        </Grid>
+                    )}
 
-                    {casesByState.size === 0 &&
-                        new Array(enabledStates.size > 0 ? enabledStates.size : 16)
-                            .fill(1)
-                            .map((_dummy, index) => (
-                                <Grid item {...gridBreakpointProps} key={index}>
-                                    <Card elevation={4}>
-                                        <CardHeader
-                                            title={<Skeleton variant="text" width="40%" />}
-                                        />
-                                        <CardContent>
-                                            <Skeleton variant="rect" width="100%" height={280} />
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
+                    {[...data.byState.entries()]
+                        .filter(([state]) => config.enabledStates.has(state))
+                        .map(([state, data]) => (
+                            <Grid item {...gridBreakpointProps} key={state}>
+                                <State
+                                    title={state}
+                                    data={data}
+                                    settings={config.settings}
+                                    visibleCharts={config.visibleCharts}
+                                />
+                            </Grid>
+                        ))}
 
                     <Grid item xs={12}>
                         <Divider />
@@ -182,19 +198,33 @@ const App = () => {
                     <Grid item xs={12}>
                         <Grid container justify="center" spacing={2}>
                             <Grid item>
-                                <Link href="https://github.com/fabianhinz/rkicasesapi">
+                                <Link
+                                    target="_blank"
+                                    href="https://github.com/fabianhinz/rkicasesapi">
                                     Datenquelle
-                                    {summary && ` (${summary.lastUpdate.toLocaleDateString()})`}
+                                    {data.summary &&
+                                        ` (${data.summary.lastUpdate.toLocaleDateString()})`}
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="https://github.com/fabianhinz/rkicasesdashboard">
+                                <Link
+                                    target="_blank"
+                                    href="https://github.com/fabianhinz/rkicasesdashboard">
                                     Quellcode
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="https://www.flaticon.com/authors/freepik">
+                                <Link
+                                    target="_blank"
+                                    href="https://www.flaticon.com/authors/freepik">
                                     Icons made by Freepik
+                                </Link>
+                            </Grid>
+                            <Grid item>
+                                <Link
+                                    target="_blank"
+                                    href="http://simplemaps.com/resources/svg-maps">
+                                    Karte von simplemaps
                                 </Link>
                             </Grid>
                         </Grid>
@@ -202,13 +232,7 @@ const App = () => {
                 </Grid>
             </Container>
 
-            <Settings
-                {...settings}
-                states={[...casesByState.keys()]}
-                enabledStates={enabledStates}
-                onEnabledStatesChange={setEnabledStates}
-                onSettingsChange={setSettings}
-            />
+            <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
         </div>
     )
 }
