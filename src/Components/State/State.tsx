@@ -1,8 +1,17 @@
-import { Card, CardContent, CardHeader } from '@material-ui/core'
+import { Card, CardContent, CardHeader, useMediaQuery } from '@material-ui/core'
 import { amber, lime, red, teal } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
 import React, { useMemo } from 'react'
-import { Area, ComposedChart, Line, LineProps, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
+import {
+    Area,
+    AxisDomain,
+    ComposedChart,
+    Line,
+    LineProps,
+    ResponsiveContainer,
+    Tooltip,
+    YAxis,
+} from 'recharts'
 
 import { Settings, StateData, VisibleCharts } from '../../model/model'
 import StateTooltip, { TooltipProps } from './StateTooltip'
@@ -12,31 +21,44 @@ interface Props {
     title: string
     data: StateData[]
     visibleCharts: VisibleCharts
+    maxAxisDomain?: number
 }
 
-const State = ({ settings, data, title, visibleCharts }: Props) => {
+const State = ({ settings, data, title, visibleCharts, maxAxisDomain }: Props) => {
+    const mobileRes = useMediaQuery('(max-width: 425px)')
+
     const sharedLineProps: Partial<LineProps> = useMemo(
-        () => ({ dot: false, type: 'monotone', strokeWidth: 3 }),
+        () => ({ dot: false, type: 'monotone', strokeWidth: 3, activeDot: { r: 6 } }),
         []
+    )
+
+    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = useMemo(
+        () => (maxAxisDomain ? (settings.normalize ? [0, maxAxisDomain] : undefined) : undefined),
+        [maxAxisDomain, settings.normalize]
     )
 
     return (
         <Card>
             <CardHeader title={title} />
             <CardContent>
-                <ResponsiveContainer width="100%" aspect={2}>
-                    <ComposedChart data={data}>
+                <ResponsiveContainer width="100%" aspect={mobileRes ? 1 : 2}>
+                    <ComposedChart
+                        margin={{ bottom: 8, top: 8 }}
+                        syncId={settings.syncTooltip ? 'syncedTooltipChart' : undefined}
+                        data={data}>
                         <Tooltip
-                            content={({ payload, active }: TooltipProps) => (
-                                <StateTooltip
-                                    visibleCharts={visibleCharts}
-                                    payload={payload}
-                                    active={active}
-                                />
+                            // throws an error but works as expected - tootlip is not jumpy
+                            position={{ x: ('auto' as any) as number, y: 0 }}
+                            cursor={false}
+                            animationEasing="ease-out"
+                            content={({ payload }: TooltipProps) => (
+                                <StateTooltip visibleCharts={visibleCharts} payload={payload} />
                             )}
                         />
 
                         <YAxis
+                            type="number"
+                            domain={domain}
                             hide={!settings.showAxis}
                             scale={settings.log ? scaleSymlog() : 'auto'}
                         />

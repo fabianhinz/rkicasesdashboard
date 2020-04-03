@@ -23,6 +23,8 @@ export interface Settings {
     showAxis: boolean
     showLegend: boolean
     grid: boolean
+    syncTooltip: boolean
+    normalize: boolean
 }
 
 export type VisibleCharts = Record<
