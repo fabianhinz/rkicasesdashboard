@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme =>
             right: theme.spacing(3),
         },
         themeFab: {
+            flexShrink: 0,
             boxShadow: theme.shadows[0],
         },
         paper: {
@@ -59,8 +60,6 @@ const useStyles = makeStyles(theme =>
             overflowX: 'hidden',
         },
         action: {
-            display: 'flex',
-            justifyContent: 'space-evenly',
             padding: theme.spacing(1),
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
         },
@@ -126,7 +125,10 @@ const Settings = ({ open, onOpenChange }: Props) => {
                 open={open}
                 onClose={() => onOpenChange(false)}>
                 <div className={classes.header}>
-                    <Typography variant="h6">Fallzahlen in Deutschland</Typography>
+                    <div>
+                        <Typography variant="h6">Fallzahlen in Deutschland</Typography>
+                        <Typography color="textSecondary"> Version: {__VERSION__}</Typography>
+                    </div>
                     <Fab onClick={handleThemeFabClick} className={classes.themeFab} size="small">
                         {theme === 'light' ? <WeatherNight /> : <WeatherSunny />}
                     </Fab>
