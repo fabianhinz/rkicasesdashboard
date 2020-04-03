@@ -65,6 +65,7 @@ const App = () => {
 
     const highRes = useMediaQuery('(min-width: 1101px)')
     const [settingsOpen, setSettingsOpen] = useState(false)
+    const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
     const classes = useStyles({ settingsOpen })
 
@@ -136,8 +137,18 @@ const App = () => {
                             delta: docs.reduce((acc, doc) => (acc += doc.delta), 0),
                         },
                     })
+
+                    if (config.enabledStates.size === 0) return
+                    // ? lets get our domain data (the max value of visible charts)
+                    const visibleChartsData: number[][] = docs.map(data =>
+                        Object.keys(data)
+                            .map(key => (config.visibleCharts[key] ? (data as any)[key] : false))
+                            .filter(Boolean)
+                    )
+
+                    setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
                 }),
-        [config.enabledStates, dataDispatch]
+        [config.enabledStates, dataDispatch, config.visibleCharts]
     )
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
@@ -187,6 +198,7 @@ const App = () => {
                                     data={data}
                                     settings={config.settings}
                                     visibleCharts={config.visibleCharts}
+                                    maxAxisDomain={maxAxisDomain}
                                 />
                             </Grid>
                         ))}

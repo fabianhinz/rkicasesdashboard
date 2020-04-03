@@ -15,9 +15,7 @@ const useStyles = makeStyles(() =>
 )
 
 export interface TooltipProps {
-    active: boolean
     payload?: {
-        color: string
         value: ReactText
         payload: RkiData
         dataKey: Partial<keyof RkiData>
@@ -25,10 +23,10 @@ export interface TooltipProps {
     visibleCharts: VisibleCharts
 }
 
-const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
+const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
     const classes = useStyles()
 
-    if (!active || !payload || payload.length < 1) return <></>
+    if (!payload || payload.length < 1) return <></>
 
     const values = {
         delta: payload.find(data => data.dataKey === 'delta')?.value,
@@ -42,9 +40,9 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
             <CardHeader title={<>{payload[0].payload.timestamp.toDate().toLocaleDateString()}</>} />
             <Divider variant="middle" />
             <Box padding={2}>
-                <Grid container spacing={1}>
+                <Grid container direction="column" spacing={1}>
                     {visibleCharts.cases && (
-                        <Grid item xs={6} md={12}>
+                        <Grid item>
                             <StateTooltipChip
                                 backgroundColor={amber.A400}
                                 icon={<Sigma />}
@@ -54,7 +52,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.delta && (
-                        <Grid item xs={6} md={12}>
+                        <Grid item>
                             <StateTooltipChip
                                 backgroundColor={lime.A400}
                                 icon={<ChartTimelineVariant />}
@@ -64,7 +62,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.rate && (
-                        <Grid item xs={6} md={12}>
+                        <Grid item>
                             <StateTooltipChip
                                 backgroundColor={teal.A400}
                                 icon={<AccountMultiple />}
@@ -74,7 +72,7 @@ const StateTooltip = ({ active, payload, visibleCharts }: TooltipProps) => {
                     )}
 
                     {visibleCharts.deaths && (
-                        <Grid item xs={6} md={12}>
+                        <Grid item>
                             <StateTooltipChip
                                 backgroundColor={red.A400}
                                 icon={<Skull />}

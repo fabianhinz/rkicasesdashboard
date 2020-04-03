@@ -37,6 +37,11 @@ const sharedTheme = createMuiTheme({
                 justifyContent: 'center',
             },
         },
+        MuiButton: {
+            root: {
+                borderRadius: 20,
+            },
+        },
     },
 })
 
