@@ -1,4 +1,10 @@
-import { createMuiTheme, CssBaseline, PaletteType, ThemeProvider } from '@material-ui/core'
+import {
+    createMuiTheme,
+    CssBaseline,
+    PaletteType,
+    responsiveFontSizes,
+    ThemeProvider,
+} from '@material-ui/core'
 import { blue, green, lightBlue, lightGreen } from '@material-ui/core/colors'
 import { FC, useContext, useEffect, useState } from 'react'
 import React from 'react'
@@ -34,23 +40,27 @@ const sharedTheme = createMuiTheme({
     },
 })
 
-const lightTheme = createMuiTheme({
-    ...sharedTheme,
-    palette: {
-        primary: green,
-        secondary: blue,
-        type: 'light',
-    },
-})
+const lightTheme = responsiveFontSizes(
+    createMuiTheme({
+        ...sharedTheme,
+        palette: {
+            primary: green,
+            secondary: blue,
+            type: 'light',
+        },
+    })
+)
 
-const darkTheme = createMuiTheme({
-    ...sharedTheme,
-    palette: {
-        primary: lightGreen,
-        secondary: lightBlue,
-        type: 'dark',
-    },
-})
+const darkTheme = responsiveFontSizes(
+    createMuiTheme({
+        ...sharedTheme,
+        palette: {
+            primary: lightGreen,
+            secondary: lightBlue,
+            type: 'dark',
+        },
+    })
+)
 
 interface ThemeContext {
     theme: PaletteType
