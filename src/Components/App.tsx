@@ -1,4 +1,7 @@
 import {
+    Card,
+    CardContent,
+    CardHeader,
     Container,
     createStyles,
     Divider,
@@ -9,6 +12,7 @@ import {
     useMediaQuery,
 } from '@material-ui/core'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
+import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { useConfigContext } from './Provider/Configprovider'
@@ -129,6 +133,18 @@ const App = () => {
                                     visibleCharts={config.visibleCharts}
                                     maxAxisDomain={maxAxisDomain}
                                 />
+                            </Grid>
+                        ))}
+
+                    {data.byState.size === 0 &&
+                        new Array(config.enabledStates.size).fill(1).map((_dummy, index) => (
+                            <Grid item {...gridBreakpointProps} key={index}>
+                                <Card>
+                                    <CardHeader title={<Skeleton variant="text" width="60%" />} />
+                                    <CardContent>
+                                        <Skeleton variant="rect" width="100%" height={350} />
+                                    </CardContent>
+                                </Card>
                             </Grid>
                         ))}
 
