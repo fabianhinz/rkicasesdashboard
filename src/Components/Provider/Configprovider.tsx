@@ -17,17 +17,33 @@ export const useConfigContext = () => useContext(Context) as Context
 const Configprovider: FC = ({ children }) => {
     const [config, configDispatch] = useConfigReducer()
 
-    const getInitialConfig = useCallback(async () => {
-        try {
-            configDispatch({
-                type: 'init',
-                enabledStates: await getOrThrow<Set<string>>('enabledStates'),
-                visibleCharts: await getOrThrow<VisibleCharts>('visibleCharts'),
-                settings: await getOrThrow<Settings>('settings'),
-            })
-        } catch {
-            // ? Promise rejected: we just didn't save anything in the IndexedDB - yet
-        }
+    const getInitialConfig = useCallback(() => {
+        getOrThrow<Set<string>>('enabledStates')
+            .then(enabledStates =>
+                configDispatch({
+                    type: 'enabledStatesChange',
+                    enabledStates,
+                })
+            )
+            .catch(console.error)
+
+        getOrThrow<VisibleCharts>('visibleCharts')
+            .then(visibleCharts =>
+                configDispatch({
+                    type: 'visibleChartsChange',
+                    visibleCharts,
+                })
+            )
+            .catch(console.error)
+
+        getOrThrow<Settings>('settings')
+            .then(settings =>
+                configDispatch({
+                    type: 'settingsChange',
+                    settings,
+                })
+            )
+            .catch(console.error)
     }, [configDispatch])
 
     useEffect(() => {
