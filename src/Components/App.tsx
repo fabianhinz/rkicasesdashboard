@@ -4,7 +4,6 @@ import {
     Divider,
     Grid,
     GridSize,
-    LinearProgress,
     Link,
     makeStyles,
     useMediaQuery,
@@ -12,8 +11,6 @@ import {
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { RkiData, StateData } from '../model/model'
-import { firestore } from '../services/firebase'
 import { useConfigContext } from './Provider/Configprovider'
 import { useDataContext } from './Provider/Dataprovider'
 import Settings from './Settings/Settings'
@@ -37,16 +34,6 @@ const useStyles = makeStyles(theme =>
                 top: 'calc(env(safe-area-inset-top) + 12px)',
                 zIndex: theme.zIndex.appBar,
             },
-        },
-        loadingContainer: {
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-        },
-        linearProgress: {
-            height: 6,
-            width: 300,
         },
         container: {
             '@media(min-width: 769px) and (max-width: 2559px)': {
@@ -73,83 +60,32 @@ const App = () => {
         setSettingsOpen(highRes)
     }, [highRes])
 
-    useEffect(
-        () =>
-            firestore
-                .collection('rkicases')
-                .orderBy('state', 'asc')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    const byDay: Map<string, StateData> = new Map()
-                    const byState: Map<string, StateData[]> = new Map()
+    useEffect(() => {
+        const today = data.today.filter(({ state }) =>
+            config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
+        )
 
-                    const docs = snapshot.docs.map(doc => doc.data() as RkiData)
+        dataDispatch({
+            type: 'summaryChange',
+            summary: {
+                lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
+                cases: today.reduce((acc, doc) => (acc += doc.cases), 0),
+                rate: Math.ceil(today.reduce((acc, doc) => (acc += doc.rate), 0) / today.length),
+                deaths: today.reduce((acc, doc) => (acc += doc.deaths), 0),
+                delta: today.reduce((acc, doc) => (acc += doc.delta), 0),
+            },
+        })
 
-                    new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
-                        const day = docs.filter(doc => doc.timestamp.seconds === seconds)
+        if (config.enabledStates.size === 0) return
+        // ? lets get our domain data (the max value of visible charts)
+        const visibleChartsData: number[][] = today.map(data =>
+            Object.keys(data)
+                .map(key => (config.visibleCharts[key] ? (data as any)[key] : false))
+                .filter(Boolean)
+        )
 
-                        byDay.set(day[0].timestamp.toDate().toLocaleDateString(), {
-                            cases: day.reduce((acc, doc) => (acc += doc.cases), 0),
-                            rate: Math.ceil(
-                                day.reduce((acc, doc) => (acc += doc.rate), 0) / day.length
-                            ),
-                            deaths: day.reduce((acc, doc) => (acc += doc.deaths), 0),
-                            delta: day.reduce((acc, doc) => (acc += doc.delta), 0),
-                            timestamp: day[0].timestamp,
-                        })
-                    })
-                    dataDispatch({ type: 'byDayChange', byDay })
-
-                    new Set(docs.map(({ state }) => state)).forEach(state =>
-                        byState.set(
-                            state,
-                            docs.filter(doc => doc.state === state)
-                        )
-                    )
-                    dataDispatch({ type: 'byStateChange', byState })
-                }),
-        [dataDispatch]
-    )
-
-    useEffect(
-        () =>
-            firestore
-                .collection('rkicases')
-                .orderBy('timestamp', 'desc')
-                // ? in-queries only support up to 10 filters, we have to filter on the client
-                .limit(16)
-                .onSnapshot(snapshot => {
-                    const docs = snapshot.docs
-                        .map(doc => ({ ...doc.data() } as RkiData))
-                        .filter(({ state }) =>
-                            config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
-                        )
-
-                    dataDispatch({
-                        type: 'summaryChange',
-                        summary: {
-                            lastUpdate: docs[0].timestamp.toDate(),
-                            cases: docs.reduce((acc, doc) => (acc += doc.cases), 0),
-                            rate: Math.ceil(
-                                docs.reduce((acc, doc) => (acc += doc.rate), 0) / docs.length
-                            ),
-                            deaths: docs.reduce((acc, doc) => (acc += doc.deaths), 0),
-                            delta: docs.reduce((acc, doc) => (acc += doc.delta), 0),
-                        },
-                    })
-
-                    if (config.enabledStates.size === 0) return
-                    // ? lets get our domain data (the max value of visible charts)
-                    const visibleChartsData: number[][] = docs.map(data =>
-                        Object.keys(data)
-                            .map(key => (config.visibleCharts[key] ? (data as any)[key] : false))
-                            .filter(Boolean)
-                    )
-
-                    setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
-                }),
-        [config.enabledStates, dataDispatch, config.visibleCharts]
-    )
+        setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
+    }, [config.enabledStates, config.visibleCharts, data.today, dataDispatch])
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
@@ -162,13 +98,6 @@ const App = () => {
                 : { xs: 12 },
         [config.settings.grid]
     )
-
-    if (data.loading)
-        return (
-            <div className={classes.loadingContainer}>
-                <LinearProgress className={classes.linearProgress} variant="query" />
-            </div>
-        )
 
     return (
         <div className={classes.app}>
