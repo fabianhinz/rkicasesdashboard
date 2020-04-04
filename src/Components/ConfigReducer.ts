@@ -9,9 +9,6 @@ export interface ConfigState {
 }
 
 export type ConfigActions =
-    | ({
-          type: 'init'
-      } & ConfigState)
     | {
           type: 'enabledStatesChange'
           enabledStates: Set<string>
@@ -27,9 +24,6 @@ export type ConfigActions =
 
 const reducer: Reducer<ConfigState, ConfigActions> = (state, actions) => {
     switch (actions.type) {
-        case 'init': {
-            return { ...actions }
-        }
         case 'enabledStatesChange': {
             return { ...state, enabledStates: actions.enabledStates }
         }
