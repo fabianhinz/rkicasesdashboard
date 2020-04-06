@@ -6,4 +6,6 @@
 
 ___
 
-![](./pwa.png)
+![](./examples/example-light.png)
+
+![](./examples/example-dark.png)
