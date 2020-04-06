@@ -15,6 +15,7 @@ import db from '../../services/db'
 import { useThemeContext } from '../Provider/Themeprovider'
 import SettingsDashboard from './SettingsDashboard'
 import SettingsStates from './SettingsStates'
+import SettingsSummary from './SettingsSummary'
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -96,6 +97,10 @@ const Settings = ({ open, onOpenChange }: Props) => {
                 </div>
                 <div className={classes.container}>
                     <Grid container spacing={2} direction="column">
+                        <Grid item>
+                            <SettingsSummary />
+                        </Grid>
+
                         <Grid item>
                             <SettingsStates />
                         </Grid>

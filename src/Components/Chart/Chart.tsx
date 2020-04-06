@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 
 import { Settings, StateData, VisibleCharts } from '../../model/model'
-import StateTooltip, { TooltipProps } from './StateTooltip'
+import ChartTooltip, { TooltipProps } from './ChartTooltip'
 
 interface Props {
     settings: Settings
@@ -24,7 +24,7 @@ interface Props {
     maxAxisDomain?: number
 }
 
-const State = ({ settings, data, title, visibleCharts, maxAxisDomain }: Props) => {
+const Chart = ({ settings, data, title, visibleCharts, maxAxisDomain }: Props) => {
     const mobileRes = useMediaQuery('(max-width: 425px)')
 
     const sharedLineProps: Partial<LineProps> = useMemo(
@@ -47,12 +47,10 @@ const State = ({ settings, data, title, visibleCharts, maxAxisDomain }: Props) =
                         syncId={settings.syncTooltip ? 'syncedTooltipChart' : undefined}
                         data={data}>
                         <Tooltip
-                            // throws an error but works as expected - tootlip is not jumpy
-                            position={{ x: ('auto' as any) as number, y: 0 }}
                             cursor={false}
                             animationEasing="ease-out"
                             content={({ payload }: TooltipProps) => (
-                                <StateTooltip visibleCharts={visibleCharts} payload={payload} />
+                                <ChartTooltip visibleCharts={visibleCharts} payload={payload} />
                             )}
                         />
 
@@ -96,4 +94,4 @@ const State = ({ settings, data, title, visibleCharts, maxAxisDomain }: Props) =
     )
 }
 
-export default State
+export default Chart

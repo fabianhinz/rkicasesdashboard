@@ -1,3 +1,5 @@
+import { ReactText } from 'react'
+
 export interface RkiData {
     state: string
     cases: number
@@ -8,12 +10,9 @@ export interface RkiData {
     timestamp: firebase.firestore.Timestamp
 }
 
-export interface Summary {
+export interface Summary
+    extends Record<keyof Pick<RkiData, 'delta' | 'cases' | 'rate' | 'deaths'>, ReactText> {
     lastUpdate: Date
-    cases: number
-    deaths: number
-    rate: number
-    delta: number
 }
 
 export type StateData = Omit<RkiData, 'state'>
@@ -25,9 +24,7 @@ export interface Settings {
     grid: boolean
     syncTooltip: boolean
     normalize: boolean
+    percentage: boolean
 }
 
-export type VisibleCharts = Record<
-    keyof Pick<RkiData, 'delta' | 'cases' | 'rate' | 'deaths'>,
-    boolean
-> & { [index: string]: boolean }
+export type VisibleCharts = Record<keyof Omit<Summary, 'lastUpdate'>, boolean>

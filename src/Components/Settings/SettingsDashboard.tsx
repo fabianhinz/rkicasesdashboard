@@ -1,37 +1,15 @@
-import {
-    Hidden,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    ListItemTextProps,
-    ListSubheader,
-    Slide,
-    Switch,
-    SwitchProps,
-} from '@material-ui/core'
+import { Hidden, List, ListSubheader, Slide } from '@material-ui/core'
 import React from 'react'
 
 import { Settings } from '../../model/model'
 import db from '../../services/db'
 import { useConfigContext } from '../Provider/Configprovider'
-
-type DashboardListItemProps = Pick<SwitchProps, 'checked' | 'onChange'> &
-    Pick<ListItemTextProps, 'primary'>
-
-const DashboardListItem = ({ checked, onChange, primary }: DashboardListItemProps) => (
-    <ListItem disableGutters>
-        <ListItemIcon>
-            <Switch edge="start" checked={checked} onChange={onChange} />
-        </ListItemIcon>
-        <ListItemText primary={primary} />
-    </ListItem>
-)
+import SettingsListItem from './SettingsListItem'
 
 const SettingsDashboard = () => {
     const { config, configDispatch } = useConfigContext()
 
-    const handleChange = (key: Partial<keyof Settings>) => (
+    const handleChange = (key: keyof Settings) => (
         _e: React.ChangeEvent<HTMLInputElement>,
         value: boolean
     ) => {
@@ -46,40 +24,44 @@ const SettingsDashboard = () => {
                 Dashboard
             </ListSubheader>
             <List disablePadding>
-                <DashboardListItem
+                <SettingsListItem
                     checked={config.settings.log}
                     onChange={handleChange('log')}
                     primary="Log"
+                    secondary="bi-symmetric log transformation"
                 />
-                <DashboardListItem
+                <SettingsListItem
                     checked={config.settings.showAxis}
                     onChange={handleChange('showAxis')}
                     primary="Achsen"
-                />
-                <DashboardListItem
-                    checked={config.settings.showLegend}
-                    onChange={handleChange('showLegend')}
-                    primary="Legende"
+                    secondary="Y-Achsen der Diagramme"
                 />
 
-                <Slide in={config.enabledStates.size > 0} direction="left">
+                <Slide
+                    mountOnEnter
+                    unmountOnExit
+                    in={config.enabledStates.size > 0}
+                    direction="left">
                     <div>
                         <Hidden mdDown>
-                            <DashboardListItem
+                            <SettingsListItem
                                 checked={config.settings.grid}
                                 onChange={handleChange('grid')}
                                 primary="Gridansicht"
+                                secondary="Kompakte Ansicht bei hinreichend Platz"
                             />
                         </Hidden>
-                        <DashboardListItem
+                        <SettingsListItem
                             checked={config.settings.syncTooltip}
                             onChange={handleChange('syncTooltip')}
                             primary="Tooltipsync"
+                            secondary="Tooltip der Diagramme wird synchronisiert"
                         />
-                        <DashboardListItem
+                        <SettingsListItem
                             checked={config.settings.normalize}
                             onChange={handleChange('normalize')}
                             primary="Normalisieren"
+                            secondary="Einheitlicher Maßstab der Achsen"
                         />
                     </div>
                 </Slide>

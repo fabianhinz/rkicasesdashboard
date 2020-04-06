@@ -1,24 +1,27 @@
 import { ButtonBase, createStyles, makeStyles, Paper, Typography } from '@material-ui/core'
 import Skeleton from '@material-ui/lab/Skeleton'
-import React, { ReactText } from 'react'
+import React, { useMemo } from 'react'
 
-type StyleProps = Pick<Props, 'backgroundColor' | 'selected' | 'legend'>
+import { Summary } from '../../model/model'
+import { useConfigContext } from '../Provider/Configprovider'
+import { useDataContext } from '../Provider/Dataprovider'
+
+type StyleProps = Pick<Props, 'backgroundColor'> & { visible: boolean; legend?: string }
 
 const useStyles = makeStyles(theme =>
     createStyles({
         paper: {
             padding: theme.spacing(2),
-            boxShadow: ({ selected }: StyleProps) =>
-                selected ? theme.shadows[4] : theme.shadows[1],
+            boxShadow: theme.shadows[8],
             height: ({ legend }: StyleProps) => (legend ? 110 : 90),
             width: 160,
             transition: theme.transitions.create('all', {
                 easing: theme.transitions.easing.easeOut,
             }),
-            backgroundColor: ({ backgroundColor, selected }: StyleProps) =>
-                selected ? backgroundColor : theme.palette.background.paper,
-            color: ({ backgroundColor, selected }: StyleProps) =>
-                selected ? theme.palette.getContrastText(backgroundColor) : 'inherit',
+            backgroundColor: ({ backgroundColor, visible }: StyleProps) =>
+                visible ? backgroundColor : theme.palette.background.paper,
+            color: ({ backgroundColor, visible }: StyleProps) =>
+                visible ? theme.palette.getContrastText(backgroundColor) : 'inherit',
         },
         buttonBase: {
             borderRadius: 20,
@@ -27,28 +30,46 @@ const useStyles = makeStyles(theme =>
 )
 
 interface Props {
-    value?: ReactText
-    legend?: string
+    dataKey: keyof Omit<Summary, 'lastUpdate'>
     onClick: () => void
-    selected: boolean
     icon: JSX.Element
     backgroundColor: string
 }
 
-const SummaryPaper = ({ onClick, legend, value, icon, selected, backgroundColor }: Props) => {
-    const classes = useStyles({ backgroundColor, selected, legend })
+const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
+    const { config } = useConfigContext()
+    const { data } = useDataContext()
+
+    const legend = useMemo(() => {
+        if (!config.settings.showLegend) return undefined
+        switch (dataKey) {
+            case 'cases':
+                return 'Fälle'
+            case 'delta':
+                return 'Differenz zum Vortag'
+            case 'rate':
+                return 'Fälle / 100 000'
+            case 'deaths':
+                return 'Todesfälle'
+        }
+    }, [config.settings.showLegend, dataKey])
+
+    const classes = useStyles({
+        backgroundColor,
+        visible: config.visibleCharts[dataKey],
+        legend,
+    })
+
+    if (!data.summary) return <Skeleton variant="text" width="100%" height={39} />
 
     return (
         <ButtonBase className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
                 {icon}
-                {value ? (
-                    <Typography gutterBottom variant="h6">
-                        {value}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width="100%" height={39} />
-                )}
+
+                <Typography gutterBottom variant="h6">
+                    {data.summary[dataKey]}
+                </Typography>
 
                 {legend && <Typography variant="caption">{legend}</Typography>}
             </Paper>

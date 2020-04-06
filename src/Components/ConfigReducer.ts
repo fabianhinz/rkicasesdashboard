@@ -49,6 +49,7 @@ const initialState: ConfigState = {
         showAxis: true,
         showLegend: true,
         grid: true,
+        percentage: false,
         syncTooltip: true,
         normalize: true,
     },

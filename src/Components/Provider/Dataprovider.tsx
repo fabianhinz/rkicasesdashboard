@@ -40,11 +40,19 @@ const Dataprovider: FC = ({ children }) => {
             firestore
                 .collection('rkicases')
                 .orderBy('timestamp', 'desc')
-                .limit(16)
+                .limit(32)
                 .onSnapshot(snapshot => {
+                    const data = snapshot.docs.map(
+                        doc => ({ state: doc.id, ...doc.data() } as RkiData)
+                    )
+
                     dataDispatch({
                         type: 'todayChange',
-                        today: snapshot.docs.map(doc => ({ ...doc.data() } as RkiData)),
+                        today: data.slice(0, data.length / 2),
+                    })
+                    dataDispatch({
+                        type: 'yesterdayChange',
+                        yesterday: data.slice(data.length / 2),
                     })
                 }),
         [dataDispatch]
@@ -84,6 +92,7 @@ const Dataprovider: FC = ({ children }) => {
                         )
                     )
                     dataDispatch({ type: 'byStateChange', byState })
+                    dataDispatch({ type: 'loadingChange', loading: false })
                 }),
         [dataDispatch]
     )

@@ -15,10 +15,12 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
+import { RkiData, Summary as SummaryModel } from '../model/model'
+import { percentageOf, summUp } from '../services/utility'
+import Chart from './Chart/Chart'
 import { useConfigContext } from './Provider/Configprovider'
 import { useDataContext } from './Provider/Dataprovider'
 import Settings from './Settings/Settings'
-import State from './State/State'
 import Summary from './Summary/Summary'
 
 interface StyleProps {
@@ -65,31 +67,56 @@ const App = () => {
     }, [highRes])
 
     useEffect(() => {
-        const today = data.today.filter(({ state }) =>
+        const forEnabledStates = ({ state }: RkiData) =>
             config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
-        )
+
+        const today = data.today.filter(forEnabledStates)
+
+        let summary: SummaryModel = {
+            lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
+            cases: summUp(today, 'cases'),
+            rate: Math.trunc(summUp(today, 'rate') / today.length),
+            deaths: summUp(today, 'deaths'),
+            delta: summUp(today, 'delta'),
+        }
+
+        if (config.settings.percentage) {
+            const yesterday = data.yesterday.filter(forEnabledStates)
+            summary = {
+                ...summary,
+                cases: percentageOf(summary.cases as number, summUp(yesterday, 'cases')),
+                rate: percentageOf(
+                    summary.rate as number,
+                    summUp(yesterday, 'rate') / yesterday.length
+                ),
+                deaths: percentageOf(summary.deaths as number, summUp(yesterday, 'deaths')),
+                delta: percentageOf(summary.delta as number, summUp(yesterday, 'delta')),
+            }
+        }
 
         dataDispatch({
             type: 'summaryChange',
-            summary: {
-                lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
-                cases: today.reduce((acc, doc) => (acc += doc.cases), 0),
-                rate: Math.ceil(today.reduce((acc, doc) => (acc += doc.rate), 0) / today.length),
-                deaths: today.reduce((acc, doc) => (acc += doc.deaths), 0),
-                delta: today.reduce((acc, doc) => (acc += doc.delta), 0),
-            },
+            summary,
         })
 
         if (config.enabledStates.size === 0) return
         // ? lets get our domain data (the max value of visible charts)
         const visibleChartsData: number[][] = today.map(data =>
             Object.keys(data)
-                .map(key => (config.visibleCharts[key] ? (data as any)[key] : false))
+                // ? defeat ts index signature...
+                .map(key => ((config.visibleCharts as any)[key] ? (data as any)[key] : false))
                 .filter(Boolean)
         )
 
         setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
-    }, [config.enabledStates, config.visibleCharts, data.today, dataDispatch])
+    }, [
+        config.enabledStates,
+        config.settings.percentage,
+        config.visibleCharts,
+        data.today,
+        data.yesterday,
+        dataDispatch,
+    ])
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
@@ -113,7 +140,7 @@ const App = () => {
 
                     {config.enabledStates.size === 0 && (
                         <Grid item xs={12}>
-                            <State
+                            <Chart
                                 title="Deutschland"
                                 data={[...data.byDay.values()]}
                                 settings={config.settings}
@@ -126,7 +153,7 @@ const App = () => {
                         .filter(([state]) => config.enabledStates.has(state))
                         .map(([state, data]) => (
                             <Grid item {...gridBreakpointProps} key={state}>
-                                <State
+                                <Chart
                                     title={state}
                                     data={data}
                                     settings={config.settings}
