@@ -8,6 +8,7 @@ export interface DataState {
     byState: Map<string, StateData[]>
     summary: Summary | null
     today: RkiData[]
+    yesterday: RkiData[]
 }
 
 export type DataActions =
@@ -15,9 +16,10 @@ export type DataActions =
     | { type: 'byStateChange'; byState: Map<string, StateData[]> }
     | { type: 'summaryChange'; summary: Summary | null }
     | { type: 'todayChange'; today: RkiData[] }
+    | { type: 'yesterdayChange'; yesterday: RkiData[] }
+    | { type: 'loadingChange'; loading: boolean }
 
 const reducer: Reducer<DataState, DataActions> = (state, actions) => {
-    state.loading = false
     switch (actions.type) {
         case 'byDayChange': {
             return { ...state, byDay: actions.byDay }
@@ -31,6 +33,12 @@ const reducer: Reducer<DataState, DataActions> = (state, actions) => {
         case 'todayChange': {
             return { ...state, today: actions.today }
         }
+        case 'yesterdayChange': {
+            return { ...state, yesterday: actions.yesterday }
+        }
+        case 'loadingChange': {
+            return { ...state, loading: actions.loading }
+        }
     }
 }
 
@@ -40,6 +48,7 @@ const initialState: DataState = {
     byState: new Map(),
     summary: null,
     today: [],
+    yesterday: [],
 }
 
 export const useDataReducer = () => useReducer(reducer, initialState)

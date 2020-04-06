@@ -4,7 +4,7 @@ import { AccountMultiple, ChartTimelineVariant, Sigma, Skull } from 'mdi-materia
 import React, { ReactText } from 'react'
 
 import { RkiData, VisibleCharts } from '../../model/model'
-import StateTooltipChip from './StateTooltipChip'
+import ChartTooltipChip from './ChartTooltipChip'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -23,7 +23,7 @@ export interface TooltipProps {
     visibleCharts: VisibleCharts
 }
 
-const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
+const ChartTooltip = ({ payload, visibleCharts }: TooltipProps) => {
     const classes = useStyles()
 
     if (!payload || payload.length < 1) return <></>
@@ -36,14 +36,14 @@ const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
     }
 
     return (
-        <Card elevation={8} className={classes.card}>
+        <Card elevation={4} className={classes.card}>
             <CardHeader title={<>{payload[0].payload.timestamp.toDate().toLocaleDateString()}</>} />
             <Divider variant="middle" />
             <Box padding={2}>
                 <Grid container direction="column" spacing={1}>
                     {visibleCharts.cases && (
                         <Grid item>
-                            <StateTooltipChip
+                            <ChartTooltipChip
                                 backgroundColor={amber.A400}
                                 icon={<Sigma />}
                                 label={values.cases}
@@ -53,7 +53,7 @@ const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
 
                     {visibleCharts.delta && (
                         <Grid item>
-                            <StateTooltipChip
+                            <ChartTooltipChip
                                 backgroundColor={lime.A400}
                                 icon={<ChartTimelineVariant />}
                                 label={values.delta}
@@ -63,7 +63,7 @@ const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
 
                     {visibleCharts.rate && (
                         <Grid item>
-                            <StateTooltipChip
+                            <ChartTooltipChip
                                 backgroundColor={teal.A400}
                                 icon={<AccountMultiple />}
                                 label={values.rate}
@@ -73,7 +73,7 @@ const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
 
                     {visibleCharts.deaths && (
                         <Grid item>
-                            <StateTooltipChip
+                            <ChartTooltipChip
                                 backgroundColor={red.A400}
                                 icon={<Skull />}
                                 label={values.deaths}
@@ -86,4 +86,4 @@ const StateTooltip = ({ payload, visibleCharts }: TooltipProps) => {
     )
 }
 
-export default StateTooltip
+export default ChartTooltip
