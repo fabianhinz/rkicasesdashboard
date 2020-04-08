@@ -1,6 +1,6 @@
 import { createStyles, Grid, makeStyles } from '@material-ui/core'
-import { amber, lime, red, teal } from '@material-ui/core/colors'
-import { AccountMultiple, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
+import { amber, lime, orange, red, teal } from '@material-ui/core/colors'
+import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React from 'react'
 
 import { VisibleCharts } from '../../model/model'
@@ -11,10 +11,13 @@ import SummaryPaper from './SummaryPaper'
 const useStyles = makeStyles(theme =>
     createStyles({
         containerSummary: {
-            '@media(max-width: 1100px)': {
+            '@media(max-width: 1240px)': {
                 flexWrap: 'nowrap',
                 overflowX: 'auto',
                 justifyContent: 'flex-start',
+            },
+            '&::-webkit-scrollbar': {
+                display: 'none',
             },
         },
     })
@@ -40,6 +43,15 @@ const Summary = () => {
                     onClick={handleSummaryClick('cases')}
                     backgroundColor={amber.A400}
                     icon={<Sigma />}
+                />
+            </Grid>
+
+            <Grid item>
+                <SummaryPaper
+                    dataKey="doublingRate"
+                    onClick={handleSummaryClick('doublingRate')}
+                    backgroundColor={orange.A400}
+                    icon={<CalendarRange />}
                 />
             </Grid>
 

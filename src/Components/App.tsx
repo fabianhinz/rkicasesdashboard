@@ -15,7 +15,7 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { RkiData, Summary as SummaryModel } from '../model/model'
+import { Summary as SummaryModel } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
 import Chart from './Chart/Chart'
 import { useConfigContext } from './Provider/Configprovider'
@@ -57,6 +57,7 @@ const App = () => {
     const { config } = useConfigContext()
 
     const highRes = useMediaQuery('(min-width: 1101px)')
+
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
@@ -67,30 +68,41 @@ const App = () => {
     }, [highRes])
 
     useEffect(() => {
-        const forEnabledStates = ({ state }: RkiData) =>
+        const forEnabledStates = (state: string) =>
             config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
 
-        const today = data.today.filter(forEnabledStates)
+        const doublingRates = (from: 'today' | 'yesterday') =>
+            summUp(
+                Array.from(data.byState.entries())
+                    .filter(([state]) => forEnabledStates(state))
+                    .map(
+                        ([_state, dayData]) =>
+                            dayData[from === 'today' ? dayData.length - 1 : dayData.length - 2]
+                    ),
+                'doublingRate'
+            ) / (config.enabledStates.size > 0 ? config.enabledStates.size : 16)
 
+        const today = data.today.filter(({ state }) => forEnabledStates(state))
         let summary: SummaryModel = {
-            lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             cases: summUp(today, 'cases'),
-            rate: Math.trunc(summUp(today, 'rate') / today.length),
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
+            rate: summUp(today, 'rate') / today.length,
+            lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
+            doublingRate: doublingRates('today'),
         }
 
         if (config.settings.percentage) {
-            const yesterday = data.yesterday.filter(forEnabledStates)
+            const yesterday = data.yesterday.filter(({ state }) => forEnabledStates(state))
             summary = {
                 ...summary,
-                cases: percentageOf(summary.cases as number, summUp(yesterday, 'cases')),
-                rate: percentageOf(
-                    summary.rate as number,
-                    summUp(yesterday, 'rate') / yesterday.length
-                ),
-                deaths: percentageOf(summary.deaths as number, summUp(yesterday, 'deaths')),
-                delta: percentageOf(summary.delta as number, summUp(yesterday, 'delta')),
+                cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
+                deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
+                delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
+                rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
+                    .formatted,
+                doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday'))
+                    .formatted,
             }
         }
 
@@ -113,6 +125,8 @@ const App = () => {
         config.enabledStates,
         config.settings.percentage,
         config.visibleCharts,
+        data.byDay,
+        data.byState,
         data.today,
         data.yesterday,
         dataDispatch,
@@ -140,12 +154,7 @@ const App = () => {
 
                     {config.enabledStates.size === 0 && (
                         <Grid item xs={12}>
-                            <Chart
-                                title="Deutschland"
-                                data={[...data.byDay.values()]}
-                                settings={config.settings}
-                                visibleCharts={config.visibleCharts}
-                            />
+                            <Chart title="Deutschland" data={[...data.byDay.values()]} />
                         </Grid>
                     )}
 
@@ -153,13 +162,7 @@ const App = () => {
                         .filter(([state]) => config.enabledStates.has(state))
                         .map(([state, data]) => (
                             <Grid item {...gridBreakpointProps} key={state}>
-                                <Chart
-                                    title={state}
-                                    data={data}
-                                    settings={config.settings}
-                                    visibleCharts={config.visibleCharts}
-                                    maxAxisDomain={maxAxisDomain}
-                                />
+                                <Chart title={state} data={data} maxAxisDomain={maxAxisDomain} />
                             </Grid>
                         ))}
 

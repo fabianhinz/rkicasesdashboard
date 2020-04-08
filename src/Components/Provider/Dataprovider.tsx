@@ -4,6 +4,7 @@ import React from 'react'
 
 import { RkiData, StateData } from '../../model/model'
 import { firestore } from '../../services/firebase'
+import { calculateDoublingRates, summUp } from '../../services/utility'
 import { DataActions, DataState, useDataReducer } from '../DataReducer'
 
 interface Context {
@@ -43,7 +44,7 @@ const Dataprovider: FC = ({ children }) => {
                 .limit(32)
                 .onSnapshot(snapshot => {
                     const data = snapshot.docs.map(
-                        doc => ({ state: doc.id, ...doc.data() } as RkiData)
+                        doc => ({ state: doc.id, ...doc.data() } as Omit<RkiData, 'doublingRate'>)
                     )
 
                     dataDispatch({
@@ -68,30 +69,35 @@ const Dataprovider: FC = ({ children }) => {
                     const byDay: Map<string, StateData> = new Map()
                     const byState: Map<string, StateData[]> = new Map()
 
-                    const docs = snapshot.docs.map(doc => doc.data() as RkiData)
-
-                    new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
-                        const day = docs.filter(doc => doc.timestamp.seconds === seconds)
-
-                        byDay.set(day[0].timestamp.toDate().toLocaleDateString(), {
-                            cases: day.reduce((acc, doc) => (acc += doc.cases), 0),
-                            rate: Math.ceil(
-                                day.reduce((acc, doc) => (acc += doc.rate), 0) / day.length
-                            ),
-                            deaths: day.reduce((acc, doc) => (acc += doc.deaths), 0),
-                            delta: day.reduce((acc, doc) => (acc += doc.delta), 0),
-                            timestamp: day[0].timestamp,
-                        })
-                    })
-                    dataDispatch({ type: 'byDayChange', byDay })
+                    const docs = snapshot.docs.map(
+                        doc => doc.data() as Omit<RkiData, 'doublingRate'>
+                    )
 
                     new Set(docs.map(({ state }) => state)).forEach(state =>
                         byState.set(
                             state,
-                            docs.filter(doc => doc.state === state)
+                            calculateDoublingRates(docs.filter(doc => doc.state === state))
                         )
                     )
                     dataDispatch({ type: 'byStateChange', byState })
+
+                    new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
+                        const day = Array.from(byState.values())
+                            .map(stateData =>
+                                stateData.filter(({ timestamp }) => timestamp.seconds === seconds)
+                            )
+                            .flat()
+
+                        byDay.set(day[0].timestamp.toDate().toLocaleDateString(), {
+                            cases: summUp(day, 'cases'),
+                            deaths: summUp(day, 'deaths'),
+                            delta: summUp(day, 'delta'),
+                            timestamp: day[0].timestamp,
+                            rate: summUp(day, 'rate') / day.length,
+                            doublingRate: summUp(day, 'doublingRate') / day.length,
+                        })
+                    })
+                    dataDispatch({ type: 'byDayChange', byDay })
                     dataDispatch({ type: 'loadingChange', loading: false })
                 }),
         [dataDispatch]

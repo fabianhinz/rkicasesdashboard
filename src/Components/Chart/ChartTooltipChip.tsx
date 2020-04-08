@@ -28,7 +28,17 @@ interface Props extends Omit<ChipProps, 'classes'> {
 const ChartTooltipChip = ({ backgroundColor, ...chipProps }: Props) => {
     const classes = useStyles({ backgroundColor })
 
-    return <Chip classes={classes} {...chipProps} />
+    return (
+        <Chip
+            classes={classes}
+            {...chipProps}
+            label={
+                typeof chipProps.label === 'number'
+                    ? Math.trunc(chipProps.label)
+                    : chipProps.label || 'Nicht verfügbar'
+            }
+        />
+    )
 }
 
 export default ChartTooltipChip
