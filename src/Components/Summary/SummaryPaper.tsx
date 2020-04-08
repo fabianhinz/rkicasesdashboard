@@ -70,7 +70,9 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                 {icon}
 
                 <Typography gutterBottom variant="h6">
-                    {Math.trunc(data.summary[dataKey])}
+                    {typeof data.summary[dataKey] === 'number'
+                        ? Math.trunc(data.summary[dataKey])
+                        : data.summary[dataKey]}
                 </Typography>
 
                 {legend && <Typography variant="caption">{legend}</Typography>}
