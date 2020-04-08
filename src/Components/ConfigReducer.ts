@@ -39,19 +39,21 @@ const reducer: Reducer<ConfigState, ConfigActions> = (state, actions) => {
 const initialState: ConfigState = {
     enabledStates: new Set(),
     visibleCharts: {
+        doublingRate: true,
         delta: true,
-        cases: true,
-        rate: false,
+        cases: false,
+        rate: true,
         deaths: false,
     },
     settings: {
-        log: false,
-        showAxis: true,
+        log: true,
+        showAxis: false,
         showLegend: true,
         grid: true,
         percentage: false,
         syncTooltip: true,
         normalize: true,
+        ratio: 2,
     },
 }
 

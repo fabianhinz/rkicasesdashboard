@@ -40,7 +40,7 @@ const Configprovider: FC = ({ children }) => {
             .then(settings =>
                 configDispatch({
                     type: 'settingsChange',
-                    settings,
+                    settings: { ratio: settings.ratio || 2, ...settings },
                 })
             )
             .catch(console.error)

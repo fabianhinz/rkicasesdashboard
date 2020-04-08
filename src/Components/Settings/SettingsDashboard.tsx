@@ -1,5 +1,5 @@
-import { Hidden, List, ListSubheader, Slide } from '@material-ui/core'
-import React from 'react'
+import { Hidden, List, ListSubheader, Slide, Slider, Typography } from '@material-ui/core'
+import React, { useState } from 'react'
 
 import { Settings } from '../../model/model'
 import db from '../../services/db'
@@ -8,11 +8,9 @@ import SettingsListItem from './SettingsListItem'
 
 const SettingsDashboard = () => {
     const { config, configDispatch } = useConfigContext()
+    const [internalRatio, setInternalRatio] = useState(config.settings.ratio)
 
-    const handleChange = (key: keyof Settings) => (
-        _e: React.ChangeEvent<HTMLInputElement>,
-        value: boolean
-    ) => {
+    const handleChange = (key: keyof Settings) => (_e: React.ChangeEvent<{}>, value: any) => {
         const settings = { ...config.settings, [key]: value }
         configDispatch({ type: 'settingsChange', settings })
         db.data.put(settings, 'settings')
@@ -23,6 +21,19 @@ const SettingsDashboard = () => {
             <ListSubheader disableSticky disableGutters>
                 Dashboard
             </ListSubheader>
+
+            <Typography gutterBottom>Verhältnis</Typography>
+            <Slider
+                value={internalRatio}
+                onChange={(_e, ratio) => setInternalRatio(ratio as number)}
+                onChangeCommitted={handleChange('ratio')}
+                valueLabelDisplay="auto"
+                step={0.5}
+                marks
+                min={1}
+                max={3}
+            />
+
             <List disablePadding>
                 <SettingsListItem
                     checked={config.settings.log}

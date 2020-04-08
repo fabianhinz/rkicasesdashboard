@@ -1,6 +1,6 @@
 import { Box, Card, CardHeader, createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
-import { amber, lime, red, teal } from '@material-ui/core/colors'
-import { AccountMultiple, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
+import { amber, lime, orange, red, teal } from '@material-ui/core/colors'
+import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React, { ReactText } from 'react'
 
 import { RkiData, VisibleCharts } from '../../model/model'
@@ -18,7 +18,7 @@ export interface TooltipProps {
     payload?: {
         value: ReactText
         payload: RkiData
-        dataKey: Partial<keyof RkiData>
+        dataKey: Partial<keyof RkiData> | 'doublingRate'
     }[]
     visibleCharts: VisibleCharts
 }
@@ -26,18 +26,22 @@ export interface TooltipProps {
 const ChartTooltip = ({ payload, visibleCharts }: TooltipProps) => {
     const classes = useStyles()
 
-    if (!payload || payload.length < 1) return <></>
-
     const values = {
-        delta: payload.find(data => data.dataKey === 'delta')?.value,
-        cases: payload.find(data => data.dataKey === 'cases')?.value,
-        rate: payload.find(data => data.dataKey === 'rate')?.value,
-        deaths: payload.find(data => data.dataKey === 'deaths')?.value,
+        delta: payload?.find(data => data.dataKey === 'delta')?.value,
+        cases: payload?.find(data => data.dataKey === 'cases')?.value,
+        doublingRate: payload?.find(data => data.dataKey === 'doublingRate')?.value,
+        rate: payload?.find(data => data.dataKey === 'rate')?.value,
+        deaths: payload?.find(data => data.dataKey === 'deaths')?.value,
     }
+
+    const title =
+        payload && payload.length > 0
+            ? payload[0].payload.timestamp.toDate().toLocaleDateString()
+            : undefined
 
     return (
         <Card elevation={4} className={classes.card}>
-            <CardHeader title={<>{payload[0].payload.timestamp.toDate().toLocaleDateString()}</>} />
+            <CardHeader title={title} />
             <Divider variant="middle" />
             <Box padding={2}>
                 <Grid container direction="column" spacing={1}>
@@ -47,6 +51,16 @@ const ChartTooltip = ({ payload, visibleCharts }: TooltipProps) => {
                                 backgroundColor={amber.A400}
                                 icon={<Sigma />}
                                 label={values.cases}
+                            />
+                        </Grid>
+                    )}
+
+                    {visibleCharts.doublingRate && (
+                        <Grid item>
+                            <ChartTooltipChip
+                                backgroundColor={orange.A400}
+                                icon={<CalendarRange />}
+                                label={values.doublingRate}
                             />
                         </Grid>
                     )}

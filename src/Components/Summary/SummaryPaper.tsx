@@ -12,8 +12,8 @@ const useStyles = makeStyles(theme =>
     createStyles({
         paper: {
             padding: theme.spacing(2),
-            boxShadow: theme.shadows[8],
-            height: ({ legend }: StyleProps) => (legend ? 110 : 90),
+            boxShadow: theme.shadows[4],
+            height: ({ legend }: StyleProps) => (legend ? 130 : 90),
             width: 160,
             transition: theme.transitions.create('all', {
                 easing: theme.transitions.easing.easeOut,
@@ -48,9 +48,11 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
             case 'delta':
                 return 'Differenz zum Vortag'
             case 'rate':
-                return 'Fälle / 100 000'
+                return 'Fälle pro 100 000 Einwohner'
             case 'deaths':
                 return 'Todesfälle'
+            case 'doublingRate':
+                return 'Verdopplungszeit in Tagen'
         }
     }, [config.settings.showLegend, dataKey])
 
@@ -68,7 +70,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                 {icon}
 
                 <Typography gutterBottom variant="h6">
-                    {data.summary[dataKey]}
+                    {Math.trunc(data.summary[dataKey])}
                 </Typography>
 
                 {legend && <Typography variant="caption">{legend}</Typography>}
