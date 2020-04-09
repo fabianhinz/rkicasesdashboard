@@ -50,7 +50,7 @@ const initialState: ConfigState = {
         showAxis: false,
         showLegend: true,
         grid: true,
-        percentage: false,
+        percentage: true,
         syncTooltip: true,
         normalize: true,
         ratio: 2,

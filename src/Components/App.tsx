@@ -15,7 +15,7 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { Summary as SummaryModel } from '../model/model'
+import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
 import Chart from './Chart/Chart'
 import { useConfigContext } from './Provider/Configprovider'
@@ -83,7 +83,7 @@ const App = () => {
             ) / (config.enabledStates.size > 0 ? config.enabledStates.size : 16)
 
         const today = data.today.filter(({ state }) => forEnabledStates(state))
-        let summary: SummaryModel = {
+        const summary: SummaryModel = {
             cases: summUp(today, 'cases'),
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
@@ -91,25 +91,21 @@ const App = () => {
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: doublingRates('today'),
         }
-
-        if (config.settings.percentage) {
-            const yesterday = data.yesterday.filter(({ state }) => forEnabledStates(state))
-            summary = {
-                ...summary,
-                cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
-                deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
-                delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
-                rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
-                    .formatted,
-                doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday'))
-                    .formatted,
-            }
-        }
-
         dataDispatch({
             type: 'summaryChange',
             summary,
         })
+
+        const yesterday = data.yesterday.filter(({ state }) => forEnabledStates(state))
+        const summaryPercent: SummaryPercent = {
+            cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
+            deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
+            delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
+            rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
+                .formatted,
+            doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday')).formatted,
+        }
+        dataDispatch({ type: 'summaryPercentChange', summaryPercent })
 
         if (config.enabledStates.size === 0) return
         // ? lets get our domain data (the max value of visible charts)

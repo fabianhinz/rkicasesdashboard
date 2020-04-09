@@ -12,10 +12,12 @@ export interface RkiData {
 export interface Summary
     extends Record<
         keyof Pick<RkiData, 'delta' | 'cases' | 'rate' | 'deaths' | 'doublingRate'>,
-        any
+        number
     > {
     lastUpdate: Date
 }
+
+export type SummaryPercent = Record<keyof Omit<Summary, 'lastUpdate'>, string>
 
 export type StateData = Omit<RkiData, 'state'>
 
