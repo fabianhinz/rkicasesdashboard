@@ -1,12 +1,13 @@
 import { Reducer, useReducer } from 'react'
 
-import { RkiData, StateData, Summary } from '../model/model'
+import { RkiData, StateData, Summary, SummaryPercent } from '../model/model'
 
 export interface DataState {
     loading: boolean
     byDay: Map<string, StateData>
     byState: Map<string, StateData[]>
     summary: Summary | null
+    summaryPercent: SummaryPercent | null
     today: RkiData[]
     yesterday: RkiData[]
 }
@@ -14,10 +15,14 @@ export interface DataState {
 export type DataActions =
     | { type: 'byDayChange'; byDay: Map<string, StateData> }
     | { type: 'byStateChange'; byState: Map<string, StateData[]> }
-    | { type: 'summaryChange'; summary: Summary | null }
+    | { type: 'summaryChange'; summary: Summary }
     | { type: 'todayChange'; today: RkiData[] }
     | { type: 'yesterdayChange'; yesterday: RkiData[] }
     | { type: 'loadingChange'; loading: boolean }
+    | {
+          type: 'summaryPercentChange'
+          summaryPercent: SummaryPercent
+      }
 
 const reducer: Reducer<DataState, DataActions> = (state, actions) => {
     switch (actions.type) {
@@ -39,6 +44,9 @@ const reducer: Reducer<DataState, DataActions> = (state, actions) => {
         case 'loadingChange': {
             return { ...state, loading: actions.loading }
         }
+        case 'summaryPercentChange': {
+            return { ...state, summaryPercent: actions.summaryPercent }
+        }
     }
 }
 
@@ -47,6 +55,7 @@ const initialState: DataState = {
     byDay: new Map(),
     byState: new Map(),
     summary: null,
+    summaryPercent: null,
     today: [],
     yesterday: [],
 }
