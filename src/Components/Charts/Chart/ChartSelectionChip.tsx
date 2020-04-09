@@ -25,7 +25,7 @@ interface Props extends Omit<ChipProps, 'classes'> {
     backgroundColor: string
 }
 
-const ChartTooltipChip = ({ backgroundColor, ...chipProps }: Props) => {
+const ChartSelectionChip = ({ backgroundColor, ...chipProps }: Props) => {
     const classes = useStyles({ backgroundColor })
 
     return (
@@ -41,4 +41,4 @@ const ChartTooltipChip = ({ backgroundColor, ...chipProps }: Props) => {
     )
 }
 
-export default ChartTooltipChip
+export default ChartSelectionChip

@@ -63,12 +63,6 @@ const SettingsDashboard = () => {
                             />
                         </Hidden>
                         <SettingsListItem
-                            checked={config.settings.syncTooltip}
-                            onChange={handleChange('syncTooltip')}
-                            primary="Tooltipsync"
-                            secondary="Tooltip der Diagramme wird synchronisiert"
-                        />
-                        <SettingsListItem
                             checked={config.settings.normalize}
                             onChange={handleChange('normalize')}
                             primary="Normalisieren"

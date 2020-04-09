@@ -1,23 +1,17 @@
 import {
-    Card,
-    CardContent,
-    CardHeader,
     Container,
     createStyles,
     Divider,
     Grid,
-    GridSize,
-    Link,
     makeStyles,
     useMediaQuery,
 } from '@material-ui/core'
-import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
-import Skeleton from '@material-ui/lab/Skeleton'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
-import Chart from './Chart/Chart'
+import Charts from './Charts/Charts'
+import Footer from './Footer'
 import { useConfigContext } from './Provider/Configprovider'
 import { useDataContext } from './Provider/Dataprovider'
 import Settings from './Settings/Settings'
@@ -128,18 +122,6 @@ const App = () => {
         dataDispatch,
     ])
 
-    const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
-        () =>
-            config.settings.grid
-                ? {
-                      xs: 12,
-                      lg: 6,
-                      xl: 4,
-                  }
-                : { xs: 12 },
-        [config.settings.grid]
-    )
-
     return (
         <div className={classes.app}>
             <Container maxWidth="xl" className={classes.container}>
@@ -148,69 +130,16 @@ const App = () => {
                         <Summary />
                     </Grid>
 
-                    {config.enabledStates.size === 0 && (
-                        <Grid item xs={12}>
-                            <Chart title="Deutschland" data={[...data.byDay.values()]} />
-                        </Grid>
-                    )}
-
-                    {[...data.byState.entries()]
-                        .filter(([state]) => config.enabledStates.has(state))
-                        .map(([state, data]) => (
-                            <Grid item {...gridBreakpointProps} key={state}>
-                                <Chart title={state} data={data} maxAxisDomain={maxAxisDomain} />
-                            </Grid>
-                        ))}
-
-                    {data.byState.size === 0 &&
-                        new Array(config.enabledStates.size).fill(1).map((_dummy, index) => (
-                            <Grid item {...gridBreakpointProps} key={index}>
-                                <Card>
-                                    <CardHeader title={<Skeleton variant="text" width="60%" />} />
-                                    <CardContent>
-                                        <Skeleton variant="rect" width="100%" height={350} />
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                    <Grid item xs={12}>
+                        <Charts maxAxisDomain={maxAxisDomain} />
+                    </Grid>
 
                     <Grid item xs={12}>
                         <Divider />
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Grid container justify="center" spacing={2}>
-                            <Grid item>
-                                <Link
-                                    target="_blank"
-                                    href="https://github.com/fabianhinz/rkicasesapi">
-                                    Datenquelle
-                                    {data.summary &&
-                                        ` (${data.summary.lastUpdate.toLocaleDateString()})`}
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link
-                                    target="_blank"
-                                    href="https://github.com/fabianhinz/rkicasesdashboard">
-                                    Quellcode
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link
-                                    target="_blank"
-                                    href="https://www.flaticon.com/authors/freepik">
-                                    Icons made by Freepik
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link
-                                    target="_blank"
-                                    href="http://simplemaps.com/resources/svg-maps">
-                                    Karte von simplemaps
-                                </Link>
-                            </Grid>
-                        </Grid>
+                        <Footer lastUpdate={data.summary?.lastUpdate} />
                     </Grid>
                 </Grid>
             </Container>

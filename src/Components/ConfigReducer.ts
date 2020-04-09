@@ -51,7 +51,6 @@ const initialState: ConfigState = {
         showLegend: true,
         grid: true,
         percentage: true,
-        syncTooltip: true,
         normalize: true,
         ratio: 2,
     },

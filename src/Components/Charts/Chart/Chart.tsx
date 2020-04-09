@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@material-ui/core'
 import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import {
     Area,
     AxisDomain,
@@ -10,25 +10,24 @@ import {
     Line,
     LineProps,
     ResponsiveContainer,
-    Tooltip,
     YAxis,
 } from 'recharts'
 
-import { StateData } from '../../model/model'
-import { useConfigContext } from '../Provider/Configprovider'
+import { StateData } from '../../../model/model'
+import { useConfigContext } from '../../Provider/Configprovider'
 import BarShape, { BarShapeProps } from './BarShape'
-import ChartTooltip, { TooltipProps } from './ChartTooltip'
+import ChartSelection from './ChartSelection'
 
 interface Props {
     title: string
     data: StateData[]
     maxAxisDomain?: number
+    activeLabel?: number
+    setActiveLabel: React.Dispatch<React.SetStateAction<number | undefined>>
 }
 
-const Chart = ({ data, title, maxAxisDomain }: Props) => {
+const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Props) => {
     const { config } = useConfigContext()
-
-    const [activeLabel, setActiveLabel] = useState<number | undefined>()
 
     const sharedLineProps: Partial<LineProps> = useMemo(
         () => ({ dot: false, type: 'monotone', strokeWidth: 3, activeDot: { r: 6 } }),
@@ -49,6 +48,17 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
         setActiveLabel(type === 'change' ? event?.activeLabel : undefined)
     }
 
+    const memoChartSelection = useMemo(
+        () => (
+            <ChartSelection
+                activeLabel={activeLabel}
+                data={data}
+                visibleCharts={config.visibleCharts}
+            />
+        ),
+        [activeLabel, config.visibleCharts, data]
+    )
+
     return (
         <Card>
             <CardHeader title={title} />
@@ -58,21 +68,7 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
                         onMouseMove={handleActiveLabel('change')}
                         onMouseLeave={handleActiveLabel('reset')}
                         margin={{ bottom: 8, top: 8 }}
-                        syncId={config.settings.syncTooltip ? 'syncedTooltipChart' : undefined}
                         data={data}>
-                        <Tooltip
-                            allowEscapeViewBox={{ x: false, y: false }}
-                            position={{ x: ('auto' as unknown) as number, y: 0 }}
-                            cursor={false}
-                            animationEasing="ease-out"
-                            content={({ payload }: TooltipProps) => (
-                                <ChartTooltip
-                                    visibleCharts={config.visibleCharts}
-                                    payload={payload}
-                                />
-                            )}
-                        />
-
                         <YAxis
                             type="number"
                             domain={domain}
@@ -125,6 +121,7 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
+                {memoChartSelection}
             </CardContent>
         </Card>
     )
