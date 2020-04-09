@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from '@material-ui/core'
-import { amber, lime, orange, red, teal } from '@material-ui/core/colors'
+import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
 import React, { useMemo, useState } from 'react'
 import {
@@ -87,14 +87,13 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
 
                         <Area
                             hide={!config.visibleCharts.rate}
-                            stroke={teal.A400}
-                            fill={teal.A400}
+                            stroke={cyan.A400}
+                            fill={cyan.A400}
                             dataKey="rate"
                             {...sharedLineProps}
                         />
 
                         <Bar
-                            barSize={15}
                             hide={!config.visibleCharts.doublingRate}
                             stroke={orange.A400}
                             dataKey="doublingRate"

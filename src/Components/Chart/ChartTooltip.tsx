@@ -1,5 +1,5 @@
 import { Box, Card, CardHeader, createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
-import { amber, lime, orange, red, teal } from '@material-ui/core/colors'
+import { amber, lime, orange, red, cyan } from '@material-ui/core/colors'
 import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React, { ReactText } from 'react'
 
@@ -78,7 +78,7 @@ const ChartTooltip = ({ payload, visibleCharts }: TooltipProps) => {
                     {visibleCharts.rate && (
                         <Grid item>
                             <ChartTooltipChip
-                                backgroundColor={teal.A400}
+                                backgroundColor={cyan.A400}
                                 icon={<AccountMultiple />}
                                 label={values.rate}
                             />
