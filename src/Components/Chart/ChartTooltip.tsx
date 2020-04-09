@@ -1,5 +1,5 @@
 import { Box, Card, CardHeader, createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
-import { amber, lime, orange, red, cyan } from '@material-ui/core/colors'
+import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React, { ReactText } from 'react'
 
