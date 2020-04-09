@@ -5,6 +5,7 @@ import { RectangleProps } from 'recharts'
 
 interface StyleProps extends Pick<BarShapeProps, 'fill'> {
     shouldHighlight: boolean
+    obsolete: boolean
 }
 
 const useStyles = makeStyles(theme =>
@@ -14,6 +15,7 @@ const useStyles = makeStyles(theme =>
                 easing: theme.transitions.easing.easeOut,
             }),
             fill: ({ shouldHighlight, fill }: StyleProps) => (shouldHighlight ? amber.A400 : fill),
+            opacity: ({ obsolete }: StyleProps) => (obsolete ? 0.5 : 1),
         },
     })
 )
@@ -25,6 +27,7 @@ const BarShape = ({ x, y, width, height, fill, activeLabel, index }: BarShapePro
         fill,
         shouldHighlight:
             activeLabel === index || activeLabel === index + 1 || activeLabel === index + 2,
+        obsolete: Boolean(activeLabel && activeLabel < index),
     })
 
     if (!width || !height) return <></>

@@ -1,5 +1,5 @@
 import { createStyles, Grid, makeStyles } from '@material-ui/core'
-import { amber, lime, orange, red, teal } from '@material-ui/core/colors'
+import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
 import React from 'react'
 
@@ -68,7 +68,7 @@ const Summary = () => {
                 <SummaryPaper
                     dataKey="rate"
                     onClick={handleSummaryClick('rate')}
-                    backgroundColor={teal.A400}
+                    backgroundColor={cyan.A400}
                     icon={<AccountMultiple />}
                 />
             </Grid>
