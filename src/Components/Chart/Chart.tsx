@@ -9,7 +9,6 @@ import {
     ComposedChart,
     Line,
     LineProps,
-    ReferenceArea,
     ResponsiveContainer,
     Tooltip,
     YAxis,
@@ -17,6 +16,7 @@ import {
 
 import { StateData } from '../../model/model'
 import { useConfigContext } from '../Provider/Configprovider'
+import BarShape, { BarShapeProps } from './BarShape'
 import ChartTooltip, { TooltipProps } from './ChartTooltip'
 
 interface Props {
@@ -45,19 +45,24 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
         [maxAxisDomain, config.settings.normalize]
     )
 
+    const handleActiveLabel = (type: 'change' | 'reset') => (event: any) => {
+        setActiveLabel(type === 'change' ? event?.activeLabel : undefined)
+    }
+
     return (
         <Card>
             <CardHeader title={title} />
             <CardContent>
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                     <ComposedChart
-                        onMouseOver={e => setActiveLabel(e?.activeLabel)}
-                        onMouseLeave={() => setActiveLabel(undefined)}
+                        onMouseMove={handleActiveLabel('change')}
+                        onMouseLeave={handleActiveLabel('reset')}
                         margin={{ bottom: 8, top: 8 }}
                         syncId={config.settings.syncTooltip ? 'syncedTooltipChart' : undefined}
                         data={data}>
                         <Tooltip
                             allowEscapeViewBox={{ x: false, y: false }}
+                            position={{ x: ('auto' as unknown) as number, y: 0 }}
                             cursor={false}
                             animationEasing="ease-out"
                             content={({ payload }: TooltipProps) => (
@@ -94,6 +99,9 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
                             stroke={orange.A400}
                             dataKey="doublingRate"
                             fill={orange.A400}
+                            shape={props => (
+                                <BarShape {...({ ...props, activeLabel } as BarShapeProps)} />
+                            )}
                         />
 
                         <Line
@@ -116,15 +124,6 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
                             dataKey="deaths"
                             {...sharedLineProps}
                         />
-
-                        {config.visibleCharts.doublingRate && (
-                            <ReferenceArea
-                                fill={amber.A400}
-                                fillOpacity={0.3}
-                                x1={activeLabel ? activeLabel - 2 : undefined}
-                                x2={activeLabel}
-                            />
-                        )}
                     </ComposedChart>
                 </ResponsiveContainer>
             </CardContent>
