@@ -22,16 +22,17 @@ const SettingsDashboard = () => {
                 Dashboard
             </ListSubheader>
 
-            <Typography gutterBottom>Verhältnis</Typography>
+            <Typography gutterBottom>Verhältnis Breite:Höhe</Typography>
             <Slider
                 value={internalRatio}
                 onChange={(_e, ratio) => setInternalRatio(ratio as number)}
                 onChangeCommitted={handleChange('ratio')}
                 valueLabelDisplay="auto"
-                step={0.5}
+                valueLabelFormat={value => `${value}:1`}
+                step={1}
                 marks
                 min={1}
-                max={3}
+                max={4}
             />
 
             <List disablePadding>

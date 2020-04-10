@@ -34,3 +34,8 @@ export interface Settings {
 export type VisibleCharts = Record<keyof Omit<Summary, 'lastUpdate'>, boolean> & {
     [index: string]: boolean
 }
+
+export interface ActiveLabelProps {
+    activeLabel: number
+    setActiveLabel: React.Dispatch<React.SetStateAction<number>>
+}

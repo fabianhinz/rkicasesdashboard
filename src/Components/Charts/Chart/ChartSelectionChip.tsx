@@ -12,17 +12,17 @@ const useStyles = makeStyles(theme =>
         },
         icon: {
             color: ({ backgroundColor }: StyleProps) =>
-                theme.palette.getContrastText(backgroundColor),
+                backgroundColor ? theme.palette.getContrastText(backgroundColor) : undefined,
         },
         label: {
             color: ({ backgroundColor }: StyleProps) =>
-                theme.palette.getContrastText(backgroundColor),
+                backgroundColor ? theme.palette.getContrastText(backgroundColor) : undefined,
         },
     })
 )
 
 interface Props extends Omit<ChipProps, 'classes'> {
-    backgroundColor: string
+    backgroundColor?: string
 }
 
 const ChartSelectionChip = ({ backgroundColor, ...chipProps }: Props) => {
@@ -35,7 +35,7 @@ const ChartSelectionChip = ({ backgroundColor, ...chipProps }: Props) => {
             label={
                 typeof chipProps.label === 'number'
                     ? Math.trunc(chipProps.label)
-                    : chipProps.label || 'Nicht verfügbar'
+                    : chipProps.label || 'unbekannt'
             }
         />
     )

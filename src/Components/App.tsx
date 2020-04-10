@@ -1,11 +1,4 @@
-import {
-    Container,
-    createStyles,
-    Divider,
-    Grid,
-    makeStyles,
-    useMediaQuery,
-} from '@material-ui/core'
+import { Container, createStyles, Grid, makeStyles, useMediaQuery } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
@@ -81,7 +74,10 @@ const App = () => {
             cases: summUp(today, 'cases'),
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
-            rate: summUp(today, 'rate') / today.length,
+            rate:
+                config.enabledStates.size === 16 || config.enabledStates.size === 0
+                    ? summUp(today, 'cases') / 830
+                    : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: doublingRates('today'),
         }
@@ -135,11 +131,7 @@ const App = () => {
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Divider />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Footer lastUpdate={data.summary?.lastUpdate} />
+                        <Footer />
                     </Grid>
                 </Grid>
             </Container>

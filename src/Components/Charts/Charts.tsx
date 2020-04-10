@@ -12,9 +12,10 @@ interface Props {
 }
 
 const Charts = ({ maxAxisDomain }: Props) => {
-    const [activeLabel, setActiveLabel] = useState<number | undefined>()
     const { config } = useConfigContext()
     const { data } = useDataContext()
+
+    const [activeLabel, setActiveLabel] = useState<number>(data.byDay.size - 1)
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@material-ui/core'
 import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import React, { useMemo } from 'react'
+import React from 'react'
 import {
     Area,
     AxisDomain,
@@ -10,65 +10,57 @@ import {
     Line,
     LineProps,
     ResponsiveContainer,
+    Tooltip,
     YAxis,
 } from 'recharts'
 
-import { StateData } from '../../../model/model'
+import { ActiveLabelProps, StateData } from '../../../model/model'
 import { useConfigContext } from '../../Provider/Configprovider'
 import BarShape, { BarShapeProps } from './BarShape'
 import ChartSelection from './ChartSelection'
 
-interface Props {
+interface Props extends ActiveLabelProps {
     title: string
     data: StateData[]
     maxAxisDomain?: number
-    activeLabel?: number
-    setActiveLabel: React.Dispatch<React.SetStateAction<number | undefined>>
 }
 
 const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Props) => {
     const { config } = useConfigContext()
 
-    const sharedLineProps: Partial<LineProps> = useMemo(
-        () => ({ dot: false, type: 'monotone', strokeWidth: 3, activeDot: { r: 6 } }),
-        []
-    )
+    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = maxAxisDomain
+        ? config.settings.normalize
+            ? [0, maxAxisDomain]
+            : undefined
+        : undefined
 
-    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = useMemo(
-        () =>
-            maxAxisDomain
-                ? config.settings.normalize
-                    ? [0, maxAxisDomain]
-                    : undefined
-                : undefined,
-        [maxAxisDomain, config.settings.normalize]
-    )
-
-    const handleActiveLabel = (type: 'change' | 'reset') => (event: any) => {
-        setActiveLabel(type === 'change' ? event?.activeLabel : undefined)
+    const sharedLineProps: Partial<LineProps> = {
+        dot: false,
+        type: 'monotone',
+        strokeWidth: 3,
+        activeDot: { r: 5 },
     }
 
-    const memoChartSelection = useMemo(
-        () => (
+    return (
+        <Card>
+            <CardHeader title={title} />
             <ChartSelection
                 activeLabel={activeLabel}
                 data={data}
                 visibleCharts={config.visibleCharts}
             />
-        ),
-        [activeLabel, config.visibleCharts, data]
-    )
-
-    return (
-        <Card>
-            <CardHeader title={title} />
             <CardContent>
+                {' '}
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                     <ComposedChart
-                        onMouseMove={handleActiveLabel('change')}
-                        onMouseLeave={handleActiveLabel('reset')}
-                        margin={{ bottom: 8, top: 8 }}
+                        margin={{ top: 8, bottom: 8 }}
+                        syncId="sync"
+                        onMouseMove={e => {
+                            if (e?.activeLabel >= 0) setActiveLabel(e?.activeLabel)
+                        }}
                         data={data}>
+                        <Tooltip label={0} cursor={false} content={<></>} />
+
                         <YAxis
                             type="number"
                             domain={domain}
@@ -121,7 +113,6 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
-                {memoChartSelection}
             </CardContent>
         </Card>
     )

@@ -1,16 +1,11 @@
 import { Grid, Link } from '@material-ui/core'
-import React from 'react'
+import React, { memo } from 'react'
 
-interface Props {
-    lastUpdate?: Date
-}
-
-const Footer = ({ lastUpdate }: Props) => (
-    <Grid container justify="center" spacing={2}>
+const Footer = () => (
+    <Grid container spacing={2}>
         <Grid item>
             <Link target="_blank" href="https://github.com/fabianhinz/rkicasesapi">
                 Datenquelle
-                {lastUpdate && ` (${lastUpdate.toLocaleDateString()})`}
             </Link>
         </Grid>
         <Grid item>
@@ -31,4 +26,4 @@ const Footer = ({ lastUpdate }: Props) => (
     </Grid>
 )
 
-export default Footer
+export default memo(Footer)
