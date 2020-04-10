@@ -22,6 +22,7 @@ const useStyles = makeStyles(theme =>
         fab: {
             position: 'fixed',
             bottom: `max(env(safe-area-inset-bottom), ${theme.spacing(3)}px)`,
+            zIndex: 3,
             right: theme.spacing(3),
         },
         themeFab: {
@@ -50,6 +51,9 @@ const useStyles = makeStyles(theme =>
             maxHeight: '100%',
             overflowY: 'auto',
             overflowX: 'hidden',
+            '&::-webkit-scrollbar': {
+                display: 'none',
+            },
         },
         action: {
             padding: theme.spacing(1),

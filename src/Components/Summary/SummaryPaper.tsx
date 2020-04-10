@@ -56,6 +56,9 @@ const useStyles = makeStyles(theme =>
         legendItem: {
             width: 140,
         },
+        dataItem: {
+            height: 59,
+        },
     })
 )
 
@@ -100,7 +103,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
         <ButtonBase className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
                 <Grid container direction="column" justify="center" spacing={1}>
-                    <Grid item>
+                    <Grid item className={classes.dataItem}>
                         <Grid container alignItems="center" spacing={1} wrap="nowrap">
                             <Grid item>
                                 <Avatar className={classes.avatar}>{icon}</Avatar>
@@ -121,7 +124,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                     </Grid>
 
                     {legend && (
-                        <Grid item>
+                        <Grid item xs={12}>
                             <Grid
                                 className={classes.legendItem}
                                 container

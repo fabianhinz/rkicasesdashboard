@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader } from '@material-ui/core'
+import { Card, CardHeader, createStyles, IconButton, makeStyles } from '@material-ui/core'
 import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import React from 'react'
+import { HomeGroup } from 'mdi-material-ui'
+import React, { useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -14,18 +15,42 @@ import {
     YAxis,
 } from 'recharts'
 
-import { ActiveLabelProps, StateData } from '../../../model/model'
+import { ActiveLabelProps, County, StateData } from '../../../model/model'
 import { useConfigContext } from '../../Provider/Configprovider'
 import BarShape, { BarShapeProps } from './BarShape'
+import ChartMostAffected from './ChartMostAffected'
 import ChartSelection from './ChartSelection'
+
+const useStyles = makeStyles(theme =>
+    createStyles({
+        responsiveContainer: {
+            padding: theme.spacing(2),
+        },
+
+        card: { position: 'relative' },
+        mostAffectedToggle: { zIndex: 2 },
+    })
+)
 
 interface Props extends ActiveLabelProps {
     title: string
     data: StateData[]
     maxAxisDomain?: number
+    mostAffectedByState: Map<string, County[]>
 }
 
-const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Props) => {
+const Chart = ({
+    data,
+    title,
+    maxAxisDomain,
+    activeLabel,
+    setActiveLabel,
+    mostAffectedByState,
+}: Props) => {
+    const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
+
+    const classes = useStyles()
+
     const { config } = useConfigContext()
 
     const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = maxAxisDomain
@@ -42,15 +67,24 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
     }
 
     return (
-        <Card>
-            <CardHeader title={title} />
+        <Card className={classes.card}>
+            <CardHeader
+                title={title}
+                action={
+                    <IconButton
+                        className={classes.mostAffectedToggle}
+                        disabled={!mostAffectedByState}
+                        onClick={() => setMostAffectedOpen(prev => !prev)}>
+                        <HomeGroup />
+                    </IconButton>
+                }
+            />
             <ChartSelection
                 activeLabel={activeLabel}
                 data={data}
                 visibleCharts={config.visibleCharts}
             />
-            <CardContent>
-                {' '}
+            <div className={classes.responsiveContainer}>
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                     <ComposedChart
                         margin={{ top: 8, bottom: 8 }}
@@ -113,7 +147,15 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
-            </CardContent>
+            </div>
+            <ChartMostAffected
+                open={Boolean(mostAffectedOpen && mostAffectedByState)}
+                counties={
+                    title !== 'Deutschland'
+                        ? mostAffectedByState.get(title)!
+                        : Array.from(mostAffectedByState?.values()).flat()
+                }
+            />
         </Card>
     )
 }

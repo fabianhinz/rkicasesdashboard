@@ -38,20 +38,22 @@ const Charts = ({ maxAxisDomain }: Props) => {
                         data={[...data.byDay.values()]}
                         activeLabel={activeLabel}
                         setActiveLabel={setActiveLabel}
+                        mostAffectedByState={data.mostAffectedByState}
                     />
                 </Grid>
             )}
 
             {[...data.byState.entries()]
                 .filter(([state]) => config.enabledStates.has(state))
-                .map(([state, data]) => (
+                .map(([state, stateData]) => (
                     <Grid item {...gridBreakpointProps} key={state}>
                         <Chart
                             title={state}
-                            data={data}
+                            data={stateData}
                             maxAxisDomain={maxAxisDomain}
                             activeLabel={activeLabel}
                             setActiveLabel={setActiveLabel}
+                            mostAffectedByState={data.mostAffectedByState}
                         />
                     </Grid>
                 ))}
