@@ -48,12 +48,11 @@ const initialState: ConfigState = {
     settings: {
         log: true,
         showAxis: false,
-        showLegend: true,
+        showLegend: false,
         grid: true,
         percentage: true,
-        syncTooltip: true,
         normalize: true,
-        ratio: 2,
+        ratio: 3,
     },
 }
 

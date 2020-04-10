@@ -1,6 +1,6 @@
 import { Reducer, useReducer } from 'react'
 
-import { RkiData, StateData, Summary, SummaryPercent } from '../model/model'
+import { County, RkiData, StateData, Summary, SummaryPercent } from '../model/model'
 
 export interface DataState {
     loading: boolean
@@ -10,6 +10,7 @@ export interface DataState {
     summaryPercent: SummaryPercent | null
     today: RkiData[]
     yesterday: RkiData[]
+    mostAffectedByState: Map<string, County[]>
 }
 
 export type DataActions =
@@ -23,6 +24,7 @@ export type DataActions =
           type: 'summaryPercentChange'
           summaryPercent: SummaryPercent
       }
+    | { type: 'mostAffectedByStateChange'; mostAffectedByState: Map<string, County[]> }
 
 const reducer: Reducer<DataState, DataActions> = (state, actions) => {
     switch (actions.type) {
@@ -47,6 +49,9 @@ const reducer: Reducer<DataState, DataActions> = (state, actions) => {
         case 'summaryPercentChange': {
             return { ...state, summaryPercent: actions.summaryPercent }
         }
+        case 'mostAffectedByStateChange': {
+            return { ...state, mostAffectedByState: actions.mostAffectedByState }
+        }
     }
 }
 
@@ -58,6 +63,7 @@ const initialState: DataState = {
     summaryPercent: null,
     today: [],
     yesterday: [],
+    mostAffectedByState: new Map(),
 }
 
 export const useDataReducer = () => useReducer(reducer, initialState)

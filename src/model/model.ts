@@ -26,7 +26,6 @@ export interface Settings {
     showAxis: boolean
     showLegend: boolean
     grid: boolean
-    syncTooltip: boolean
     normalize: boolean
     percentage: boolean
     ratio: number
@@ -34,4 +33,25 @@ export interface Settings {
 
 export type VisibleCharts = Record<keyof Omit<Summary, 'lastUpdate'>, boolean> & {
     [index: string]: boolean
+}
+
+export interface ActiveLabelProps {
+    activeLabel: number
+    setActiveLabel: React.Dispatch<React.SetStateAction<number>>
+}
+
+// ? ext. data source: https://www.esri.de/de-de/home
+export interface Attributes {
+    cases_per_100k: number
+    county: string
+    BL: string
+}
+
+export interface Feature {
+    attributes: Attributes
+}
+
+export interface County {
+    county: string
+    rate: number
 }

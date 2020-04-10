@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader } from '@material-ui/core'
+import { Card, CardHeader, createStyles, IconButton, makeStyles } from '@material-ui/core'
 import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import React, { useMemo, useState } from 'react'
+import { HomeGroup } from 'mdi-material-ui'
+import React, { useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -14,64 +15,85 @@ import {
     YAxis,
 } from 'recharts'
 
-import { StateData } from '../../model/model'
-import { useConfigContext } from '../Provider/Configprovider'
+import { ActiveLabelProps, County, StateData } from '../../../model/model'
+import { useConfigContext } from '../../Provider/Configprovider'
 import BarShape, { BarShapeProps } from './BarShape'
-import ChartTooltip, { TooltipProps } from './ChartTooltip'
+import ChartMostAffected from './ChartMostAffected'
+import ChartSelection from './ChartSelection'
 
-interface Props {
+const useStyles = makeStyles(theme =>
+    createStyles({
+        responsiveContainer: {
+            padding: theme.spacing(2),
+        },
+
+        card: { position: 'relative' },
+        mostAffectedToggle: { zIndex: 2 },
+    })
+)
+
+interface Props extends ActiveLabelProps {
     title: string
     data: StateData[]
     maxAxisDomain?: number
+    mostAffectedByState: Map<string, County[]>
 }
 
-const Chart = ({ data, title, maxAxisDomain }: Props) => {
+const Chart = ({
+    data,
+    title,
+    maxAxisDomain,
+    activeLabel,
+    setActiveLabel,
+    mostAffectedByState,
+}: Props) => {
+    const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
+
+    const classes = useStyles()
+
     const { config } = useConfigContext()
 
-    const [activeLabel, setActiveLabel] = useState<number | undefined>()
+    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = maxAxisDomain
+        ? config.settings.normalize
+            ? [0, maxAxisDomain]
+            : undefined
+        : undefined
 
-    const sharedLineProps: Partial<LineProps> = useMemo(
-        () => ({ dot: false, type: 'monotone', strokeWidth: 3, activeDot: { r: 6 } }),
-        []
-    )
-
-    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = useMemo(
-        () =>
-            maxAxisDomain
-                ? config.settings.normalize
-                    ? [0, maxAxisDomain]
-                    : undefined
-                : undefined,
-        [maxAxisDomain, config.settings.normalize]
-    )
-
-    const handleActiveLabel = (type: 'change' | 'reset') => (event: any) => {
-        setActiveLabel(type === 'change' ? event?.activeLabel : undefined)
+    const sharedLineProps: Partial<LineProps> = {
+        dot: false,
+        type: 'monotone',
+        strokeWidth: 3,
+        activeDot: { r: 5 },
     }
 
     return (
-        <Card>
-            <CardHeader title={title} />
-            <CardContent>
+        <Card className={classes.card}>
+            <CardHeader
+                title={title}
+                action={
+                    <IconButton
+                        className={classes.mostAffectedToggle}
+                        disabled={!mostAffectedByState}
+                        onClick={() => setMostAffectedOpen(prev => !prev)}>
+                        <HomeGroup />
+                    </IconButton>
+                }
+            />
+            <ChartSelection
+                activeLabel={activeLabel}
+                data={data}
+                visibleCharts={config.visibleCharts}
+            />
+            <div className={classes.responsiveContainer}>
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                     <ComposedChart
-                        onMouseMove={handleActiveLabel('change')}
-                        onMouseLeave={handleActiveLabel('reset')}
-                        margin={{ bottom: 8, top: 8 }}
-                        syncId={config.settings.syncTooltip ? 'syncedTooltipChart' : undefined}
+                        margin={{ top: 8, bottom: 8 }}
+                        syncId="sync"
+                        onMouseMove={e => {
+                            if (e?.activeLabel >= 0) setActiveLabel(e?.activeLabel)
+                        }}
                         data={data}>
-                        <Tooltip
-                            allowEscapeViewBox={{ x: false, y: false }}
-                            position={{ x: ('auto' as unknown) as number, y: 0 }}
-                            cursor={false}
-                            animationEasing="ease-out"
-                            content={({ payload }: TooltipProps) => (
-                                <ChartTooltip
-                                    visibleCharts={config.visibleCharts}
-                                    payload={payload}
-                                />
-                            )}
-                        />
+                        <Tooltip label={0} cursor={false} content={<></>} />
 
                         <YAxis
                             type="number"
@@ -125,7 +147,15 @@ const Chart = ({ data, title, maxAxisDomain }: Props) => {
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
-            </CardContent>
+            </div>
+            <ChartMostAffected
+                open={Boolean(mostAffectedOpen && mostAffectedByState)}
+                counties={
+                    title !== 'Deutschland'
+                        ? mostAffectedByState.get(title)!
+                        : Array.from(mostAffectedByState?.values()).flat()
+                }
+            />
         </Card>
     )
 }

@@ -1,16 +1,14 @@
 import {
     Button,
     createStyles,
-    Divider,
     Drawer,
     Fab,
     Grid,
-    ListSubheader,
     makeStyles,
     Typography,
     useMediaQuery,
 } from '@material-ui/core'
-import { Close, Eye, WeatherNight, WeatherSunny } from 'mdi-material-ui'
+import { Close, Tune, WeatherNight, WeatherSunny } from 'mdi-material-ui'
 import React from 'react'
 
 import db from '../../services/db'
@@ -24,6 +22,7 @@ const useStyles = makeStyles(theme =>
         fab: {
             position: 'fixed',
             bottom: `max(env(safe-area-inset-bottom), ${theme.spacing(3)}px)`,
+            zIndex: 3,
             right: theme.spacing(3),
         },
         themeFab: {
@@ -52,13 +51,13 @@ const useStyles = makeStyles(theme =>
             maxHeight: '100%',
             overflowY: 'auto',
             overflowX: 'hidden',
+            '&::-webkit-scrollbar': {
+                display: 'none',
+            },
         },
         action: {
             padding: theme.spacing(1),
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
-        },
-        disclaimer: {
-            fontFamily: 'Ubuntu',
         },
     })
 )
@@ -113,22 +112,6 @@ const Settings = ({ open, onOpenChange }: Props) => {
                         <Grid item>
                             <SettingsDashboard />
                         </Grid>
-
-                        <Grid item>
-                            <Divider />
-                        </Grid>
-                        <Grid item>
-                            <ListSubheader disableGutters disableSticky>
-                                Disclaimer
-                            </ListSubheader>
-                            <Typography className={classes.disclaimer}>
-                                Das Dashboard beinhaltet Daten ab dem 19.03.2020. Verdopplungsraten
-                                werden auf Basis der drei aktuellsten Datenpunkte in einem gegebenen
-                                Intervall berechnet. Ausreißer lassen sich durch nicht gemeldete
-                                Fallzahlen des jeweiligen Landes zum Zeitpunkt der Datensammlung
-                                begründen.
-                            </Typography>
-                        </Grid>
                     </Grid>
                 </div>
                 <div className={classes.action}>
@@ -139,7 +122,7 @@ const Settings = ({ open, onOpenChange }: Props) => {
             </Drawer>
 
             <Fab className={classes.fab} onClick={() => onOpenChange(true)}>
-                <Eye />
+                <Tune />
             </Fab>
         </>
     )

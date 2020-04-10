@@ -16,11 +16,6 @@ const sharedTheme = createMuiTheme({
         MuiPaper: {
             rounded: { borderRadius: 20 },
         },
-        MuiCardHeader: {
-            root: {
-                textAlign: 'center',
-            },
-        },
         MuiLink: {
             root: {
                 fontSize: '1rem',

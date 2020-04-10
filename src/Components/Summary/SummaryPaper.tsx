@@ -2,6 +2,7 @@ import {
     Avatar,
     ButtonBase,
     createStyles,
+    Divider,
     Grid,
     makeStyles,
     Paper,
@@ -26,8 +27,8 @@ const useStyles = makeStyles(theme =>
             padding: theme.spacing(2),
             boxShadow: theme.shadows[4],
             height: ({ legend, percentage }: StyleProps) =>
-                legend && percentage ? 120 : percentage ? 85 : legend ? 110 : 72,
-            width: 160,
+                legend && percentage ? 130 : percentage ? 85 : legend ? 120 : 72,
+            minWidth: 160,
             transition: theme.transitions.create('all', {
                 easing: theme.transitions.easing.easeOut,
             }),
@@ -45,6 +46,18 @@ const useStyles = makeStyles(theme =>
         },
         buttonBase: {
             borderRadius: 20,
+        },
+        divider: {
+            backgroundColor: ({ visible }: StyleProps) =>
+                visible || theme.palette.type === 'light'
+                    ? 'rgba(0, 0, 0, 0.12)'
+                    : 'rgba(255, 255, 255, 0.12)',
+        },
+        legendItem: {
+            width: 140,
+        },
+        dataItem: {
+            height: 59,
         },
     })
 )
@@ -89,27 +102,41 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     return (
         <ButtonBase className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
-                <Grid container alignItems="center" spacing={1}>
-                    <Grid item xs={5}>
-                        <Avatar className={classes.avatar}>{icon}</Avatar>
-                    </Grid>
-                    <Grid item xs={7}>
-                        <Typography align="left" variant="h6">
-                            {Number.isInteger(data.summary[dataKey])
-                                ? data.summary[dataKey]
-                                : data.summary[dataKey].toFixed(1)}
-                        </Typography>
-                        {config.settings.percentage && (
-                            <Typography align="left" component="div" variant="caption">
-                                {data.summaryPercent[dataKey]}
-                            </Typography>
-                        )}
+                <Grid container direction="column" justify="center" spacing={1}>
+                    <Grid item className={classes.dataItem}>
+                        <Grid container alignItems="center" spacing={1} wrap="nowrap">
+                            <Grid item>
+                                <Avatar className={classes.avatar}>{icon}</Avatar>
+                            </Grid>
+                            <Grid item>
+                                <Typography align="left" variant="h6">
+                                    {Number.isInteger(data.summary[dataKey])
+                                        ? data.summary[dataKey]
+                                        : data.summary[dataKey].toFixed(1)}
+                                </Typography>
+                                {config.settings.percentage && (
+                                    <Typography align="left" component="div" variant="caption">
+                                        {data.summaryPercent[dataKey]}
+                                    </Typography>
+                                )}
+                            </Grid>
+                        </Grid>
                     </Grid>
 
                     {legend && (
                         <Grid item xs={12}>
-                            {' '}
-                            <Typography variant="caption">{legend}</Typography>{' '}
+                            <Grid
+                                className={classes.legendItem}
+                                container
+                                justify="center"
+                                spacing={1}>
+                                <Grid item className={classes.legendItem}>
+                                    <Divider className={classes.divider} />
+                                </Grid>
+                                <Grid item className={classes.legendItem}>
+                                    <Typography variant="caption">{legend}</Typography>
+                                </Grid>
+                            </Grid>
                         </Grid>
                     )}
                 </Grid>
