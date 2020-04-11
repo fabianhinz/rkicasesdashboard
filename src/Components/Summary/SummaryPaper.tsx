@@ -12,8 +12,8 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useMemo } from 'react'
 
 import { Summary } from '../../model/model'
-import { useConfigContext } from '../Provider/Configprovider'
-import { useDataContext } from '../Provider/Dataprovider'
+import { useConfigContext } from '../Provider/ConfigProvider'
+import { useFirestoreContext } from '../Provider/FirestoreProvider'
 
 type StyleProps = Pick<Props, 'backgroundColor'> & {
     visible: boolean
@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme =>
             width: 140,
         },
         dataItem: {
-            height: 59,
+            maxHeight: 59,
         },
     })
 )
@@ -71,7 +71,7 @@ interface Props {
 
 const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     const { config } = useConfigContext()
-    const { data } = useDataContext()
+    const { firestoreData } = useFirestoreContext()
 
     const legend = useMemo(() => {
         if (!config.settings.showLegend) return undefined
@@ -96,7 +96,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
         legend,
     })
 
-    if (!data.summary || !data.summaryPercent)
+    if (!firestoreData.summary || !firestoreData.summaryPercent)
         return <Skeleton variant="text" width="100%" height={39} />
 
     return (
@@ -110,13 +110,13 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                             </Grid>
                             <Grid item>
                                 <Typography align="left" variant="h6">
-                                    {Number.isInteger(data.summary[dataKey])
-                                        ? data.summary[dataKey]
-                                        : data.summary[dataKey].toFixed(1)}
+                                    {Number.isInteger(firestoreData.summary[dataKey])
+                                        ? firestoreData.summary[dataKey]
+                                        : firestoreData.summary[dataKey].toFixed(1)}
                                 </Typography>
                                 {config.settings.percentage && (
                                     <Typography align="left" component="div" variant="caption">
-                                        {data.summaryPercent[dataKey]}
+                                        {firestoreData.summaryPercent[dataKey]}
                                     </Typography>
                                 )}
                             </Grid>

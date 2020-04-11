@@ -1,8 +1,8 @@
 import { Reducer, useReducer } from 'react'
 
-import { County, RkiData, StateData, Summary, SummaryPercent } from '../model/model'
+import { RkiData, StateData, Summary, SummaryPercent } from '../model/model'
 
-export interface DataState {
+export interface FirestoreState {
     loading: boolean
     byDay: Map<string, StateData>
     byState: Map<string, StateData[]>
@@ -10,10 +10,9 @@ export interface DataState {
     summaryPercent: SummaryPercent | null
     today: RkiData[]
     yesterday: RkiData[]
-    mostAffectedByState: Map<string, County[]>
 }
 
-export type DataActions =
+export type FirestoreActions =
     | { type: 'byDayChange'; byDay: Map<string, StateData> }
     | { type: 'byStateChange'; byState: Map<string, StateData[]> }
     | { type: 'summaryChange'; summary: Summary }
@@ -24,9 +23,8 @@ export type DataActions =
           type: 'summaryPercentChange'
           summaryPercent: SummaryPercent
       }
-    | { type: 'mostAffectedByStateChange'; mostAffectedByState: Map<string, County[]> }
 
-const reducer: Reducer<DataState, DataActions> = (state, actions) => {
+const reducer: Reducer<FirestoreState, FirestoreActions> = (state, actions) => {
     switch (actions.type) {
         case 'byDayChange': {
             return { ...state, byDay: actions.byDay }
@@ -49,13 +47,10 @@ const reducer: Reducer<DataState, DataActions> = (state, actions) => {
         case 'summaryPercentChange': {
             return { ...state, summaryPercent: actions.summaryPercent }
         }
-        case 'mostAffectedByStateChange': {
-            return { ...state, mostAffectedByState: actions.mostAffectedByState }
-        }
     }
 }
 
-const initialState: DataState = {
+const initialState: FirestoreState = {
     loading: true,
     byDay: new Map(),
     byState: new Map(),
@@ -63,7 +58,6 @@ const initialState: DataState = {
     summaryPercent: null,
     today: [],
     yesterday: [],
-    mostAffectedByState: new Map(),
 }
 
-export const useDataReducer = () => useReducer(reducer, initialState)
+export const useFirestoreReducer = () => useReducer(reducer, initialState)

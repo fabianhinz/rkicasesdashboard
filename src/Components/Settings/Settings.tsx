@@ -12,7 +12,7 @@ import { Close, Tune, WeatherNight, WeatherSunny } from 'mdi-material-ui'
 import React from 'react'
 
 import db from '../../services/db'
-import { useThemeContext } from '../Provider/Themeprovider'
+import { useThemeContext } from '../Provider/ThemeProvider'
 import SettingsDashboard from './SettingsDashboard'
 import SettingsStates from './SettingsStates'
 import SettingsSummary from './SettingsSummary'
@@ -21,9 +21,12 @@ const useStyles = makeStyles(theme =>
     createStyles({
         fab: {
             position: 'fixed',
-            bottom: `max(env(safe-area-inset-bottom), ${theme.spacing(3)}px)`,
-            zIndex: 3,
+            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(3)}px)`,
+            zIndex: theme.zIndex.appBar + 1,
             right: theme.spacing(3),
+            [theme.breakpoints.up('sm')]: {
+                bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(4)}px)`,
+            },
         },
         themeFab: {
             flexShrink: 0,

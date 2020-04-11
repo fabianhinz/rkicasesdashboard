@@ -2,19 +2,23 @@ import { createStyles, LinearProgress, makeStyles } from '@material-ui/core'
 import { FC, useContext, useEffect } from 'react'
 import React from 'react'
 
-import { County, Feature, RkiData, StateData } from '../../model/model'
+import { RkiData, StateData } from '../../model/model'
+import {
+    FirestoreActions,
+    FirestoreState,
+    useFirestoreReducer,
+} from '../../reducer/firestoreReducer'
 import { firestore } from '../../services/firebase'
 import { calculateDoublingRates, summUp } from '../../services/utility'
-import { DataActions, DataState, useDataReducer } from '../DataReducer'
 
 interface Context {
-    data: DataState
-    dataDispatch: React.Dispatch<DataActions>
+    firestoreData: FirestoreState
+    firestoreDispatch: React.Dispatch<FirestoreActions>
 }
 
 const Context = React.createContext<Context | null>(null)
 
-export const useDataContext = () => useContext(Context) as Context
+export const useFirestoreContext = () => useContext(Context) as Context
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -31,52 +35,10 @@ const useStyles = makeStyles(theme =>
     })
 )
 
-const Dataprovider: FC = ({ children }) => {
-    const [data, dataDispatch] = useDataReducer()
+const FirestoreProvider: FC = ({ children }) => {
+    const [firestoreData, firestoreDispatch] = useFirestoreReducer()
 
     const classes = useStyles()
-
-    useEffect(() => {
-        // ? give the ui some time to breath
-        setTimeout(
-            () =>
-                fetch(
-                    'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'
-                )
-                    .then(response => response.json())
-                    .then((esriData: { features: Feature[] }) => {
-                        const states = new Set(
-                            Array.from(esriData.features.map(feature => feature.attributes.BL))
-                        )
-
-                        const mostAffectedByState = new Map<string, County[]>()
-
-                        states.forEach(state => {
-                            const transformedStateData = esriData.features
-                                .filter(feature => feature.attributes.BL === state)
-                                .map(({ attributes }, index) => ({
-                                    rate: Math.trunc(attributes.cases_per_100k),
-                                    county: attributes.county,
-                                    index,
-                                }))
-
-                            const mostAffected: County[] = []
-                            for (const { county, index, rate } of transformedStateData) {
-                                // ? we are only interested in the 50 most affected counties
-                                if (index === 50) break
-                                mostAffected.push({ county, rate })
-                            }
-
-                            mostAffectedByState.set(state, mostAffected)
-                        })
-
-                        dataDispatch({ type: 'mostAffectedByStateChange', mostAffectedByState })
-                    })
-                    // ToDo handle errors
-                    .catch(console.error),
-            1000
-        )
-    }, [dataDispatch])
 
     useEffect(
         () =>
@@ -89,16 +51,16 @@ const Dataprovider: FC = ({ children }) => {
                         doc => ({ state: doc.id, ...doc.data() } as Omit<RkiData, 'doublingRate'>)
                     )
 
-                    dataDispatch({
+                    firestoreDispatch({
                         type: 'todayChange',
                         today: data.slice(0, data.length / 2),
                     })
-                    dataDispatch({
+                    firestoreDispatch({
                         type: 'yesterdayChange',
                         yesterday: data.slice(data.length / 2),
                     })
                 }),
-        [dataDispatch]
+        [firestoreDispatch]
     )
 
     useEffect(
@@ -121,7 +83,7 @@ const Dataprovider: FC = ({ children }) => {
                             calculateDoublingRates(docs.filter(doc => doc.state === state))
                         )
                     )
-                    dataDispatch({ type: 'byStateChange', byState })
+                    firestoreDispatch({ type: 'byStateChange', byState })
 
                     new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
                         const day = Array.from(byState.values())
@@ -139,20 +101,22 @@ const Dataprovider: FC = ({ children }) => {
                             doublingRate: summUp(day, 'doublingRate') / day.length,
                         })
                     })
-                    dataDispatch({ type: 'byDayChange', byDay })
-                    dataDispatch({ type: 'loadingChange', loading: false })
+                    firestoreDispatch({ type: 'byDayChange', byDay })
+                    firestoreDispatch({ type: 'loadingChange', loading: false })
                 }),
-        [dataDispatch]
+        [firestoreDispatch]
     )
 
-    if (data.loading)
+    if (firestoreData.loading)
         return (
             <div className={classes.loadingContainer}>
                 <LinearProgress className={classes.linearProgress} />
             </div>
         )
 
-    return <Context.Provider value={{ data, dataDispatch }}>{children}</Context.Provider>
+    return (
+        <Context.Provider value={{ firestoreData, firestoreDispatch }}>{children}</Context.Provider>
+    )
 }
 
-export default Dataprovider
+export default FirestoreProvider

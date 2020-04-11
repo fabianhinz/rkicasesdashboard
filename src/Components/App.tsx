@@ -5,8 +5,8 @@ import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
 import Charts from './Charts/Charts'
 import Footer from './Footer'
-import { useConfigContext } from './Provider/Configprovider'
-import { useDataContext } from './Provider/Dataprovider'
+import { useConfigContext } from './Provider/ConfigProvider'
+import { useFirestoreContext } from './Provider/FirestoreProvider'
 import Settings from './Settings/Settings'
 import Summary from './Summary/Summary'
 
@@ -18,7 +18,10 @@ const useStyles = makeStyles(theme =>
     createStyles({
         app: {
             paddingTop: theme.spacing(3),
-            paddingBottom: theme.spacing(3),
+            paddingBottom: 56 + theme.spacing(3),
+            [theme.breakpoints.up('sm')]: {
+                paddingBottom: 64 + theme.spacing(3),
+            },
             userSelect: 'none',
         },
         itemSummary: {
@@ -40,7 +43,7 @@ const useStyles = makeStyles(theme =>
 )
 
 const App = () => {
-    const { data, dataDispatch } = useDataContext()
+    const { firestoreData: data, firestoreDispatch: dataDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
 
     const highRes = useMediaQuery('(min-width: 1101px)')
@@ -129,14 +132,11 @@ const App = () => {
                     <Grid item xs={12}>
                         <Charts maxAxisDomain={maxAxisDomain} />
                     </Grid>
-
-                    <Grid item xs={12}>
-                        <Footer />
-                    </Grid>
                 </Grid>
             </Container>
 
             <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
+            <Footer />
         </div>
     )
 }

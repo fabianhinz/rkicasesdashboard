@@ -15,8 +15,9 @@ import {
     YAxis,
 } from 'recharts'
 
-import { ActiveLabelProps, County, StateData } from '../../../model/model'
-import { useConfigContext } from '../../Provider/Configprovider'
+import { ActiveLabelProps, StateData } from '../../../model/model'
+import { useConfigContext } from '../../Provider/ConfigProvider'
+import { useEsriContext } from '../../Provider/EsriProvider'
 import BarShape, { BarShapeProps } from './BarShape'
 import ChartMostAffected from './ChartMostAffected'
 import ChartSelection from './ChartSelection'
@@ -36,17 +37,10 @@ interface Props extends ActiveLabelProps {
     title: string
     data: StateData[]
     maxAxisDomain?: number
-    mostAffectedByState: Map<string, County[]>
 }
 
-const Chart = ({
-    data,
-    title,
-    maxAxisDomain,
-    activeLabel,
-    setActiveLabel,
-    mostAffectedByState,
-}: Props) => {
+const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Props) => {
+    const { esriData } = useEsriContext()
     const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
 
     const classes = useStyles()
@@ -73,7 +67,6 @@ const Chart = ({
                 action={
                     <IconButton
                         className={classes.mostAffectedToggle}
-                        disabled={!mostAffectedByState}
                         onClick={() => setMostAffectedOpen(prev => !prev)}>
                         <HomeGroup />
                     </IconButton>
@@ -149,12 +142,13 @@ const Chart = ({
                 </ResponsiveContainer>
             </div>
             <ChartMostAffected
-                open={Boolean(mostAffectedOpen && mostAffectedByState)}
+                open={mostAffectedOpen}
                 counties={
                     title !== 'Deutschland'
-                        ? mostAffectedByState.get(title)!
-                        : Array.from(mostAffectedByState?.values()).flat()
+                        ? esriData.mostAffectedByState.get(title)
+                        : Array.from(esriData.mostAffectedByState.values()).flat()
                 }
+                showSkeletons={esriData.loading}
             />
         </Card>
     )

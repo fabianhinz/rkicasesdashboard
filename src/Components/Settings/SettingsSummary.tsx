@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Settings } from '../../model/model'
 import db from '../../services/db'
-import { useConfigContext } from '../Provider/Configprovider'
+import { useConfigContext } from '../Provider/ConfigProvider'
 import SettingsListItem from './SettingsListItem'
 
 const SettingsSummary = () => {

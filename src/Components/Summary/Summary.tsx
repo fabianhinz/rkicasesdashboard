@@ -5,8 +5,8 @@ import React from 'react'
 
 import { VisibleCharts } from '../../model/model'
 import db from '../../services/db'
-import { useConfigContext } from '../Provider/Configprovider'
-import { useDataContext } from '../Provider/Dataprovider'
+import { useConfigContext } from '../Provider/ConfigProvider'
+import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import SummaryPaper from './SummaryPaper'
 
 const useStyles = makeStyles(theme =>
@@ -27,13 +27,12 @@ const useStyles = makeStyles(theme =>
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 160,
         },
     })
 )
 
 const Summary = () => {
-    const { data } = useDataContext()
+    const { firestoreData: data } = useFirestoreContext()
     const { config, configDispatch } = useConfigContext()
 
     const classes = useStyles()

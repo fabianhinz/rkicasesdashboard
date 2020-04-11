@@ -5,21 +5,21 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from './Components/App'
-import Configprovider from './Components/Provider/Configprovider'
-import Dataprovider from './Components/Provider/Dataprovider'
-import Themeprovider from './Components/Provider/Themeprovider'
+import ConfigProvider from './Components/Provider/ConfigProvider'
+import FirestoreProvider from './Components/Provider/FirestoreProvider'
+import ThemeProvider from './Components/Provider/ThemeProvider'
 import States from './Components/States/States'
 import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
-    <Themeprovider>
-        <Configprovider>
-            <Dataprovider>
+    <ThemeProvider>
+        <ConfigProvider>
+            <FirestoreProvider>
                 <App />
-                <States />
-            </Dataprovider>
-        </Configprovider>
-    </Themeprovider>,
+            </FirestoreProvider>
+            <States />
+        </ConfigProvider>
+    </ThemeProvider>,
     document.getElementById('root')
 )
 

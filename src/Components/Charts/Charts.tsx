@@ -3,8 +3,9 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useMemo, useState } from 'react'
 
-import { useConfigContext } from '../Provider/Configprovider'
-import { useDataContext } from '../Provider/Dataprovider'
+import { useConfigContext } from '../Provider/ConfigProvider'
+import EsriProvider from '../Provider/EsriProvider'
+import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import Chart from './Chart/Chart'
 
 interface Props {
@@ -13,9 +14,9 @@ interface Props {
 
 const Charts = ({ maxAxisDomain }: Props) => {
     const { config } = useConfigContext()
-    const { data } = useDataContext()
+    const { firestoreData } = useFirestoreContext()
 
-    const [activeLabel, setActiveLabel] = useState<number>(data.byDay.size - 1)
+    const [activeLabel, setActiveLabel] = useState<number>(firestoreData.byDay.size - 1)
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
@@ -31,34 +32,34 @@ const Charts = ({ maxAxisDomain }: Props) => {
 
     return (
         <Grid container spacing={2}>
-            {config.enabledStates.size === 0 && (
-                <Grid item xs={12}>
-                    <Chart
-                        title="Deutschland"
-                        data={[...data.byDay.values()]}
-                        activeLabel={activeLabel}
-                        setActiveLabel={setActiveLabel}
-                        mostAffectedByState={data.mostAffectedByState}
-                    />
-                </Grid>
-            )}
-
-            {[...data.byState.entries()]
-                .filter(([state]) => config.enabledStates.has(state))
-                .map(([state, stateData]) => (
-                    <Grid item {...gridBreakpointProps} key={state}>
+            <EsriProvider>
+                {config.enabledStates.size === 0 && (
+                    <Grid item xs={12}>
                         <Chart
-                            title={state}
-                            data={stateData}
-                            maxAxisDomain={maxAxisDomain}
+                            title="Deutschland"
+                            data={[...firestoreData.byDay.values()]}
                             activeLabel={activeLabel}
                             setActiveLabel={setActiveLabel}
-                            mostAffectedByState={data.mostAffectedByState}
                         />
                     </Grid>
-                ))}
+                )}
 
-            {data.byState.size === 0 &&
+                {[...firestoreData.byState.entries()]
+                    .filter(([state]) => config.enabledStates.has(state))
+                    .map(([state, stateData]) => (
+                        <Grid item {...gridBreakpointProps} key={state}>
+                            <Chart
+                                title={state}
+                                data={stateData}
+                                maxAxisDomain={maxAxisDomain}
+                                activeLabel={activeLabel}
+                                setActiveLabel={setActiveLabel}
+                            />
+                        </Grid>
+                    ))}
+            </EsriProvider>
+
+            {firestoreData.byState.size === 0 &&
                 new Array(config.enabledStates.size).fill(1).map((_dummy, index) => (
                     <Grid item {...gridBreakpointProps} key={index}>
                         <Card>

@@ -1,7 +1,7 @@
 import { createStyles, makeStyles } from '@material-ui/core'
 import React from 'react'
 
-import { useConfigContext } from '../Provider/Configprovider'
+import { useConfigContext } from '../Provider/ConfigProvider'
 import State from './State'
 
 const useStyles = makeStyles(theme =>
