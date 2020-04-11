@@ -3,7 +3,7 @@ import {
     CssBaseline,
     PaletteType,
     responsiveFontSizes,
-    ThemeProvider,
+    ThemeProvider as MuiThemeProvider,
 } from '@material-ui/core'
 import { blue, green, lightBlue, lightGreen } from '@material-ui/core/colors'
 import { FC, useContext, useEffect, useState } from 'react'
@@ -71,7 +71,7 @@ const Context = React.createContext<ThemeContext | null>(null)
 
 export const useThemeContext = () => useContext(Context) as ThemeContext
 
-const Themeprovider: FC = ({ children }) => {
+const ThemeProvider: FC = ({ children }) => {
     const [theme, setTheme] = useState<PaletteType>('dark')
 
     useEffect(() => {
@@ -80,12 +80,12 @@ const Themeprovider: FC = ({ children }) => {
 
     return (
         <Context.Provider value={{ theme, setTheme }}>
-            <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+            <MuiThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
                 <CssBaseline />
                 {children}
-            </ThemeProvider>
+            </MuiThemeProvider>
         </Context.Provider>
     )
 }
 
-export default Themeprovider
+export default ThemeProvider

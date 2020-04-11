@@ -2,8 +2,8 @@ import { FC, useCallback, useContext, useEffect } from 'react'
 import React from 'react'
 
 import { Settings, VisibleCharts } from '../../model/model'
+import { ConfigActions, ConfigState, useConfigReducer } from '../../reducer/configReducer'
 import { getOrThrow } from '../../services/db'
-import { ConfigActions, ConfigState, useConfigReducer } from '../ConfigReducer'
 
 interface Context {
     config: ConfigState
@@ -14,7 +14,7 @@ const Context = React.createContext<Context | null>(null)
 
 export const useConfigContext = () => useContext(Context) as Context
 
-const Configprovider: FC = ({ children }) => {
+const ConfigProvider: FC = ({ children }) => {
     const [config, configDispatch] = useConfigReducer()
 
     const getInitialConfig = useCallback(() => {
@@ -53,4 +53,4 @@ const Configprovider: FC = ({ children }) => {
     return <Context.Provider value={{ config, configDispatch }}>{children}</Context.Provider>
 }
 
-export default Configprovider
+export default ConfigProvider
