@@ -69,7 +69,11 @@ const ChartMostAffected = ({ counties, open, showSkeletons }: Props) => {
                         label="Filtern"
                         value={filterValue}
                         onChange={e => setFilterValue(e.target.value.toLowerCase())}
-                        helperText={showSkeletons ? undefined : new Date().toLocaleDateString()}
+                        helperText={
+                            showSkeletons
+                                ? undefined
+                                : `${new Date().toLocaleDateString()} Fälle pro 100 000 Einwohner`
+                        }
                     />
                     <List dense disablePadding>
                         {counties

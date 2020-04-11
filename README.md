@@ -11,6 +11,7 @@ Das Dashboard beinhaltet Daten ab dem 20.03.2020. Verdopplungsraten werden auf B
 - Die Anwendung wird über firebase gehostet https://rkicasesapi.web.app/
 - Icons made by [Freepik](https://www.flaticon.com/authors/freepik)
 - Karte von [simplemaps](http://simplemaps.com/resources/svg-maps)
+- Die Daten von Land- und Stadtkreisen werden von [esri](https://www.esri.de/de-de/home) bezogen
 
 ___
 
