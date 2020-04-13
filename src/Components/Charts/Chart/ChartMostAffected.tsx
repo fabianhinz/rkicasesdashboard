@@ -21,6 +21,7 @@ import { Skeleton } from '@material-ui/lab'
 import { AccountMultiple, Heart, HeartOutline, Sigma, Skull } from 'mdi-material-ui'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { LEGEND } from '../../../constants'
 import { County } from '../../../model/model'
 import db from '../../../services/db'
 import { useConfigContext } from '../../Provider/ConfigProvider'
@@ -63,6 +64,7 @@ const useStyles = makeStyles(theme =>
         textField: {
             width: '100%',
             marginBottom: theme.spacing(1),
+            minHeight: 70,
         },
         avatar: {
             transition: theme.transitions.create('all', {
@@ -171,6 +173,16 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
             ? config.favoriteCounties.has(data.county)
             : !config.favoriteCounties.has(data.county)
 
+    const helperText = () => {
+        if (!config.settings.showLegend) return
+
+        let helperText =
+            tabIndex === 0 ? LEGEND.cases : tabIndex === 1 ? LEGEND.rate : LEGEND.deaths
+        if (tabAwareEsriData) helperText += ` ${tabAwareEsriData[0].lastUpdate}`
+
+        return helperText
+    }
+
     return (
         <>
             <Backdrop open={open} className={classes.backdrop} />
@@ -182,13 +194,7 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
                         placeholder="Land- und Stadtkreise"
                         value={filterValue}
                         onChange={e => setFilterValue(e.target.value.toLowerCase())}
-                        helperText={
-                            tabIndex === 0
-                                ? 'Fälle'
-                                : tabIndex === 1
-                                ? 'Fälle pro 100 000 Einwohner'
-                                : 'Todesfälle'
-                        }
+                        helperText={helperText()}
                     />
 
                     <Tabs

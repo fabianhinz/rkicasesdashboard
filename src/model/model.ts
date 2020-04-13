@@ -44,6 +44,7 @@ export interface ActiveLabelProps {
 export interface Attributes {
     county: string
     BL: string
+    last_update: string
     cases_per_100k: number
     deaths: number
     cases: number
@@ -56,4 +57,5 @@ export interface Feature {
 export interface County {
     county: string
     value: number
+    lastUpdate: string
 }
