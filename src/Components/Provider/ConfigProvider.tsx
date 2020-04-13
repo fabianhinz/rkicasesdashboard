@@ -44,6 +44,15 @@ const ConfigProvider: FC = ({ children }) => {
                 })
             )
             .catch(console.error)
+
+        getOrThrow<Set<string>>('favoriteCounties')
+            .then(favoriteCounties =>
+                configDispatch({
+                    type: 'favoriteCountiesChange',
+                    favoriteCounties,
+                })
+            )
+            .catch(console.error)
     }, [configDispatch])
 
     useEffect(() => {
