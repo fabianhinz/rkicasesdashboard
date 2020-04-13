@@ -32,7 +32,3 @@ const calculateDoublingRates = (docs: RkiData[]) =>
     })
 
 export { summUp, percentageOf, calculateDoublingRates }
-
-//now:  (20680 + 20141) / 2 >> 20.410,5
-//prev: 19395
-// growth 1,0497538032

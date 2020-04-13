@@ -34,12 +34,12 @@ const useStyles = makeStyles(theme =>
 )
 
 interface Props extends ActiveLabelProps {
-    title: string
+    state?: string
     data: StateData[]
     maxAxisDomain?: number
 }
 
-const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Props) => {
+const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Props) => {
     const { esriData } = useEsriContext()
     const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
 
@@ -63,7 +63,7 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
     return (
         <Card className={classes.card}>
             <CardHeader
-                title={title}
+                title={state || 'Deutschland'}
                 action={
                     <IconButton
                         className={classes.mostAffectedToggle}
@@ -143,16 +143,7 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
             </div>
             <ChartMostAffected
                 open={mostAffectedOpen}
-                counties={
-                    title !== 'Deutschland'
-                        ? esriData.mostAffectedByState.get(title)
-                        : Array.from(esriData.mostAffectedByState.entries())
-                              .map(([name, countyData]) =>
-                                  countyData.map(data => ({ ...data, name }))
-                              )
-                              .flat()
-                              .sort((a, b) => b.rate - a.rate)
-                }
+                county={state}
                 showSkeletons={esriData.loading}
             />
         </Card>

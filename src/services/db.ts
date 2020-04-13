@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 
-type Keys = 'settings' | 'enabledStates' | 'theme' | 'visibleCharts'
+type Keys = 'settings' | 'enabledStates' | 'theme' | 'visibleCharts' | 'favoriteCounties'
 
 class Db extends Dexie {
     data: Dexie.Table<any, Keys>

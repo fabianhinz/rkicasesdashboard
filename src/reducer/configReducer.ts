@@ -6,6 +6,7 @@ export interface ConfigState {
     enabledStates: Set<string>
     visibleCharts: VisibleCharts
     settings: Settings
+    favoriteCounties: Set<string>
 }
 
 export type ConfigActions =
@@ -21,7 +22,11 @@ export type ConfigActions =
           type: 'settingsChange'
           settings: Settings
       }
-
+    | {
+          type: 'favoriteCountiesChange'
+          favoriteCounties: Set<string>
+      }
+// ToDo reducer should handle more logic
 const reducer: Reducer<ConfigState, ConfigActions> = (state, actions) => {
     switch (actions.type) {
         case 'enabledStatesChange': {
@@ -32,6 +37,9 @@ const reducer: Reducer<ConfigState, ConfigActions> = (state, actions) => {
         }
         case 'settingsChange': {
             return { ...state, settings: actions.settings }
+        }
+        case 'favoriteCountiesChange': {
+            return { ...state, favoriteCounties: actions.favoriteCounties }
         }
     }
 }
@@ -54,6 +62,7 @@ const initialState: ConfigState = {
         normalize: true,
         ratio: 3,
     },
+    favoriteCounties: new Set(),
 }
 
 export const useConfigReducer = () => useReducer(reducer, initialState)

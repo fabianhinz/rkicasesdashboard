@@ -36,7 +36,6 @@ const Charts = ({ maxAxisDomain }: Props) => {
                 {config.enabledStates.size === 0 && (
                     <Grid item xs={12}>
                         <Chart
-                            title="Deutschland"
                             data={[...firestoreData.byDay.values()]}
                             activeLabel={activeLabel}
                             setActiveLabel={setActiveLabel}
@@ -49,7 +48,7 @@ const Charts = ({ maxAxisDomain }: Props) => {
                     .map(([state, stateData]) => (
                         <Grid item {...gridBreakpointProps} key={state}>
                             <Chart
-                                title={state}
+                                state={state}
                                 data={stateData}
                                 maxAxisDomain={maxAxisDomain}
                                 activeLabel={activeLabel}
