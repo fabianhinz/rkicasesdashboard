@@ -35,6 +35,7 @@ const EsriProvider: FC = ({ children }) => {
                                 .map(({ attributes }) => ({
                                     value: Math.trunc(attributes[attributesKey]),
                                     county: attributes.county,
+                                    lastUpdate: attributes.last_update,
                                 }))
                         )
                     })
@@ -52,15 +53,15 @@ const EsriProvider: FC = ({ children }) => {
                 await Promise.all([
                     makeRequest(
                         'cases_per_100k',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'
+                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'
                     ),
                     makeRequest(
                         'cases',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=county,BL,cases&returnGeometry=false&orderByFields=cases DESC&outSR=4326&f=json'
+                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,cases&returnGeometry=false&orderByFields=cases DESC&outSR=4326&f=json'
                     ),
                     makeRequest(
                         'deaths',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=county,BL,deaths&returnGeometry=false&orderByFields=deaths DESC&outSR=4326&f=json'
+                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,deaths&returnGeometry=false&orderByFields=deaths DESC&outSR=4326&f=json'
                     ),
                 ])
             } catch {
