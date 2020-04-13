@@ -26,7 +26,7 @@ const Footer = () => {
         <>
             <AppBar position="fixed" color="default" className={classes.appbar}>
                 <Toolbar>
-                    <Grid container spacing={1}>
+                    <Grid container spacing={2}>
                         <Grid item>
                             <Link target="_blank" href="https://github.com/fabianhinz/rkicasesapi">
                                 Datenquelle

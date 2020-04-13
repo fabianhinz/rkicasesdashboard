@@ -146,7 +146,12 @@ const Chart = ({ data, title, maxAxisDomain, activeLabel, setActiveLabel }: Prop
                 counties={
                     title !== 'Deutschland'
                         ? esriData.mostAffectedByState.get(title)
-                        : Array.from(esriData.mostAffectedByState.values()).flat()
+                        : Array.from(esriData.mostAffectedByState.entries())
+                              .map(([name, countyData]) =>
+                                  countyData.map(data => ({ ...data, name }))
+                              )
+                              .flat()
+                              .sort((a, b) => b.rate - a.rate)
                 }
                 showSkeletons={esriData.loading}
             />
