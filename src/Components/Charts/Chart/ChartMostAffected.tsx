@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme =>
 
 interface Props {
     open: boolean
-    counties?: County[]
+    counties?: (County & { name?: string })[]
     showSkeletons: boolean
 }
 
@@ -85,7 +85,10 @@ const ChartMostAffected = ({ counties, open, showSkeletons }: Props) => {
                                             <AccountMultiple />
                                         </Avatar>
                                     </ListItemIcon>
-                                    <ListItemText primary={data.county} secondary={data.rate} />
+                                    <ListItemText
+                                        primary={`${data.county}: ${data.rate}`}
+                                        secondary={data.name}
+                                    />
                                 </ListItem>
                             ))}
                         {showSkeletons &&
