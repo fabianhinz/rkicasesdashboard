@@ -42,9 +42,11 @@ export interface ActiveLabelProps {
 
 // ? ext. data source: https://www.esri.de/de-de/home
 export interface Attributes {
-    cases_per_100k: number
     county: string
     BL: string
+    cases_per_100k: number
+    deaths: number
+    cases: number
 }
 
 export interface Feature {
@@ -53,5 +55,5 @@ export interface Feature {
 
 export interface County {
     county: string
-    rate: number
+    value: number
 }
