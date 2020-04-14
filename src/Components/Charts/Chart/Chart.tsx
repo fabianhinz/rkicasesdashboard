@@ -1,5 +1,12 @@
-import { Card, CardHeader, createStyles, IconButton, makeStyles } from '@material-ui/core'
-import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
+import {
+    Card,
+    CardHeader,
+    createStyles,
+    IconButton,
+    makeStyles,
+    Tooltip as MuiTooltip,
+} from '@material-ui/core'
+import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
 import { HomeGroup } from 'mdi-material-ui'
 import React, { useState } from 'react'
@@ -15,7 +22,7 @@ import {
     YAxis,
 } from 'recharts'
 
-import { ActiveLabelProps, StateData } from '../../../model/model'
+import { ActiveLabelProps, CombinedStateData } from '../../../model/model'
 import { useConfigContext } from '../../Provider/ConfigProvider'
 import { useEsriContext } from '../../Provider/EsriProvider'
 import BarShape, { BarShapeProps } from './BarShape'
@@ -35,7 +42,7 @@ const useStyles = makeStyles(theme =>
 
 interface Props extends ActiveLabelProps {
     state?: string
-    data: StateData[]
+    data: CombinedStateData[]
     maxAxisDomain?: number
 }
 
@@ -65,11 +72,13 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
             <CardHeader
                 title={state || 'Deutschland'}
                 action={
-                    <IconButton
-                        className={classes.mostAffectedToggle}
-                        onClick={() => setMostAffectedOpen(prev => !prev)}>
-                        <HomeGroup />
-                    </IconButton>
+                    <MuiTooltip placement="left" title="Land- und Stadtkreise">
+                        <IconButton
+                            className={classes.mostAffectedToggle}
+                            onClick={() => setMostAffectedOpen(prev => !prev)}>
+                            <HomeGroup />
+                        </IconButton>
+                    </MuiTooltip>
                 }
             />
             <ChartSelection
@@ -106,6 +115,13 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                             fill={cyan.A400}
                             dataKey="rate"
                             {...sharedLineProps}
+                        />
+
+                        <Bar
+                            hide={!config.visibleCharts.recovered}
+                            stroke={green.A400}
+                            dataKey="recovered"
+                            fill={green.A400}
                         />
 
                         <Bar

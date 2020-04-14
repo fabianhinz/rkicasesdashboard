@@ -29,6 +29,7 @@ import { useEsriContext } from '../../Provider/EsriProvider'
 
 interface StyleProps {
     tabsindicatorColor: string
+    showLegend: boolean
 }
 
 const useStyles = makeStyles(theme =>
@@ -64,7 +65,12 @@ const useStyles = makeStyles(theme =>
         textField: {
             width: '100%',
             marginBottom: theme.spacing(1),
-            minHeight: 70,
+            [theme.breakpoints.between('xs', 'sm')]: {
+                minHeight: ({ showLegend }: StyleProps) => (showLegend ? 89 : 48),
+            },
+            [theme.breakpoints.up('md')]: {
+                minHeight: ({ showLegend }: StyleProps) => (showLegend ? 70 : 48),
+            },
         },
         avatar: {
             transition: theme.transitions.create('all', {
@@ -122,6 +128,7 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
 
     const classes = useStyles({
         tabsindicatorColor: tabIndex === 0 ? amber.A400 : tabIndex === 1 ? cyan.A400 : red.A400,
+        showLegend: config.settings.showLegend,
     })
 
     const handleFavoriteCountiesChange = useCallback(
@@ -178,7 +185,7 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
 
         let helperText =
             tabIndex === 0 ? LEGEND.cases : tabIndex === 1 ? LEGEND.rate : LEGEND.deaths
-        if (tabAwareEsriData) helperText += ` ${tabAwareEsriData[0].lastUpdate}`
+        if (tabAwareEsriData) helperText += ` am ${tabAwareEsriData[0].lastUpdate.split(',')[0]}`
 
         return helperText
     }

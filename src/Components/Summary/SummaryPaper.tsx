@@ -46,7 +46,7 @@ const useStyles = makeStyles(theme =>
         buttonBase: {
             borderRadius: 20,
         },
-        legend: { maxWidth: 120, margin: 'auto', marginTop: theme.spacing(0.5) },
+        legend: { maxWidth: 120, margin: 'auto', marginTop: theme.spacing(0.5), height: 38 },
     })
 )
 

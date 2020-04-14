@@ -48,19 +48,20 @@ const initialState: ConfigState = {
     enabledStates: new Set(),
     visibleCharts: {
         doublingRate: true,
-        delta: true,
+        delta: false,
         cases: false,
         rate: true,
         deaths: false,
+        recovered: true,
     },
     settings: {
         log: true,
         showAxis: false,
-        showLegend: false,
+        showLegend: true,
         grid: true,
         percentage: true,
         normalize: true,
-        ratio: 3,
+        ratio: 2,
     },
     favoriteCounties: new Set(),
 }

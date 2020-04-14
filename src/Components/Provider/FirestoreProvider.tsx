@@ -2,7 +2,7 @@ import { createStyles, LinearProgress, makeStyles } from '@material-ui/core'
 import { FC, useContext, useEffect } from 'react'
 import React from 'react'
 
-import { RkiData, StateData } from '../../model/model'
+import { Recovered, RecoveredData, RkiData, StateData } from '../../model/model'
 import {
     FirestoreActions,
     FirestoreState,
@@ -52,12 +52,72 @@ const FirestoreProvider: FC = ({ children }) => {
                     )
 
                     firestoreDispatch({
-                        type: 'todayChange',
-                        today: data.slice(0, data.length / 2),
+                        type: 'stateChange',
+                        state: {
+                            today: data.slice(0, data.length / 2),
+                            yesterday: data.slice(data.length / 2),
+                        },
                     })
+                }),
+        [firestoreDispatch]
+    )
+
+    useEffect(
+        () =>
+            firestore
+                .collection('rkirecovered')
+                .orderBy('timestamp', 'desc')
+                .limit(16)
+                .onSnapshot(snapshot => {
                     firestoreDispatch({
-                        type: 'yesterdayChange',
-                        yesterday: data.slice(data.length / 2),
+                        type: 'stateChange',
+                        state: {
+                            recoveredToday: snapshot.docs.map(doc => doc.data() as Recovered),
+                        },
+                    })
+                }),
+        [firestoreDispatch]
+    )
+
+    useEffect(
+        () =>
+            firestore
+                .collection('rkirecovered')
+                .orderBy('state', 'asc')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    const recoveredByDay: Map<string, RecoveredData> = new Map()
+                    const recoveredByState: Map<string, RecoveredData[]> = new Map()
+
+                    const docs = snapshot.docs.map(doc => doc.data() as Recovered)
+
+                    new Set(docs.map(({ state }) => state)).forEach(state =>
+                        recoveredByState.set(
+                            state,
+                            docs.filter(doc => doc.state === state)
+                        )
+                    )
+
+                    new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
+                        const day = Array.from(recoveredByState.values())
+                            .map(stateData =>
+                                stateData.filter(({ timestamp }) => timestamp.seconds === seconds)
+                            )
+                            .flat()
+
+                        recoveredByDay.set(day[0].timestamp.toDate().toLocaleDateString(), {
+                            delta: summUp(day, 'delta'),
+                            recovered: summUp(day, 'recovered'),
+                            timestamp: day[0].timestamp,
+                        })
+                    })
+
+                    firestoreDispatch({
+                        type: 'stateChange',
+                        state: {
+                            recoveredByDay,
+                            recoveredByState,
+                        },
                     })
                 }),
         [firestoreDispatch]
@@ -83,7 +143,6 @@ const FirestoreProvider: FC = ({ children }) => {
                             calculateDoublingRates(docs.filter(doc => doc.state === state))
                         )
                     )
-                    firestoreDispatch({ type: 'byStateChange', byState })
 
                     new Set(docs.map(({ timestamp }) => timestamp.seconds)).forEach(seconds => {
                         const day = Array.from(byState.values())
@@ -101,8 +160,10 @@ const FirestoreProvider: FC = ({ children }) => {
                             doublingRate: summUp(day, 'doublingRate') / day.length,
                         })
                     })
-                    firestoreDispatch({ type: 'byDayChange', byDay })
-                    firestoreDispatch({ type: 'loadingChange', loading: false })
+                    firestoreDispatch({
+                        type: 'stateChange',
+                        state: { byState, byDay, loading: false },
+                    })
                 }),
         [firestoreDispatch]
     )
