@@ -185,7 +185,8 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
 
         let helperText =
             tabIndex === 0 ? LEGEND.cases : tabIndex === 1 ? LEGEND.rate : LEGEND.deaths
-        if (tabAwareEsriData) helperText += ` am ${tabAwareEsriData[0].lastUpdate.split(',')[0]}`
+        if (tabAwareEsriData && tabAwareEsriData.length > 0)
+            helperText += ` am ${tabAwareEsriData[0].lastUpdate.split(',')[0]}`
 
         return helperText
     }
