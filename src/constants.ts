@@ -4,6 +4,7 @@ const LEGEND = {
     rate: 'Erfasste Fälle pro 100.000 Einwohner',
     deaths: 'Todesfälle',
     doublingRate: 'Verdopplungszeit in Tagen',
+    recovered: 'Genesene',
 }
 
 export { LEGEND }

@@ -15,6 +15,7 @@ export interface Summary
         number
     > {
     lastUpdate: Date
+    recovered: number
 }
 
 export type SummaryPercent = Record<keyof Omit<Summary, 'lastUpdate'>, string>
@@ -59,3 +60,15 @@ export interface County {
     value: number
     lastUpdate: string
 }
+
+export interface Recovered {
+    state: string
+    recovered: number
+    delta: number
+    esriTimestamp: string
+    timestamp: firebase.firestore.Timestamp
+}
+
+export type RecoveredData = Omit<Recovered, 'state' | 'esriTimestamp'>
+
+export type CombinedStateData = StateData & Partial<Pick<RecoveredData, 'recovered'>>

@@ -1,6 +1,13 @@
 import { createStyles, Divider, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
-import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
-import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
+import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
+import {
+    AccountMultiple,
+    CalendarRange,
+    ChartTimelineVariant,
+    HandHeart,
+    Sigma,
+    Skull,
+} from 'mdi-material-ui'
 import React from 'react'
 
 import { VisibleCharts } from '../../model/model'
@@ -32,7 +39,7 @@ const useStyles = makeStyles(theme =>
 )
 
 const Summary = () => {
-    const { firestoreData: data } = useFirestoreContext()
+    const { firestoreData } = useFirestoreContext()
     const { config, configDispatch } = useConfigContext()
 
     const classes = useStyles()
@@ -49,7 +56,7 @@ const Summary = () => {
             <Grid item>
                 <Paper className={classes.paper}>
                     <Typography variant="h6">
-                        {data.summary?.lastUpdate.toLocaleDateString()}
+                        {firestoreData.summary?.lastUpdate.toLocaleDateString()}
                     </Typography>
                 </Paper>
             </Grid>
@@ -93,6 +100,15 @@ const Summary = () => {
                             onClick={handleSummaryClick('rate')}
                             backgroundColor={cyan.A400}
                             icon={<AccountMultiple />}
+                        />
+                    </Grid>
+
+                    <Grid item>
+                        <SummaryPaper
+                            dataKey="recovered"
+                            onClick={handleSummaryClick('recovered')}
+                            backgroundColor={green.A400}
+                            icon={<HandHeart />}
                         />
                     </Grid>
 

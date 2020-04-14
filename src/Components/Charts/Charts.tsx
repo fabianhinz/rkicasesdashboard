@@ -36,7 +36,10 @@ const Charts = ({ maxAxisDomain }: Props) => {
                 {config.enabledStates.size === 0 && (
                     <Grid item xs={12}>
                         <Chart
-                            data={[...firestoreData.byDay.values()]}
+                            data={[...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
+                                ...byDay,
+                                recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
+                            }))}
                             activeLabel={activeLabel}
                             setActiveLabel={setActiveLabel}
                         />
@@ -49,7 +52,22 @@ const Charts = ({ maxAxisDomain }: Props) => {
                         <Grid item {...gridBreakpointProps} key={state}>
                             <Chart
                                 state={state}
-                                data={stateData}
+                                data={stateData.map(data => {
+                                    const stateRecoveredData = firestoreData.recoveredByState
+                                        .get(state)
+                                        ?.find(
+                                            recovered =>
+                                                recovered.timestamp
+                                                    .toDate()
+                                                    .toLocaleDateString() ===
+                                                data.timestamp.toDate().toLocaleDateString()
+                                        )
+
+                                    return {
+                                        ...data,
+                                        recovered: stateRecoveredData?.recovered,
+                                    }
+                                })}
                                 maxAxisDomain={maxAxisDomain}
                                 activeLabel={activeLabel}
                                 setActiveLabel={setActiveLabel}

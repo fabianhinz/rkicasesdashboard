@@ -1,6 +1,13 @@
 import { Reducer, useReducer } from 'react'
 
-import { RkiData, StateData, Summary, SummaryPercent } from '../model/model'
+import {
+    Recovered,
+    RecoveredData,
+    RkiData,
+    StateData,
+    Summary,
+    SummaryPercent,
+} from '../model/model'
 
 export interface FirestoreState {
     loading: boolean
@@ -10,45 +17,17 @@ export interface FirestoreState {
     summaryPercent: SummaryPercent | null
     today: RkiData[]
     yesterday: RkiData[]
+    recoveredToday: Recovered[]
+    recoveredByDay: Map<string, RecoveredData>
+    recoveredByState: Map<string, RecoveredData[]>
 }
 
-export type FirestoreActions =
-    | { type: 'byDayChange'; byDay: Map<string, StateData> }
-    | { type: 'byStateChange'; byState: Map<string, StateData[]> }
-    | { type: 'summaryChange'; summary: Summary }
-    | { type: 'todayChange'; today: RkiData[] }
-    | { type: 'yesterdayChange'; yesterday: RkiData[] }
-    | { type: 'loadingChange'; loading: boolean }
-    | {
-          type: 'summaryPercentChange'
-          summaryPercent: SummaryPercent
-      }
+export type FirestoreActions = { type: 'stateChange'; state: Partial<FirestoreState> }
 
-const reducer: Reducer<FirestoreState, FirestoreActions> = (state, actions) => {
-    switch (actions.type) {
-        case 'byDayChange': {
-            return { ...state, byDay: actions.byDay }
-        }
-        case 'byStateChange': {
-            return { ...state, byState: actions.byState }
-        }
-        case 'summaryChange': {
-            return { ...state, summary: actions.summary }
-        }
-        case 'todayChange': {
-            return { ...state, today: actions.today }
-        }
-        case 'yesterdayChange': {
-            return { ...state, yesterday: actions.yesterday }
-        }
-        case 'loadingChange': {
-            return { ...state, loading: actions.loading }
-        }
-        case 'summaryPercentChange': {
-            return { ...state, summaryPercent: actions.summaryPercent }
-        }
-    }
-}
+const reducer: Reducer<FirestoreState, FirestoreActions> = (state, actions) => ({
+    ...state,
+    ...actions.state,
+})
 
 const initialState: FirestoreState = {
     loading: true,
@@ -58,6 +37,9 @@ const initialState: FirestoreState = {
     summaryPercent: null,
     today: [],
     yesterday: [],
+    recoveredToday: [],
+    recoveredByDay: new Map(),
+    recoveredByState: new Map(),
 }
 
 export const useFirestoreReducer = () => useReducer(reducer, initialState)

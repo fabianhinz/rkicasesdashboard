@@ -1,9 +1,16 @@
 import { createStyles, Divider, Grid, Grow, makeStyles } from '@material-ui/core'
-import { amber, cyan, lime, orange, red } from '@material-ui/core/colors'
-import { AccountMultiple, CalendarRange, ChartTimelineVariant, Sigma, Skull } from 'mdi-material-ui'
+import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
+import {
+    AccountMultiple,
+    CalendarRange,
+    ChartTimelineVariant,
+    HandHeart,
+    Sigma,
+    Skull,
+} from 'mdi-material-ui'
 import React from 'react'
 
-import { StateData, VisibleCharts } from '../../../model/model'
+import { CombinedStateData, VisibleCharts } from '../../../model/model'
 import ChartSelectionChip from './ChartSelectionChip'
 
 const useStyles = makeStyles(theme =>
@@ -17,7 +24,7 @@ const useStyles = makeStyles(theme =>
 
 interface Props {
     activeLabel: number
-    data: StateData[]
+    data: CombinedStateData[]
     visibleCharts: VisibleCharts
 }
 
@@ -76,6 +83,16 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             backgroundColor={cyan.A400}
                             icon={<AccountMultiple />}
                             label={data[activeLabel].rate}
+                        />
+                    </Grid>
+                </Grow>
+
+                <Grow mountOnEnter unmountOnExit in={visibleCharts.recovered}>
+                    <Grid item>
+                        <ChartSelectionChip
+                            backgroundColor={green.A400}
+                            icon={<HandHeart />}
+                            label={data[activeLabel].recovered}
                         />
                     </Grid>
                 </Grow>

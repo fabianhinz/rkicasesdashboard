@@ -73,6 +73,7 @@ const App = () => {
             ) / (config.enabledStates.size > 0 ? config.enabledStates.size : 16)
 
         const today = data.today.filter(({ state }) => forEnabledStates(state))
+        const recoveredToday = data.recoveredToday.filter(({ state }) => forEnabledStates(state))
         const summary: SummaryModel = {
             cases: summUp(today, 'cases'),
             deaths: summUp(today, 'deaths'),
@@ -83,10 +84,11 @@ const App = () => {
                     : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: doublingRates('today'),
+            recovered: summUp(recoveredToday, 'recovered'),
         }
         dataDispatch({
-            type: 'summaryChange',
-            summary,
+            type: 'stateChange',
+            state: { summary },
         })
 
         const yesterday = data.yesterday.filter(({ state }) => forEnabledStates(state))
@@ -97,8 +99,9 @@ const App = () => {
             rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
                 .formatted,
             doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday')).formatted,
+            recovered: percentageOf(summary.recovered, summUp(recoveredToday, 'delta')).formatted,
         }
-        dataDispatch({ type: 'summaryPercentChange', summaryPercent })
+        dataDispatch({ type: 'stateChange', state: { summaryPercent } })
 
         if (config.enabledStates.size === 0) return
         // ? lets get our domain data (the max value of visible charts)
@@ -116,6 +119,7 @@ const App = () => {
         config.visibleCharts,
         data.byDay,
         data.byState,
+        data.recoveredToday,
         data.today,
         data.yesterday,
         dataDispatch,
