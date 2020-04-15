@@ -4,6 +4,7 @@ import { Attributes, County } from '../model/model'
 
 export interface EsriState {
     loading: boolean
+    errorMsg?: string
     rateByState: Map<string, County[]>
     deathsByState: Map<string, County[]>
     casesByState: Map<string, County[]>
@@ -18,6 +19,7 @@ export type EsriActions =
           byState: Map<string, County[]>
           attributesKey: AttributesKey
       }
+    | { type: 'errorMsgChange'; errorMsg: string }
 
 const reducer: Reducer<EsriState, EsriActions> = (state, actions) => {
     switch (actions.type) {
@@ -33,6 +35,9 @@ const reducer: Reducer<EsriState, EsriActions> = (state, actions) => {
                     : 'deathsByState'
 
             return { ...state, [stateKey]: actions.byState }
+        }
+        case 'errorMsgChange': {
+            return { ...state, errorMsg: actions.errorMsg }
         }
     }
 }

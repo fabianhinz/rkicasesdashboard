@@ -3,7 +3,7 @@ import { amber } from '@material-ui/core/colors'
 import React from 'react'
 import { RectangleProps } from 'recharts'
 
-interface StyleProps extends Pick<BarShapeProps, 'fill'> {
+interface StyleProps extends Pick<ChartBarShapeProps, 'fill'> {
     shouldHighlight: boolean
     obsolete: boolean
 }
@@ -20,9 +20,9 @@ const useStyles = makeStyles(theme =>
     })
 )
 
-export type BarShapeProps = RectangleProps & { activeLabel?: number; index: number }
+export type ChartBarShapeProps = RectangleProps & { activeLabel?: number; index: number }
 
-const BarShape = ({ x, y, width, height, fill, activeLabel, index }: BarShapeProps) => {
+const ChartBarShape = ({ x, y, width, height, fill, activeLabel, index }: ChartBarShapeProps) => {
     const classes = useStyles({
         fill,
         shouldHighlight:
@@ -37,4 +37,4 @@ const BarShape = ({ x, y, width, height, fill, activeLabel, index }: BarShapePro
     )
 }
 
-export default BarShape
+export default ChartBarShape
