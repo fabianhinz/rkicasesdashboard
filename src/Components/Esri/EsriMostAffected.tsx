@@ -15,17 +15,18 @@ import {
     Tab,
     Tabs,
     TextField,
+    Typography,
 } from '@material-ui/core'
 import { amber, cyan, red } from '@material-ui/core/colors'
 import { Skeleton } from '@material-ui/lab'
 import { AccountMultiple, Heart, HeartOutline, Sigma, Skull } from 'mdi-material-ui'
 import React, { useCallback, useMemo, useState } from 'react'
 
-import { LEGEND } from '../../../constants'
-import { County } from '../../../model/model'
-import db from '../../../services/db'
-import { useConfigContext } from '../../Provider/ConfigProvider'
-import { useEsriContext } from '../../Provider/EsriProvider'
+import { LEGEND } from '../../constants'
+import { County } from '../../model/model'
+import db from '../../services/db'
+import { useConfigContext } from '../Provider/ConfigProvider'
+import { useEsriContext } from '../Provider/EsriProvider'
 
 interface StyleProps {
     tabsindicatorColor: string
@@ -107,7 +108,7 @@ interface Props {
     showSkeletons: boolean
 }
 
-const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
+const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
     const [tabIndex, setTabIndex] = useState(0)
     const [filterValue, setFilterValue] = useState('')
 
@@ -151,7 +152,11 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
                         <Avatar className={classes.avatar}>{data.county.slice(0, 2)}</Avatar>
                     </ListItemIcon>
                     <ListItemText
-                        primary={`${data.county.slice(3)}: ${data.value}`}
+                        primary={`${
+                            data.county.startsWith('LK') || data.county.startsWith('SK')
+                                ? data.county.slice(3)
+                                : data.county
+                        }: ${data.value}`}
                         secondary={data.name}
                     />
                     <ListItemSecondaryAction>
@@ -223,6 +228,10 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
                         />
                     </Tabs>
 
+                    <Typography component="div" align="center" variant="caption" color="error">
+                        {esriData.errorMsg}
+                    </Typography>
+
                     <List dense className={classes.list}>
                         {tabAwareEsriData
                             ?.filter(favoriteCounties('include'))
@@ -256,4 +265,4 @@ const ChartMostAffected = ({ county, open, showSkeletons }: Props) => {
     )
 }
 
-export default ChartMostAffected
+export default EsriMostAffected

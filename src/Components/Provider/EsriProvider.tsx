@@ -41,8 +41,9 @@ const EsriProvider: FC = ({ children }) => {
                     })
                     esriDispatch({ type: 'byStateChange', byState, attributesKey })
                 })
-                // ToDo handle errors
-                .catch(console.error),
+                .catch(e => {
+                    throw new Error(`${attributesKey} ${e}`)
+                }),
         [esriDispatch]
     )
 
@@ -64,8 +65,8 @@ const EsriProvider: FC = ({ children }) => {
                         'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,deaths&returnGeometry=false&orderByFields=deaths DESC&outSR=4326&f=json'
                     ),
                 ])
-            } catch {
-                // ? a request failed, just move on
+            } catch (e) {
+                esriDispatch({ type: 'errorMsgChange', errorMsg: e.toString() })
             } finally {
                 esriDispatch({ type: 'loadingChange', loading: false })
             }
