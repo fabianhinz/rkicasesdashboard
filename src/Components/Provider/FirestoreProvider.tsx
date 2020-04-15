@@ -156,7 +156,8 @@ const FirestoreProvider: FC = ({ children }) => {
                             deaths: summUp(day, 'deaths'),
                             delta: summUp(day, 'delta'),
                             timestamp: day[0].timestamp,
-                            rate: summUp(day, 'rate') / day.length,
+                            // ? pupulation 83,02 Millionen (2019)
+                            rate: summUp(day, 'cases') / 830,
                             doublingRate: summUp(day, 'doublingRate') / day.length,
                         })
                     })
