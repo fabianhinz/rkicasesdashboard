@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme =>
 )
 
 const App = () => {
-    const { firestoreData: data, firestoreDispatch: dataDispatch } = useFirestoreContext()
+    const { firestoreData, firestoreDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
 
     const highRes = useMediaQuery('(min-width: 1101px)')
@@ -63,7 +63,7 @@ const App = () => {
 
         const doublingRates = (from: 'today' | 'yesterday') =>
             summUp(
-                Array.from(data.byState.entries())
+                Array.from(firestoreData.byState.entries())
                     .filter(([state]) => forEnabledStates(state))
                     .map(
                         ([_state, dayData]) =>
@@ -72,26 +72,25 @@ const App = () => {
                 'doublingRate'
             ) / (config.enabledStates.size > 0 ? config.enabledStates.size : 16)
 
-        const today = data.today.filter(({ state }) => forEnabledStates(state))
-        const recoveredToday = data.recoveredToday.filter(({ state }) => forEnabledStates(state))
+        const today = firestoreData.today.filter(({ state }) => forEnabledStates(state))
+        const recoveredToday = firestoreData.recoveredToday.filter(({ state }) =>
+            forEnabledStates(state)
+        )
         const summary: SummaryModel = {
             cases: summUp(today, 'cases'),
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
             rate:
                 config.enabledStates.size === 16 || config.enabledStates.size === 0
-                    ? summUp(today, 'cases') / 830
+                    ? // ? pupulation 83,02 Millionen (2019)
+                      summUp(today, 'cases') / 830
                     : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: doublingRates('today'),
             recovered: summUp(recoveredToday, 'recovered'),
         }
-        dataDispatch({
-            type: 'stateChange',
-            state: { summary },
-        })
 
-        const yesterday = data.yesterday.filter(({ state }) => forEnabledStates(state))
+        const yesterday = firestoreData.yesterday.filter(({ state }) => forEnabledStates(state))
         const summaryPercent: SummaryPercent = {
             cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
             deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
@@ -99,9 +98,12 @@ const App = () => {
             rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
                 .formatted,
             doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday')).formatted,
-            recovered: percentageOf(summary.recovered, summUp(recoveredToday, 'delta')).formatted,
+            recovered: percentageOf(
+                summary.recovered,
+                summary.recovered - summUp(recoveredToday, 'delta')
+            ).formatted,
         }
-        dataDispatch({ type: 'stateChange', state: { summaryPercent } })
+        firestoreDispatch({ type: 'stateChange', state: { summary, summaryPercent } })
 
         if (config.enabledStates.size === 0) return
         // ? lets get our domain data (the max value of visible charts)
@@ -112,17 +114,19 @@ const App = () => {
                 .filter(Boolean)
         )
 
-        setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
+        if (visibleChartsData.flat().filter(Boolean).length > 0) {
+            setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
+        } else {
+            setMaxAxisDomain(recoveredToday.map(data => data.recovered).sort((a, b) => b - a)[0])
+        }
     }, [
         config.enabledStates,
-        config.settings.percentage,
         config.visibleCharts,
-        data.byDay,
-        data.byState,
-        data.recoveredToday,
-        data.today,
-        data.yesterday,
-        dataDispatch,
+        firestoreData.byState,
+        firestoreData.recoveredToday,
+        firestoreData.today,
+        firestoreData.yesterday,
+        firestoreDispatch,
     ])
 
     return (

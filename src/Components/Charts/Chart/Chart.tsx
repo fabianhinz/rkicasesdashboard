@@ -23,10 +23,10 @@ import {
 } from 'recharts'
 
 import { ActiveLabelProps, CombinedStateData } from '../../../model/model'
+import EsriMostAffected from '../../Esri/EsriMostAffected'
 import { useConfigContext } from '../../Provider/ConfigProvider'
 import { useEsriContext } from '../../Provider/EsriProvider'
-import BarShape, { BarShapeProps } from './BarShape'
-import ChartMostAffected from './ChartMostAffected'
+import ChartBarShape, { ChartBarShapeProps } from './ChartBarShape'
 import ChartSelection from './ChartSelection'
 
 const useStyles = makeStyles(theme =>
@@ -130,7 +130,9 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                             dataKey="doublingRate"
                             fill={orange.A400}
                             shape={props => (
-                                <BarShape {...({ ...props, activeLabel } as BarShapeProps)} />
+                                <ChartBarShape
+                                    {...({ ...props, activeLabel } as ChartBarShapeProps)}
+                                />
                             )}
                         />
 
@@ -157,7 +159,7 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
-            <ChartMostAffected
+            <EsriMostAffected
                 open={mostAffectedOpen}
                 county={state}
                 showSkeletons={esriData.loading}
