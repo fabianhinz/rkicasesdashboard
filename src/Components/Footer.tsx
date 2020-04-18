@@ -19,7 +19,11 @@ const useStyles = makeStyles(theme =>
     })
 )
 
-const Footer = () => {
+interface Props {
+    lastUpdate?: string
+}
+
+const Footer = ({ lastUpdate }: Props) => {
     const classes = useStyles()
 
     return (
@@ -29,7 +33,7 @@ const Footer = () => {
                     <Grid container spacing={2}>
                         <Grid item>
                             <Link target="_blank" href="https://github.com/fabianhinz/rkicasesapi">
-                                Datenquelle
+                                Daten vom {lastUpdate}
                             </Link>
                         </Grid>
                         <Grid item>
@@ -64,4 +68,4 @@ const Footer = () => {
     )
 }
 
-export default memo(Footer)
+export default memo(Footer, (prev, next) => prev.lastUpdate === next.lastUpdate)

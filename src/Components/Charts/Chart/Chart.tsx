@@ -95,7 +95,7 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                             if (e?.activeLabel >= 0) setActiveLabel(e?.activeLabel)
                         }}
                         data={data}>
-                        <Tooltip label={0} cursor={false} content={<></>} />
+                        <Tooltip cursor={false} content={<></>} />
 
                         <YAxis
                             type="number"

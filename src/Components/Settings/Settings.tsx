@@ -54,9 +54,6 @@ const useStyles = makeStyles(theme =>
             maxHeight: '100%',
             overflowY: 'auto',
             overflowX: 'hidden',
-            '&::-webkit-scrollbar': {
-                display: 'none',
-            },
         },
         action: {
             padding: theme.spacing(1),
@@ -96,7 +93,7 @@ const Settings = ({ open, onOpenChange }: Props) => {
                 <div className={classes.header}>
                     <div>
                         <Typography variant="h6">Fallzahlen in Deutschland</Typography>
-                        <Typography color="textSecondary"> Version: {__VERSION__}</Typography>
+                        <Typography color="textSecondary">Version: {__VERSION__}</Typography>
                     </div>
                     <Fab onClick={handleThemeFabClick} className={classes.themeFab} size="small">
                         {theme === 'light' ? <WeatherNight /> : <WeatherSunny />}
