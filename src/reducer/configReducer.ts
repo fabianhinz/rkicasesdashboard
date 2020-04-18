@@ -58,10 +58,10 @@ const initialState: ConfigState = {
         log: true,
         showAxis: false,
         showLegend: true,
-        grid: true,
+        grid: false,
         percentage: true,
         normalize: true,
-        ratio: 2,
+        ratio: 3,
     },
     favoriteCounties: new Set(),
 }

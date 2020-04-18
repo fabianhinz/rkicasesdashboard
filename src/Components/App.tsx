@@ -1,4 +1,4 @@
-import { Container, createStyles, Grid, makeStyles, useMediaQuery } from '@material-ui/core'
+import { Container, createStyles, makeStyles, useMediaQuery } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
@@ -23,13 +23,6 @@ const useStyles = makeStyles(theme =>
                 paddingBottom: 64 + theme.spacing(3),
             },
             userSelect: 'none',
-        },
-        itemSummary: {
-            [theme.breakpoints.up('md')]: {
-                position: 'sticky',
-                top: 'calc(env(safe-area-inset-top) + 12px)',
-                zIndex: theme.zIndex.appBar,
-            },
         },
         container: {
             '@media(min-width: 769px) and (max-width: 2559px)': {
@@ -132,19 +125,12 @@ const App = () => {
     return (
         <div className={classes.app}>
             <Container maxWidth="xl" className={classes.container}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} className={classes.itemSummary}>
-                        <Summary />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Charts maxAxisDomain={maxAxisDomain} />
-                    </Grid>
-                </Grid>
+                <Summary />
+                <Charts maxAxisDomain={maxAxisDomain} />
             </Container>
 
             <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
-            <Footer />
+            <Footer lastUpdate={firestoreData.summary?.lastUpdate.toLocaleDateString()} />
         </div>
     )
 }
