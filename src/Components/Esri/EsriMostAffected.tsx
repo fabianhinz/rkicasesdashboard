@@ -199,7 +199,7 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
     return (
         <>
             <Backdrop open={open} className={classes.backdrop} />
-            <Slide direction="left" mountOnEnter unmountOnExit in={open}>
+            <Slide direction="left" mountOnEnter in={open}>
                 <Paper className={classes.paper}>
                     <TextField
                         className={classes.textField}

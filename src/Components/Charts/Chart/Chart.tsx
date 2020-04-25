@@ -4,12 +4,13 @@ import {
     createStyles,
     IconButton,
     makeStyles,
+    Portal,
     Tooltip as MuiTooltip,
 } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
 import { HomeGroup } from 'mdi-material-ui'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -22,7 +23,7 @@ import {
     YAxis,
 } from 'recharts'
 
-import { ActiveLabelProps, CombinedStateData } from '../../../model/model'
+import { CombinedStateData } from '../../../model/model'
 import EsriMostAffected from '../../Esri/EsriMostAffected'
 import { useConfigContext } from '../../Provider/ConfigProvider'
 import { useEsriContext } from '../../Provider/EsriProvider'
@@ -40,15 +41,18 @@ const useStyles = makeStyles(theme =>
     })
 )
 
-interface Props extends ActiveLabelProps {
+interface Props {
     state?: string
     data: CombinedStateData[]
     maxAxisDomain?: number
 }
 
-const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Props) => {
+const Chart = ({ data, maxAxisDomain, state }: Props) => {
     const { esriData } = useEsriContext()
     const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
+    const [activeLabel, setActiveLabel] = useState<number>(data.length - 1)
+
+    const chartSelectionContainer = useRef(null)
 
     const classes = useStyles()
 
@@ -81,21 +85,31 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                     </MuiTooltip>
                 }
             />
-            <ChartSelection
-                activeLabel={activeLabel}
-                data={data}
-                visibleCharts={config.visibleCharts}
-            />
+
+            <div ref={chartSelectionContainer} />
+
             <div className={classes.responsiveContainer}>
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                     <ComposedChart
-                        margin={{ top: 8, bottom: 8 }}
+                        margin={{ top: 16, bottom: 16 }}
                         syncId="sync"
                         onMouseMove={e => {
-                            if (e?.activeLabel >= 0) setActiveLabel(e?.activeLabel)
+                            if (e?.activeLabel >= 0 && config.visibleCharts.doublingRate)
+                                setActiveLabel(e?.activeLabel)
                         }}
+                        onMouseLeave={() => setActiveLabel(data.length - 1)}
                         data={data}>
-                        <Tooltip cursor={false} content={<></>} />
+                        <Tooltip
+                            content={(props: any) => (
+                                <Portal container={chartSelectionContainer.current}>
+                                    <ChartSelection
+                                        activeLabel={props.active ? props.label : data.length - 1}
+                                        data={data}
+                                        visibleCharts={config.visibleCharts}
+                                    />
+                                </Portal>
+                            )}
+                        />
 
                         <YAxis
                             type="number"
@@ -159,6 +173,7 @@ const Chart = ({ data, maxAxisDomain, activeLabel, setActiveLabel, state }: Prop
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
+
             <EsriMostAffected
                 open={mostAffectedOpen}
                 county={state}
