@@ -1,13 +1,19 @@
 import { Button, Chip, Grid, ListSubheader } from '@material-ui/core'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import db from '../../services/db'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
 
 const SettingsStates = () => {
+    const [selectAllDisabled, setSelectAllDisabled] = useState(false)
+
     const { firestoreData } = useFirestoreContext()
     const { config, configDispatch } = useConfigContext()
+
+    useEffect(() => {
+        setSelectAllDisabled(false)
+    }, [config.enabledStates])
 
     const handleChipClick = (state: string) => () => {
         const enabledStates = new Set(config.enabledStates)
@@ -19,14 +25,18 @@ const SettingsStates = () => {
     }
 
     const handleSelectAllBtnClick = () => {
-        const enabledStates: Set<string> =
-            config.enabledStates.size === 16 ? new Set() : new Set(firestoreData.byState.keys())
+        setSelectAllDisabled(true)
 
-        db.data.put(enabledStates, 'enabledStates')
-        configDispatch({
-            type: 'enabledStatesChange',
-            enabledStates,
-        })
+        setTimeout(() => {
+            const enabledStates: Set<string> =
+                config.enabledStates.size === 16 ? new Set() : new Set(firestoreData.byState.keys())
+
+            db.data.put(enabledStates, 'enabledStates')
+            configDispatch({
+                type: 'enabledStatesChange',
+                enabledStates,
+            })
+        }, 100)
     }
 
     return (
@@ -37,6 +47,7 @@ const SettingsStates = () => {
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <Button
+                        disabled={selectAllDisabled}
                         disableElevation
                         fullWidth
                         onClick={handleSelectAllBtnClick}

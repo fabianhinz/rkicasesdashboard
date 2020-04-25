@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, Grid, GridSize } from '@material-ui/core'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useConfigContext } from '../Provider/ConfigProvider'
 import EsriProvider from '../Provider/EsriProvider'
@@ -15,8 +15,6 @@ interface Props {
 const Charts = ({ maxAxisDomain }: Props) => {
     const { config } = useConfigContext()
     const { firestoreData } = useFirestoreContext()
-
-    const [activeLabel, setActiveLabel] = useState<number>(firestoreData.byDay.size - 1)
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
@@ -40,8 +38,6 @@ const Charts = ({ maxAxisDomain }: Props) => {
                                 ...byDay,
                                 recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
                             }))}
-                            activeLabel={activeLabel}
-                            setActiveLabel={setActiveLabel}
                         />
                     </Grid>
                 )}
@@ -69,8 +65,6 @@ const Charts = ({ maxAxisDomain }: Props) => {
                                     }
                                 })}
                                 maxAxisDomain={maxAxisDomain}
-                                activeLabel={activeLabel}
-                                setActiveLabel={setActiveLabel}
                             />
                         </Grid>
                     ))}
