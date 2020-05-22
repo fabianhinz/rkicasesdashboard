@@ -33,7 +33,7 @@ const EsriProvider: FC = ({ children }) => {
                             esriData.features
                                 .filter(feature => feature.attributes.BL === state)
                                 .map(({ attributes }) => ({
-                                    value: Math.trunc(attributes[attributesKey]),
+                                    value: Number(attributes[attributesKey].toFixed(1)),
                                     county: attributes.county,
                                     lastUpdate: attributes.last_update,
                                 }))
@@ -52,6 +52,10 @@ const EsriProvider: FC = ({ children }) => {
         setTimeout(async () => {
             try {
                 await Promise.all([
+                    makeRequest(
+                        'cases7_per_100k',
+                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases7_per_100k,county,BL&returnGeometry=false&orderByFields=cases7_per_100k%20DESC&outSR=4326&f=json'
+                    ),
                     makeRequest(
                         'cases_per_100k',
                         'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'

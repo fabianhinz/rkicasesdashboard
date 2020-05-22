@@ -6,11 +6,15 @@ export interface EsriState {
     loading: boolean
     errorMsg?: string
     rateByState: Map<string, County[]>
+    weekRateByState: Map<string, County[]>
     deathsByState: Map<string, County[]>
     casesByState: Map<string, County[]>
 }
 
-export type AttributesKey = keyof Pick<Attributes, 'cases_per_100k' | 'deaths' | 'cases'>
+export type AttributesKey = keyof Pick<
+    Attributes,
+    'cases7_per_100k' | 'cases_per_100k' | 'deaths' | 'cases'
+>
 
 export type EsriActions =
     | { type: 'loadingChange'; loading: boolean }
@@ -32,6 +36,8 @@ const reducer: Reducer<EsriState, EsriActions> = (state, actions) => {
                     ? 'casesByState'
                     : actions.attributesKey === 'cases_per_100k'
                     ? 'rateByState'
+                    : actions.attributesKey === 'cases7_per_100k'
+                    ? 'weekRateByState'
                     : 'deathsByState'
 
             return { ...state, [stateKey]: actions.byState }
@@ -47,6 +53,7 @@ const initialState: EsriState = {
     rateByState: new Map(),
     deathsByState: new Map(),
     casesByState: new Map(),
+    weekRateByState: new Map(),
 }
 
 export const useEsriReducer = () => useReducer(reducer, initialState)
