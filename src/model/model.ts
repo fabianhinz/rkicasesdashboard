@@ -42,6 +42,7 @@ export interface Attributes {
     BL: string
     last_update: string
     cases_per_100k: number
+    cases7_per_100k: number
     deaths: number
     cases: number
 }

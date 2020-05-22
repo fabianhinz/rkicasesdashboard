@@ -19,7 +19,7 @@ import {
 } from '@material-ui/core'
 import { amber, cyan, red } from '@material-ui/core/colors'
 import { Skeleton } from '@material-ui/lab'
-import { AccountMultiple, Heart, HeartOutline, Sigma, Skull } from 'mdi-material-ui'
+import { AccountAlert, AccountMultiple, Heart, HeartOutline, Sigma, Skull } from 'mdi-material-ui'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { LEGEND } from '../../constants'
@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme =>
                 width: 320,
             },
             [theme.breakpoints.up('md')]: {
-                width: 375,
+                width: 385,
             },
         },
         textField: {
@@ -117,7 +117,13 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
 
     const tabAwareEsriData = useMemo(() => {
         const activeKey =
-            tabIndex === 0 ? 'casesByState' : tabIndex === 1 ? 'rateByState' : 'deathsByState'
+            tabIndex === 0
+                ? 'casesByState'
+                : tabIndex === 1
+                ? 'rateByState'
+                : tabIndex === 2
+                ? 'weekRateByState'
+                : 'deathsByState'
 
         return county
             ? esriData[activeKey].get(county)
@@ -128,7 +134,8 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
     }, [county, esriData, tabIndex])
 
     const classes = useStyles({
-        tabsindicatorColor: tabIndex === 0 ? amber.A400 : tabIndex === 1 ? cyan.A400 : red.A400,
+        tabsindicatorColor:
+            tabIndex === 0 ? amber.A400 : tabIndex === 1 || tabIndex === 2 ? cyan.A400 : red.A400,
         showLegend: config.settings.showLegend,
     })
 
@@ -185,13 +192,17 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
             ? config.favoriteCounties.has(data.county)
             : !config.favoriteCounties.has(data.county)
 
-    const helperText = () => {
+    const getHelperText = () => {
         if (!config.settings.showLegend) return
 
         let helperText =
-            tabIndex === 0 ? LEGEND.cases : tabIndex === 1 ? LEGEND.rate : LEGEND.deaths
-        if (tabAwareEsriData && tabAwareEsriData.length > 0)
-            helperText += ` am ${tabAwareEsriData[0].lastUpdate.split(',')[0]}`
+            tabIndex === 0
+                ? LEGEND.cases
+                : tabIndex === 1
+                ? LEGEND.rate
+                : tabIndex === 2
+                ? LEGEND.weeklyRate
+                : LEGEND.deaths
 
         return helperText
     }
@@ -207,7 +218,7 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
                         placeholder="Land- und Stadtkreise"
                         value={filterValue}
                         onChange={e => setFilterValue(e.target.value.toLowerCase())}
-                        helperText={helperText()}
+                        helperText={getHelperText()}
                     />
 
                     <Tabs
@@ -221,6 +232,10 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
                         <Tab
                             classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
                             icon={<AccountMultiple />}
+                        />
+                        <Tab
+                            classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
+                            icon={<AccountAlert />}
                         />
                         <Tab
                             classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
