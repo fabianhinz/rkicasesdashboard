@@ -1,9 +1,11 @@
 import {
     Button,
     createStyles,
+    Divider,
     Drawer,
     Fab,
     Grid,
+    Link,
     makeStyles,
     Typography,
     useMediaQuery,
@@ -21,12 +23,9 @@ const useStyles = makeStyles(theme =>
     createStyles({
         fab: {
             position: 'fixed',
-            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(3)}px)`,
+            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(2)}px)`,
             zIndex: theme.zIndex.appBar + 1,
-            right: theme.spacing(3),
-            [theme.breakpoints.up('sm')]: {
-                bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(4)}px)`,
-            },
+            right: theme.spacing(2),
         },
         themeFab: {
             flexShrink: 0,
@@ -58,6 +57,9 @@ const useStyles = makeStyles(theme =>
         action: {
             padding: theme.spacing(1),
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+        },
+        settingsIcon: {
+            marginRight: theme.spacing(0.5),
         },
     })
 )
@@ -100,17 +102,28 @@ const Settings = ({ open, onOpenChange }: Props) => {
                     </Fab>
                 </div>
                 <div className={classes.container}>
-                    <Grid container spacing={2} direction="column">
-                        <Grid item>
+                    <Grid container spacing={2} justify="center">
+                        <Grid item xs={12}>
                             <SettingsSummary />
                         </Grid>
 
-                        <Grid item>
+                        <Grid item xs={12}>
                             <SettingsStates />
                         </Grid>
 
-                        <Grid item>
+                        <Grid item xs={12}>
                             <SettingsDashboard />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                        <Grid item>
+                            <Link
+                                target="_blank"
+                                href="https://github.com/fabianhinz/rkicasesdashboard">
+                                Quellcode
+                            </Link>
                         </Grid>
                     </Grid>
                 </div>
@@ -121,8 +134,8 @@ const Settings = ({ open, onOpenChange }: Props) => {
                 </div>
             </Drawer>
 
-            <Fab className={classes.fab} onClick={() => onOpenChange(true)}>
-                <Tune />
+            <Fab variant="extended" className={classes.fab} onClick={() => onOpenChange(true)}>
+                <Tune className={classes.settingsIcon} /> Einstellungen
             </Fab>
         </>
     )

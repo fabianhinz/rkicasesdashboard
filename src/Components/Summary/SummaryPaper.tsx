@@ -28,6 +28,7 @@ const useStyles = makeStyles(theme =>
             padding: theme.spacing(2),
             boxShadow: theme.shadows[4],
             minWidth: 160,
+            width: '100%',
             transition: theme.transitions.create('all', {
                 easing: theme.transitions.easing.easeOut,
             }),
@@ -45,8 +46,14 @@ const useStyles = makeStyles(theme =>
         },
         buttonBase: {
             borderRadius: 20,
+            width: '100%',
         },
-        legend: { maxWidth: 120, margin: 'auto', marginTop: theme.spacing(0.5), height: 38 },
+        legend: {
+            maxWidth: 120,
+            margin: 'auto',
+            marginTop: theme.spacing(0.5),
+            height: 38,
+        },
     })
 )
 

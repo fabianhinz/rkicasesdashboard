@@ -1,4 +1,3 @@
-import { createStyles, LinearProgress, makeStyles } from '@material-ui/core'
 import { FC, useContext, useEffect } from 'react'
 import React from 'react'
 
@@ -10,6 +9,7 @@ import {
 } from '../../reducer/firestoreReducer'
 import { firestore } from '../../services/firebase'
 import { calculateDoublingRates, summUp } from '../../services/utility'
+import Loading from '../Shared/Loading'
 
 interface Context {
     firestoreData: FirestoreState
@@ -20,25 +20,8 @@ const Context = React.createContext<Context | null>(null)
 
 export const useFirestoreContext = () => useContext(Context) as Context
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        loadingContainer: {
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-        },
-        linearProgress: {
-            height: 6,
-            width: 300,
-        },
-    })
-)
-
 const FirestoreProvider: FC = ({ children }) => {
     const [firestoreData, firestoreDispatch] = useFirestoreReducer()
-
-    const classes = useStyles()
 
     useEffect(
         () =>
@@ -169,12 +152,7 @@ const FirestoreProvider: FC = ({ children }) => {
         [firestoreDispatch]
     )
 
-    if (firestoreData.loading)
-        return (
-            <div className={classes.loadingContainer}>
-                <LinearProgress className={classes.linearProgress} />
-            </div>
-        )
+    if (firestoreData.loading) return <Loading label="Daten werden geladen" />
 
     return (
         <Context.Provider value={{ firestoreData, firestoreDispatch }}>{children}</Context.Provider>

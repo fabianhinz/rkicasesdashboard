@@ -1,4 +1,4 @@
-import { createStyles, Grid, makeStyles } from '@material-ui/core'
+import { createStyles, Grid, GridProps, makeStyles } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import {
     AccountMultiple,
@@ -8,7 +8,7 @@ import {
     Sigma,
     Skull,
 } from 'mdi-material-ui'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { VisibleCharts } from '../../model/model'
 import db from '../../services/db'
@@ -41,9 +41,18 @@ const Summary = () => {
         db.data.put(visibleCharts, 'visibleCharts')
     }
 
+    const memoBreakpointProps: Pick<GridProps, 'xs' | 'sm'> | undefined = useMemo(
+        () => (config.settings.dashboard ? undefined : { xs: 12, sm: 6 }),
+        [config.settings.dashboard]
+    )
+
     return (
-        <Grid container spacing={2} wrap="nowrap" className={classes.summary}>
-            <Grid item>
+        <Grid
+            container
+            spacing={2}
+            wrap={config.settings.dashboard ? 'nowrap' : 'wrap'}
+            className={classes.summary}>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="cases"
                     onClick={handleSummaryClick('cases')}
@@ -52,7 +61,7 @@ const Summary = () => {
                 />
             </Grid>
 
-            <Grid item>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="doublingRate"
                     onClick={handleSummaryClick('doublingRate')}
@@ -61,7 +70,7 @@ const Summary = () => {
                 />
             </Grid>
 
-            <Grid item>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="delta"
                     onClick={handleSummaryClick('delta')}
@@ -70,7 +79,7 @@ const Summary = () => {
                 />
             </Grid>
 
-            <Grid item>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="rate"
                     onClick={handleSummaryClick('rate')}
@@ -79,7 +88,7 @@ const Summary = () => {
                 />
             </Grid>
 
-            <Grid item>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="recovered"
                     onClick={handleSummaryClick('recovered')}
@@ -88,7 +97,7 @@ const Summary = () => {
                 />
             </Grid>
 
-            <Grid item>
+            <Grid item {...memoBreakpointProps}>
                 <SummaryPaper
                     dataKey="deaths"
                     onClick={handleSummaryClick('deaths')}
