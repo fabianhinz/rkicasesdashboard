@@ -10,7 +10,7 @@ import {
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
 import { HomeGroup } from 'mdi-material-ui'
-import React, { useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -70,6 +70,17 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
         strokeWidth: 3,
         activeDot: { r: 5 },
     }
+
+    const esriMostAffected = useMemo(
+        () => (
+            <EsriMostAffected
+                open={mostAffectedOpen}
+                county={state}
+                showSkeletons={esriData.loading}
+            />
+        ),
+        [esriData.loading, mostAffectedOpen, state]
+    )
 
     return (
         <Card className={classes.card}>
@@ -174,11 +185,7 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
                 </ResponsiveContainer>
             </div>
 
-            <EsriMostAffected
-                open={mostAffectedOpen}
-                county={state}
-                showSkeletons={esriData.loading}
-            />
+            {esriMostAffected}
         </Card>
     )
 }
