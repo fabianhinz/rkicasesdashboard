@@ -109,8 +109,22 @@ const App = () => {
 
         if (visibleChartsData.flat().filter(Boolean).length > 0) {
             setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
-        } else {
-            setMaxAxisDomain(recoveredToday.map(data => data.recovered).sort((a, b) => b - a)[0])
+        } else if (config.visibleCharts.recovered) {
+            const recoveredDomain = recoveredToday
+                .map(data => data.recovered)
+                .sort((a, b) => b - a)[0]
+
+            setMaxAxisDomain(recoveredDomain)
+        } else if (config.visibleCharts.doublingRate) {
+            const doublingRateDomain = Array.from(firestoreData.byState.entries())
+                .filter(([state]) => forEnabledStates(state))
+                .map(([_, data]) => data)
+                .flat()
+                .map(data => data.doublingRate)
+                .filter(Boolean)
+                .sort((a, b) => b! - a!)[0] as number
+
+            setMaxAxisDomain(Math.ceil(doublingRateDomain))
         }
     }, [
         config.enabledStates,
