@@ -1,10 +1,9 @@
-import { Container, createStyles, makeStyles, useMediaQuery } from '@material-ui/core'
-import React, { useEffect, useState } from 'react'
+import { Container, createStyles, makeStyles } from '@material-ui/core'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
 import Charts from './Charts/Charts'
-import Footer from './Footer'
 import { useConfigContext } from './Provider/ConfigProvider'
 import { useFirestoreContext } from './Provider/FirestoreProvider'
 import Settings from './Settings/Settings'
@@ -18,10 +17,7 @@ const useStyles = makeStyles(theme =>
     createStyles({
         app: {
             paddingTop: theme.spacing(3),
-            paddingBottom: 56 + theme.spacing(3),
-            [theme.breakpoints.up('sm')]: {
-                paddingBottom: 64 + theme.spacing(3),
-            },
+
             userSelect: 'none',
         },
         container: {
@@ -39,16 +35,10 @@ const App = () => {
     const { firestoreData, firestoreDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
 
-    const highRes = useMediaQuery('(min-width: 1101px)')
-
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
     const classes = useStyles({ settingsOpen })
-
-    useEffect(() => {
-        setSettingsOpen(highRes)
-    }, [highRes])
 
     useEffect(() => {
         const forEnabledStates = (state: string) =>
@@ -100,32 +90,21 @@ const App = () => {
 
         if (config.enabledStates.size === 0) return
         // ? lets get our domain data (the max value of visible charts)
-        const visibleChartsData: number[][] = today.map(data =>
-            Object.keys(data)
-                // ? defeat ts index signature...
-                .map(key => ((config.visibleCharts as any)[key] ? (data as any)[key] : false))
-                .filter(Boolean)
-        )
+        const recoveredDomain = recoveredToday.map(data => data.recovered).sort((a, b) => b - a)[0]
+        const byStateDomain: number | undefined = Array.from(firestoreData.byState.entries())
+            .filter(([state]) => forEnabledStates(state))
+            .map(([_, data]) => data)
+            .flat()
+            .map(data =>
+                Object.keys(data)
+                    // ? defeat ts index signature...
+                    .map(key => ((config.visibleCharts as any)[key] ? (data as any)[key] : false))
+                    .filter(Boolean)
+            )
+            .flat()
+            .sort((a, b) => b - a)[0]
 
-        if (visibleChartsData.flat().filter(Boolean).length > 0) {
-            setMaxAxisDomain(visibleChartsData.flat().sort((a, b) => b - a)[0])
-        } else if (config.visibleCharts.recovered) {
-            const recoveredDomain = recoveredToday
-                .map(data => data.recovered)
-                .sort((a, b) => b - a)[0]
-
-            setMaxAxisDomain(recoveredDomain)
-        } else if (config.visibleCharts.doublingRate) {
-            const doublingRateDomain = Array.from(firestoreData.byState.entries())
-                .filter(([state]) => forEnabledStates(state))
-                .map(([_, data]) => data)
-                .flat()
-                .map(data => data.doublingRate)
-                .filter(Boolean)
-                .sort((a, b) => b! - a!)[0] as number
-
-            setMaxAxisDomain(Math.ceil(doublingRateDomain))
-        }
+        setMaxAxisDomain(Math.ceil(byStateDomain || recoveredDomain))
     }, [
         config.enabledStates,
         config.visibleCharts,
@@ -136,15 +115,20 @@ const App = () => {
         firestoreDispatch,
     ])
 
-    return (
-        <div className={classes.app}>
+    const memoDashboard = useMemo(
+        () => (
             <Container maxWidth="xl" className={classes.container}>
                 <Summary />
-                <Charts maxAxisDomain={maxAxisDomain} />
+                {config.settings.dashboard && <Charts maxAxisDomain={maxAxisDomain} />}
             </Container>
+        ),
+        [classes.container, maxAxisDomain, config.settings.dashboard]
+    )
 
+    return (
+        <div className={classes.app}>
+            {memoDashboard}
             <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
-            <Footer lastUpdate={firestoreData.summary?.lastUpdate.toLocaleDateString()} />
         </div>
     )
 }

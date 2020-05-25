@@ -35,7 +35,6 @@ const useStyles = makeStyles(theme =>
         responsiveContainer: {
             padding: theme.spacing(2),
         },
-
         card: { position: 'relative' },
         mostAffectedToggle: { zIndex: 2 },
     })
@@ -48,15 +47,14 @@ interface Props {
 }
 
 const Chart = ({ data, maxAxisDomain, state }: Props) => {
-    const { esriData } = useEsriContext()
     const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
     const [activeLabel, setActiveLabel] = useState<number>(data.length - 1)
 
-    const chartSelectionContainer = useRef(null)
-
-    const classes = useStyles()
-
+    const { esriData } = useEsriContext()
     const { config } = useConfigContext()
+
+    const chartSelectionContainer = useRef(null)
+    const classes = useStyles()
 
     const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = maxAxisDomain
         ? config.settings.normalize

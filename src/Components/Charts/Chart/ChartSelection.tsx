@@ -16,8 +16,7 @@ import ChartSelectionChip from './ChartSelectionChip'
 const useStyles = makeStyles(theme =>
     createStyles({
         chartSelection: {
-            paddingLeft: theme.spacing(2),
-            paddingRight: theme.spacing(2),
+            padding: theme.spacing(2),
         },
     })
 )

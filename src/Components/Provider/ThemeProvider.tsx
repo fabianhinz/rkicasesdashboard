@@ -23,6 +23,9 @@ const sharedTheme = createMuiTheme({
             },
         },
         MuiTypography: {
+            h4: {
+                fontFamily: 'Ubuntu',
+            },
             h5: {
                 fontFamily: 'Ubuntu',
             },
