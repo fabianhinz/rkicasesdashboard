@@ -107,13 +107,17 @@ const App = () => {
     ])
 
     return (
-        <div className={classes.app}>
-            <Container maxWidth="xl">
-                <EsriProvider>
-                    <Summary />
-                    {config.settings.dashboard && <Charts maxAxisDomain={maxAxisDomain} />}
-                </EsriProvider>
-            </Container>
+        <>
+            {config.settings.dashboard && (
+                <div className={classes.app}>
+                    <Container maxWidth="xl">
+                        <EsriProvider>
+                            <Summary />
+                            <Charts maxAxisDomain={maxAxisDomain} />
+                        </EsriProvider>
+                    </Container>
+                </div>
+            )}
             <Settings />
             {firestoreData.summary?.lastUpdate && (
                 <Snackbar
@@ -125,7 +129,7 @@ const App = () => {
                     </Alert>
                 </Snackbar>
             )}
-        </div>
+        </>
     )
 }
 

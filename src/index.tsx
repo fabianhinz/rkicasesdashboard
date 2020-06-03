@@ -16,8 +16,8 @@ ReactDOM.render(
         <ConfigProvider>
             <FirestoreProvider>
                 <App />
+                <States />
             </FirestoreProvider>
-            <States />
         </ConfigProvider>
     </ThemeProvider>,
     document.getElementById('root')
