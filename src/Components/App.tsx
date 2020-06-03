@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme =>
 )
 
 const App = () => {
-    const [snackbarOpen, setSnackbarOpen] = useState(false)
+    const [snackbarOpen, setSnackbarOpen] = useState(true)
 
     const { firestoreData, firestoreDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
@@ -30,10 +30,6 @@ const App = () => {
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
     const classes = useStyles()
-
-    useEffect(() => {
-        setSnackbarOpen(Boolean(firestoreData.summary?.lastUpdate))
-    }, [firestoreData.summary])
 
     useEffect(() => {
         const forEnabledStates = (state: string) =>
@@ -119,14 +115,16 @@ const App = () => {
                 </EsriProvider>
             </Container>
             <Settings />
-            <Snackbar
-                open={snackbarOpen}
-                onClose={() => setSnackbarOpen(false)}
-                autoHideDuration={4000}>
-                <Alert severity="info" onClose={() => setSnackbarOpen(false)}>
-                    Zuletzt aktualisiert am {firestoreData.summary?.lastUpdate.toLocaleString()}
-                </Alert>
-            </Snackbar>
+            {firestoreData.summary?.lastUpdate && (
+                <Snackbar
+                    open={snackbarOpen}
+                    onClose={() => setSnackbarOpen(false)}
+                    autoHideDuration={4000}>
+                    <Alert severity="info" onClose={() => setSnackbarOpen(false)}>
+                        Zuletzt aktualisiert am {firestoreData.summary?.lastUpdate.toLocaleString()}
+                    </Alert>
+                </Snackbar>
+            )}
         </div>
     )
 }
