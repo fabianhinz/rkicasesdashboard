@@ -105,10 +105,9 @@ type CountyWithName = County & { name?: string }
 interface Props {
     open: boolean
     county?: string
-    showSkeletons: boolean
 }
 
-const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
+const EsriLkSk = ({ county, open }: Props) => {
     const [tabIndex, setTabIndex] = useState(0)
     const [filterValue, setFilterValue] = useState('')
 
@@ -258,7 +257,7 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
                             .filter(includesFilterValue)
                             .map(listItemRenderer('all'))}
 
-                        {showSkeletons &&
+                        {esriData.loading &&
                             new Array(30).fill(1).map((_dummy, index) => (
                                 <ListItem disableGutters key={index}>
                                     <ListItemIcon>
@@ -280,4 +279,4 @@ const EsriMostAffected = ({ county, open, showSkeletons }: Props) => {
     )
 }
 
-export default EsriMostAffected
+export default EsriLkSk

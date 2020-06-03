@@ -8,10 +8,9 @@ import {
     Link,
     makeStyles,
     Typography,
-    useMediaQuery,
 } from '@material-ui/core'
 import { Close, Tune, WeatherNight, WeatherSunny } from 'mdi-material-ui'
-import React from 'react'
+import React, { useState } from 'react'
 
 import db from '../../services/db'
 import { useThemeContext } from '../Provider/ThemeProvider'
@@ -23,9 +22,9 @@ const useStyles = makeStyles(theme =>
     createStyles({
         fab: {
             position: 'fixed',
-            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(2)}px)`,
+            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(3)}px)`,
             zIndex: theme.zIndex.appBar + 1,
-            right: theme.spacing(2),
+            right: theme.spacing(3),
         },
         themeFab: {
             flexShrink: 0,
@@ -33,6 +32,9 @@ const useStyles = makeStyles(theme =>
         },
         paper: {
             width: 320,
+            [theme.breakpoints.up('sm')]: {
+                width: 425,
+            },
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -58,23 +60,14 @@ const useStyles = makeStyles(theme =>
             padding: theme.spacing(1),
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
         },
-        settingsIcon: {
-            marginRight: theme.spacing(0.5),
-        },
     })
 )
 
-interface Props {
-    open: boolean
-    onOpenChange: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const Settings = ({ open, onOpenChange }: Props) => {
+const Settings = () => {
+    const [open, setOpen] = useState(false)
     const { theme, setTheme } = useThemeContext()
 
     const classes = useStyles()
-
-    const lowRes = useMediaQuery('(max-width: 768px)')
 
     const handleThemeFabClick = () => {
         setTheme(prev => {
@@ -88,10 +81,9 @@ const Settings = ({ open, onOpenChange }: Props) => {
         <>
             <Drawer
                 PaperProps={{ className: classes.paper }}
-                variant={lowRes ? 'temporary' : 'persistent'}
                 anchor="right"
                 open={open}
-                onClose={() => onOpenChange(false)}>
+                onClose={() => setOpen(false)}>
                 <div className={classes.header}>
                     <div>
                         <Typography variant="h6">Fallzahlen in Deutschland</Typography>
@@ -128,14 +120,14 @@ const Settings = ({ open, onOpenChange }: Props) => {
                     </Grid>
                 </div>
                 <div className={classes.action}>
-                    <Button fullWidth onClick={() => onOpenChange(false)} startIcon={<Close />}>
+                    <Button fullWidth onClick={() => setOpen(false)} startIcon={<Close />}>
                         schließen
                     </Button>
                 </div>
             </Drawer>
 
-            <Fab variant="extended" className={classes.fab} onClick={() => onOpenChange(true)}>
-                <Tune className={classes.settingsIcon} /> Einstellungen
+            <Fab className={classes.fab} onClick={() => setOpen(true)}>
+                <Tune />
             </Fab>
         </>
     )

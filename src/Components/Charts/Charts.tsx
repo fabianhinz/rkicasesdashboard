@@ -4,7 +4,6 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { useConfigContext } from '../Provider/ConfigProvider'
-import EsriProvider from '../Provider/EsriProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import Loading from '../Shared/Loading'
 import Chart from './Chart/Chart'
@@ -34,7 +33,7 @@ const Charts = ({ maxAxisDomain }: Props) => {
             clearTimeout(timeout)
             clearInterval(progressIntervall)
         }
-    }, [config, maxAxisDomain])
+    }, [config.enabledStates, maxAxisDomain])
 
     useEffect(() => {
         if (showChartProgress === 100) clearInterval(progressIntervall)
@@ -56,45 +55,41 @@ const Charts = ({ maxAxisDomain }: Props) => {
 
     return (
         <Grid container spacing={2}>
-            <EsriProvider>
-                {config.enabledStates.size === 0 && (
-                    <Grid item xs={12}>
+            {config.enabledStates.size === 0 && (
+                <Grid item xs={12}>
+                    <Chart
+                        data={[...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
+                            ...byDay,
+                            recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
+                        }))}
+                    />
+                </Grid>
+            )}
+
+            {[...firestoreData.byState.entries()]
+                .filter(([state]) => config.enabledStates.has(state))
+                .map(([state, stateData]) => (
+                    <Grid item {...gridBreakpointProps} key={state}>
                         <Chart
-                            data={[...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
-                                ...byDay,
-                                recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
-                            }))}
+                            state={state}
+                            data={stateData.map(data => {
+                                const stateRecoveredData = firestoreData.recoveredByState
+                                    .get(state)
+                                    ?.find(
+                                        recovered =>
+                                            recovered.timestamp.toDate().toLocaleDateString() ===
+                                            data.timestamp.toDate().toLocaleDateString()
+                                    )
+
+                                return {
+                                    ...data,
+                                    recovered: stateRecoveredData?.recovered,
+                                }
+                            })}
+                            maxAxisDomain={maxAxisDomain}
                         />
                     </Grid>
-                )}
-
-                {[...firestoreData.byState.entries()]
-                    .filter(([state]) => config.enabledStates.has(state))
-                    .map(([state, stateData]) => (
-                        <Grid item {...gridBreakpointProps} key={state}>
-                            <Chart
-                                state={state}
-                                data={stateData.map(data => {
-                                    const stateRecoveredData = firestoreData.recoveredByState
-                                        .get(state)
-                                        ?.find(
-                                            recovered =>
-                                                recovered.timestamp
-                                                    .toDate()
-                                                    .toLocaleDateString() ===
-                                                data.timestamp.toDate().toLocaleDateString()
-                                        )
-
-                                    return {
-                                        ...data,
-                                        recovered: stateRecoveredData?.recovered,
-                                    }
-                                })}
-                                maxAxisDomain={maxAxisDomain}
-                            />
-                        </Grid>
-                    ))}
-            </EsriProvider>
+                ))}
 
             {firestoreData.byState.size === 0 &&
                 new Array(config.enabledStates.size).fill(1).map((_dummy, index) => (
