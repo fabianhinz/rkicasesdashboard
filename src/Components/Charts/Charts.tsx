@@ -33,7 +33,7 @@ const Charts = ({ maxAxisDomain }: Props) => {
             clearTimeout(timeout)
             clearInterval(progressIntervall)
         }
-    }, [config.enabledStates, maxAxisDomain])
+    }, [config.enabledStates, config.visibleCharts, maxAxisDomain])
 
     useEffect(() => {
         if (showChartProgress === 100) clearInterval(progressIntervall)
