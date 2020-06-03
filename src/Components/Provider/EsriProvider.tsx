@@ -3,8 +3,6 @@ import React, { createContext, FC, useCallback, useContext, useEffect } from 're
 import { County, Feature } from '../../model/model'
 import { AttributesKey, EsriActions, EsriState, useEsriReducer } from '../../reducer/esriReducer'
 
-type MostAffectedByState = Map<string, County[]>
-
 interface Context {
     esriData: EsriState
     esriDispatch: React.Dispatch<EsriActions>
@@ -48,33 +46,26 @@ const EsriProvider: FC = ({ children }) => {
     )
 
     useEffect(() => {
-        // ? give the ui some time to breath
-        setTimeout(async () => {
-            try {
-                await Promise.all([
-                    makeRequest(
-                        'cases7_per_100k',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases7_per_100k,county,BL&returnGeometry=false&orderByFields=cases7_per_100k%20DESC&outSR=4326&f=json'
-                    ),
-                    makeRequest(
-                        'cases_per_100k',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'
-                    ),
-                    makeRequest(
-                        'cases',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,cases&returnGeometry=false&orderByFields=cases DESC&outSR=4326&f=json'
-                    ),
-                    makeRequest(
-                        'deaths',
-                        'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,deaths&returnGeometry=false&orderByFields=deaths DESC&outSR=4326&f=json'
-                    ),
-                ])
-            } catch (e) {
-                esriDispatch({ type: 'errorMsgChange', errorMsg: e.toString() })
-            } finally {
-                esriDispatch({ type: 'loadingChange', loading: false })
-            }
-        }, 2000)
+        Promise.all([
+            makeRequest(
+                'cases7_per_100k',
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases7_per_100k,county,BL&returnGeometry=false&orderByFields=cases7_per_100k%20DESC&outSR=4326&f=json'
+            ),
+            makeRequest(
+                'cases_per_100k',
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,cases_per_100k,county,BL&returnGeometry=false&orderByFields=cases_per_100k%20DESC&outSR=4326&f=json'
+            ),
+            makeRequest(
+                'cases',
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,cases&returnGeometry=false&orderByFields=cases DESC&outSR=4326&f=json'
+            ),
+            makeRequest(
+                'deaths',
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=last_update,county,BL,deaths&returnGeometry=false&orderByFields=deaths DESC&outSR=4326&f=json'
+            ),
+        ])
+            .catch(e => esriDispatch({ type: 'errorMsgChange', errorMsg: e.toString() }))
+            .finally(() => esriDispatch({ type: 'loadingChange', loading: false }))
     }, [esriDispatch, makeRequest])
 
     return (

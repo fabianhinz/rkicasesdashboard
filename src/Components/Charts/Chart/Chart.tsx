@@ -24,9 +24,8 @@ import {
 } from 'recharts'
 
 import { CombinedStateData } from '../../../model/model'
-import EsriMostAffected from '../../Esri/EsriMostAffected'
+import EsriLkSk from '../../Esri/EsriLkSk'
 import { useConfigContext } from '../../Provider/ConfigProvider'
-import { useEsriContext } from '../../Provider/EsriProvider'
 import ChartBarShape, { ChartBarShapeProps } from './ChartBarShape'
 import ChartSelection from './ChartSelection'
 
@@ -47,10 +46,9 @@ interface Props {
 }
 
 const Chart = ({ data, maxAxisDomain, state }: Props) => {
-    const [mostAffectedOpen, setMostAffectedOpen] = useState(false)
+    const [esriLkSkOpen, setEsriLkSkOpen] = useState(false)
     const [activeLabel, setActiveLabel] = useState<number>(data.length - 1)
 
-    const { esriData } = useEsriContext()
     const { config } = useConfigContext()
 
     const chartSelectionContainer = useRef(null)
@@ -69,16 +67,10 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
         activeDot: { r: 5 },
     }
 
-    const esriMostAffected = useMemo(
-        () => (
-            <EsriMostAffected
-                open={mostAffectedOpen}
-                county={state}
-                showSkeletons={esriData.loading}
-            />
-        ),
-        [esriData.loading, mostAffectedOpen, state]
-    )
+    const esriLkSk = useMemo(() => <EsriLkSk open={esriLkSkOpen} county={state} />, [
+        esriLkSkOpen,
+        state,
+    ])
 
     return (
         <Card className={classes.card}>
@@ -88,7 +80,7 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
                     <MuiTooltip placement="left" title="Land- und Stadtkreise">
                         <IconButton
                             className={classes.mostAffectedToggle}
-                            onClick={() => setMostAffectedOpen(prev => !prev)}>
+                            onClick={() => setEsriLkSkOpen(prev => !prev)}>
                             <HomeGroup />
                         </IconButton>
                     </MuiTooltip>
@@ -183,7 +175,7 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
                 </ResponsiveContainer>
             </div>
 
-            {esriMostAffected}
+            {esriLkSk}
         </Card>
     )
 }

@@ -1,44 +1,39 @@
-import { Container, createStyles, makeStyles } from '@material-ui/core'
-import React, { useEffect, useMemo, useState } from 'react'
+import { Container, createStyles, makeStyles, Snackbar } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
+import React, { useEffect, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
 import Charts from './Charts/Charts'
 import { useConfigContext } from './Provider/ConfigProvider'
+import EsriProvider from './Provider/EsriProvider'
 import { useFirestoreContext } from './Provider/FirestoreProvider'
 import Settings from './Settings/Settings'
 import Summary from './Summary/Summary'
 
-interface StyleProps {
-    settingsOpen: boolean
-}
-
 const useStyles = makeStyles(theme =>
     createStyles({
         app: {
-            paddingTop: theme.spacing(3),
-
+            marginTop: theme.spacing(3),
+            marginBottom: theme.spacing(3),
             userSelect: 'none',
-        },
-        container: {
-            '@media(min-width: 769px) and (max-width: 2559px)': {
-                paddingRight: ({ settingsOpen }: StyleProps) => (settingsOpen ? 344 : 24),
-            },
-            '@media(min-width: 2560px)': {
-                paddingRight: 24,
-            },
         },
     })
 )
 
 const App = () => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false)
+
     const { firestoreData, firestoreDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
 
-    const [settingsOpen, setSettingsOpen] = useState(false)
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
-    const classes = useStyles({ settingsOpen })
+    const classes = useStyles()
+
+    useEffect(() => {
+        setSnackbarOpen(Boolean(firestoreData.summary?.lastUpdate))
+    }, [firestoreData.summary])
 
     useEffect(() => {
         const forEnabledStates = (state: string) =>
@@ -115,20 +110,23 @@ const App = () => {
         firestoreDispatch,
     ])
 
-    const memoDashboard = useMemo(
-        () => (
-            <Container maxWidth="xl" className={classes.container}>
-                <Summary />
-                {config.settings.dashboard && <Charts maxAxisDomain={maxAxisDomain} />}
-            </Container>
-        ),
-        [classes.container, maxAxisDomain, config.settings.dashboard]
-    )
-
     return (
         <div className={classes.app}>
-            {memoDashboard}
-            <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
+            <Container maxWidth="xl">
+                <EsriProvider>
+                    <Summary />
+                    {config.settings.dashboard && <Charts maxAxisDomain={maxAxisDomain} />}
+                </EsriProvider>
+            </Container>
+            <Settings />
+            <Snackbar
+                open={snackbarOpen}
+                onClose={() => setSnackbarOpen(false)}
+                autoHideDuration={4000}>
+                <Alert severity="info" onClose={() => setSnackbarOpen(false)}>
+                    Zuletzt aktualisiert am {firestoreData.summary?.lastUpdate.toLocaleString()}
+                </Alert>
+            </Snackbar>
         </div>
     )
 }
