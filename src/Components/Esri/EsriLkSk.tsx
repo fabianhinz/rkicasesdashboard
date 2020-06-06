@@ -1,6 +1,6 @@
 import {
     Avatar,
-    Backdrop,
+    Button,
     Checkbox,
     createStyles,
     Divider,
@@ -10,8 +10,6 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     makeStyles,
-    Paper,
-    Slide,
     Tab,
     Tabs,
     TextField,
@@ -19,7 +17,15 @@ import {
 } from '@material-ui/core'
 import { amber, cyan, red } from '@material-ui/core/colors'
 import { Skeleton } from '@material-ui/lab'
-import { AccountAlert, AccountMultiple, Heart, HeartOutline, Sigma, Skull } from 'mdi-material-ui'
+import {
+    AccountAlert,
+    AccountMultiple,
+    Close,
+    Heart,
+    HeartOutline,
+    Sigma,
+    Skull,
+} from 'mdi-material-ui'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { LEGEND } from '../../constants'
@@ -27,45 +33,19 @@ import { County } from '../../model/model'
 import db from '../../services/db'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useEsriContext } from '../Provider/EsriProvider'
+import { Drawer, DrawerAction, DrawerContent, DrawerHeader } from '../Shared/Drawer'
+
+type DisplayMode = 'standalone' | 'chart'
 
 interface StyleProps {
     tabsindicatorColor: string
     showLegend: boolean
 }
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        backdrop: {
-            zIndex: 1,
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
-            borderRadius: 20,
-        },
-        paper: {
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1,
-            padding: theme.spacing(2),
-            paddingBottom: 0,
-            willChange: 'transform',
-            width: 280,
-            display: 'flex',
-            flexDirection: 'column',
-            [theme.breakpoints.only('sm')]: {
-                width: 320,
-            },
-            [theme.breakpoints.up('md')]: {
-                width: 385,
-            },
-        },
+const useStyles = makeStyles(theme => {
+    return createStyles({
         textField: {
             width: '100%',
-            marginBottom: theme.spacing(1),
             [theme.breakpoints.between('xs', 'sm')]: {
                 minHeight: ({ showLegend }: StyleProps) => (showLegend ? 89 : 48),
             },
@@ -98,16 +78,16 @@ const useStyles = makeStyles(theme =>
             overflowX: 'hidden',
         },
     })
-)
+})
 
 type CountyWithName = County & { name?: string }
 
 interface Props {
     open: boolean
-    county?: string
+    onClose: () => void
 }
 
-const EsriLkSk = ({ county, open }: Props) => {
+const EsriLkSk = ({ open, onClose }: Props) => {
     const [tabIndex, setTabIndex] = useState(0)
     const [filterValue, setFilterValue] = useState('')
 
@@ -124,13 +104,12 @@ const EsriLkSk = ({ county, open }: Props) => {
                 ? 'weekRateByState'
                 : 'deathsByState'
 
-        return county
-            ? esriData[activeKey].get(county)
-            : Array.from(esriData[activeKey].entries())
-                  .map(([name, countyData]) => countyData.map(data => ({ ...data, name })))
-                  .flat()
-                  .sort((a, b) => b.value - a.value)
-    }, [county, esriData, tabIndex])
+        return Array.from(esriData[activeKey].entries())
+            .filter(([state]) => config.enabledStates.size === 0 || config.enabledStates.has(state))
+            .map(([name, countyData]) => countyData.map(data => ({ ...data, name })))
+            .flat()
+            .sort((a, b) => b.value - a.value)
+    }, [config.enabledStates, esriData, tabIndex])
 
     const classes = useStyles({
         tabsindicatorColor:
@@ -207,75 +186,80 @@ const EsriLkSk = ({ county, open }: Props) => {
     }
 
     return (
-        <>
-            <Backdrop open={open} className={classes.backdrop} />
-            <Slide direction="left" mountOnEnter in={open}>
-                <Paper className={classes.paper}>
-                    <TextField
-                        className={classes.textField}
-                        label="Suche"
-                        placeholder="Land- und Stadtkreise"
-                        value={filterValue}
-                        onChange={e => setFilterValue(e.target.value.toLowerCase())}
-                        helperText={getHelperText()}
+        <Drawer open={open} onClose={onClose}>
+            <DrawerHeader>
+                <TextField
+                    className={classes.textField}
+                    label="Suche"
+                    placeholder="Land- und Stadtkreise"
+                    value={filterValue}
+                    onChange={e => setFilterValue(e.target.value.toLowerCase())}
+                    helperText={getHelperText()}
+                />
+            </DrawerHeader>
+
+            <DrawerContent>
+                <Tabs
+                    classes={{ indicator: classes.tabsindicator, root: classes.tabsroot }}
+                    value={tabIndex}
+                    onChange={(_e, index) => setTabIndex(index)}>
+                    <Tab
+                        classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
+                        icon={<Sigma />}
                     />
+                    <Tab
+                        classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
+                        icon={<AccountMultiple />}
+                    />
+                    <Tab
+                        classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
+                        icon={<AccountAlert />}
+                    />
+                    <Tab
+                        classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
+                        icon={<Skull />}
+                    />
+                </Tabs>
 
-                    <Tabs
-                        classes={{ indicator: classes.tabsindicator, root: classes.tabsroot }}
-                        value={tabIndex}
-                        onChange={(_e, index) => setTabIndex(index)}>
-                        <Tab
-                            classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
-                            icon={<Sigma />}
-                        />
-                        <Tab
-                            classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
-                            icon={<AccountMultiple />}
-                        />
-                        <Tab
-                            classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
-                            icon={<AccountAlert />}
-                        />
-                        <Tab
-                            classes={{ selected: classes.tabSelected, root: classes.tabsroot }}
-                            icon={<Skull />}
-                        />
-                    </Tabs>
+                <Typography component="div" align="center" variant="caption" color="error">
+                    {esriData.errorMsg}
+                </Typography>
 
-                    <Typography component="div" align="center" variant="caption" color="error">
-                        {esriData.errorMsg}
-                    </Typography>
+                <List dense className={classes.list}>
+                    {tabAwareEsriData
+                        ?.filter(favoriteCounties('include'))
+                        .filter(includesFilterValue)
+                        .map(listItemRenderer('favorite'))}
 
-                    <List dense className={classes.list}>
-                        {tabAwareEsriData
-                            ?.filter(favoriteCounties('include'))
-                            .filter(includesFilterValue)
-                            .map(listItemRenderer('favorite'))}
+                    {tabAwareEsriData
+                        ?.filter(favoriteCounties('skip'))
+                        .filter(includesFilterValue)
+                        .map(listItemRenderer('all'))}
 
-                        {tabAwareEsriData
-                            ?.filter(favoriteCounties('skip'))
-                            .filter(includesFilterValue)
-                            .map(listItemRenderer('all'))}
+                    {esriData.loading &&
+                        new Array(30).fill(1).map((_dummy, index) => (
+                            <ListItem disableGutters key={index}>
+                                <ListItemIcon>
+                                    <Skeleton width={40} height={40} variant="circle" />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={<Skeleton variant="text" width="80%" />}
+                                    secondary={<Skeleton variant="text" width="30%" />}
+                                />
+                                <ListItemSecondaryAction>
+                                    <Skeleton width={24} height={24} variant="circle" />
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
+                </List>
+            </DrawerContent>
 
-                        {esriData.loading &&
-                            new Array(30).fill(1).map((_dummy, index) => (
-                                <ListItem disableGutters key={index}>
-                                    <ListItemIcon>
-                                        <Skeleton width={40} height={40} variant="circle" />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={<Skeleton variant="text" width="80%" />}
-                                        secondary={<Skeleton variant="text" width="30%" />}
-                                    />
-                                    <ListItemSecondaryAction>
-                                        <Skeleton width={24} height={24} variant="circle" />
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                            ))}
-                    </List>
-                </Paper>
-            </Slide>
-        </>
+            <DrawerAction>
+                <Button fullWidth onClick={onClose} startIcon={<Close />}>
+                    schließen
+                </Button>
+            </DrawerAction>
+        </Drawer>
     )
 }
 

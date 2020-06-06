@@ -1,12 +1,7 @@
 import { createStyles, makeStyles } from '@material-ui/core'
 import React from 'react'
 
-import { useConfigContext } from '../Provider/ConfigProvider'
 import State from './State'
-
-interface StyleProps {
-    dashboard: boolean
-}
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -14,11 +9,8 @@ const useStyles = makeStyles(theme =>
             position: 'fixed',
             zIndex: -1,
             bottom: 0,
-            left: ({ dashboard }: StyleProps) => (dashboard ? 0 : '50%'),
-            transform: ({ dashboard }: StyleProps) =>
-                dashboard ? 'translate(0%)' : 'translate(-50%)',
-            opacity: ({ dashboard }: StyleProps) =>
-                dashboard ? (theme.palette.type === 'dark' ? 0.1 : 0.2) : 1,
+            left: 0,
+            opacity: theme.palette.type === 'dark' ? 0.1 : 0.2,
             padding: theme.spacing(4),
             height: '95vh',
         },
@@ -26,9 +18,7 @@ const useStyles = makeStyles(theme =>
 )
 
 const States = () => {
-    const { config } = useConfigContext()
-
-    const classes = useStyles({ dashboard: config.settings.dashboard })
+    const classes = useStyles()
 
     return (
         <svg

@@ -12,6 +12,7 @@ import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useMemo } from 'react'
 
 import { LEGEND } from '../../constants'
+import useAppLayout from '../../hooks/useAppLayout'
 import { Summary } from '../../model/model'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
@@ -68,6 +69,8 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     const { config } = useConfigContext()
     const { firestoreData } = useFirestoreContext()
 
+    const { isMobileLayout } = useAppLayout()
+
     const legend = useMemo(() => {
         if (!config.settings.showLegend) return undefined
         return LEGEND[dataKey]
@@ -75,7 +78,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
 
     const classes = useStyles({
         backgroundColor,
-        visible: config.visibleCharts[dataKey],
+        visible: config.visibleCharts[dataKey] || isMobileLayout,
         percentage: config.settings.percentage,
         legend,
     })
@@ -84,7 +87,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
         return <Skeleton variant="text" width="100%" height={39} />
 
     return (
-        <ButtonBase className={classes.buttonBase} onClick={onClick}>
+        <ButtonBase disabled={isMobileLayout} className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
                 <Grid container alignItems="center" spacing={1} wrap="nowrap">
                     <Grid item>

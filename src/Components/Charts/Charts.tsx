@@ -3,6 +3,7 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useEffect, useMemo, useState } from 'react'
 
+import useAppLayout from '../../hooks/useAppLayout'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import Loading from '../Shared/Loading'
@@ -19,6 +20,8 @@ const Charts = ({ maxAxisDomain }: Props) => {
     const { firestoreData } = useFirestoreContext()
     const [showChart, setShowChart] = useState(false)
     const [showChartProgress, setShowChartProgress] = useState(10)
+
+    const { isMobileLayout } = useAppLayout()
 
     useEffect(() => {
         setShowChart(false)
@@ -51,6 +54,7 @@ const Charts = ({ maxAxisDomain }: Props) => {
         [config.settings.grid]
     )
 
+    if (isMobileLayout) return <></>
     if (!showChart) return <Loading value={showChartProgress} label="Dashboard wird gebaut" />
 
     return (

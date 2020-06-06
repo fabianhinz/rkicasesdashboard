@@ -1,16 +1,7 @@
-import {
-    Card,
-    CardHeader,
-    createStyles,
-    IconButton,
-    makeStyles,
-    Portal,
-    Tooltip as MuiTooltip,
-} from '@material-ui/core'
+import { Card, CardHeader, createStyles, makeStyles, Portal } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import { HomeGroup } from 'mdi-material-ui'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -24,7 +15,6 @@ import {
 } from 'recharts'
 
 import { CombinedStateData } from '../../../model/model'
-import EsriLkSk from '../../Esri/EsriLkSk'
 import { useConfigContext } from '../../Provider/ConfigProvider'
 import ChartBarShape, { ChartBarShapeProps } from './ChartBarShape'
 import ChartSelection from './ChartSelection'
@@ -46,7 +36,6 @@ interface Props {
 }
 
 const Chart = ({ data, maxAxisDomain, state }: Props) => {
-    const [esriLkSkOpen, setEsriLkSkOpen] = useState(false)
     const [activeLabel, setActiveLabel] = useState<number>(data.length - 1)
 
     const { config } = useConfigContext()
@@ -67,25 +56,9 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
         activeDot: { r: 5 },
     }
 
-    const esriLkSk = useMemo(() => <EsriLkSk open={esriLkSkOpen} county={state} />, [
-        esriLkSkOpen,
-        state,
-    ])
-
     return (
         <Card className={classes.card}>
-            <CardHeader
-                title={state || 'Deutschland'}
-                action={
-                    <MuiTooltip placement="left" title="Land- und Stadtkreise">
-                        <IconButton
-                            className={classes.mostAffectedToggle}
-                            onClick={() => setEsriLkSkOpen(prev => !prev)}>
-                            <HomeGroup />
-                        </IconButton>
-                    </MuiTooltip>
-                }
-            />
+            <CardHeader title={state || 'Deutschland'} />
 
             <div ref={chartSelectionContainer} />
 
@@ -174,8 +147,6 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
-
-            {esriLkSk}
         </Card>
     )
 }
