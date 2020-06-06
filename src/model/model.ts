@@ -30,7 +30,6 @@ export interface Settings {
     normalize: boolean
     percentage: boolean
     ratio: number
-    dashboard: boolean
 }
 
 export type VisibleCharts = Record<keyof Omit<Summary, 'lastUpdate'>, boolean> & {

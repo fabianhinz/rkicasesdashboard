@@ -10,6 +10,7 @@ import {
 } from 'mdi-material-ui'
 import React, { useMemo } from 'react'
 
+import useAppLayout from '../../hooks/useAppLayout'
 import { VisibleCharts } from '../../model/model'
 import db from '../../services/db'
 import { useConfigContext } from '../Provider/ConfigProvider'
@@ -33,6 +34,7 @@ const Summary = () => {
     const { config, configDispatch } = useConfigContext()
 
     const classes = useStyles()
+    const { isDesktopLayout } = useAppLayout()
 
     const handleSummaryClick = (key: keyof VisibleCharts) => () => {
         const visibleCharts = { ...config.visibleCharts, [key]: !config.visibleCharts[key] }
@@ -42,15 +44,15 @@ const Summary = () => {
     }
 
     const memoBreakpointProps: Pick<GridProps, 'xs' | 'sm'> | undefined = useMemo(
-        () => (config.settings.dashboard ? undefined : { xs: 12, sm: 6 }),
-        [config.settings.dashboard]
+        () => (isDesktopLayout ? undefined : { xs: 12 }),
+        [isDesktopLayout]
     )
 
     return (
         <Grid
             container
             spacing={2}
-            wrap={config.settings.dashboard ? 'nowrap' : 'wrap'}
+            wrap={isDesktopLayout ? 'nowrap' : 'wrap'}
             className={classes.summary}>
             <Grid item {...memoBreakpointProps}>
                 <SummaryPaper

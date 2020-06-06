@@ -1,23 +1,48 @@
 import { createStyles, makeStyles } from '@material-ui/core'
-import React, { memo } from 'react'
+import React from 'react'
+
+import db from '../../services/db'
+import { useConfigContext } from '../Provider/ConfigProvider'
+
+interface StyleProps {
+    selected: boolean
+}
 
 const useStyles = makeStyles(theme =>
     createStyles({
         path: {
-            fill: ({ selected }: Pick<Props, 'selected'>) =>
-                selected ? theme.palette.primary.dark : 'inherit',
+            cursor: 'pointer',
+            transition: theme.transitions.create('fill'),
+            fill: ({ selected }: StyleProps) => (selected ? theme.palette.primary.dark : 'inherit'),
         },
     })
 )
 
-interface Props extends React.SVGProps<SVGPathElement> {
-    selected: boolean
+interface Props extends Omit<React.SVGProps<SVGPathElement>, 'name'> {
+    // ? name of the state
+    name: string
 }
 
-const State = ({ selected, name, ...svgProps }: Props) => {
+const State = ({ name, ...svgProps }: Props) => {
+    const { config, configDispatch } = useConfigContext()
+
+    const selected = config.enabledStates.has(name)
     const classes = useStyles({ selected })
 
-    return <path {...svgProps} className={classes.path} />
+    const handleClick = () => {
+        const enabledStates = new Set(config.enabledStates)
+        if (enabledStates.has(name)) enabledStates.delete(name)
+        else enabledStates.add(name)
+
+        db.data.put(enabledStates, 'enabledStates')
+        configDispatch({ type: 'enabledStatesChange', enabledStates })
+    }
+
+    return (
+        <path {...svgProps} onClick={handleClick} className={classes.path}>
+            <text>test</text>
+        </path>
+    )
 }
 
-export default memo(State, (prev, next) => prev.selected === next.selected)
+export default State

@@ -1,13 +1,4 @@
-import {
-    Box,
-    Checkbox,
-    Hidden,
-    List,
-    ListSubheader,
-    Slide,
-    Slider,
-    Typography,
-} from '@material-ui/core'
+import { Hidden, List, ListSubheader, Slide, Slider, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
 
 import { Settings } from '../../model/model'
@@ -27,70 +18,62 @@ const SettingsDashboard = () => {
 
     return (
         <>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <ListSubheader disableSticky disableGutters>
-                    Dashboard
-                </ListSubheader>
-                <Checkbox
-                    checked={config.settings.dashboard}
-                    onChange={handleChange('dashboard')}
-                />
-            </Box>
+            <ListSubheader disableSticky disableGutters>
+                Dashboard
+            </ListSubheader>
 
-            {config.settings.dashboard && (
-                <>
-                    <Typography gutterBottom>Verhältnis Breite:Höhe</Typography>
-                    <Slider
-                        value={internalRatio}
-                        onChange={(_e, ratio) => setInternalRatio(ratio as number)}
-                        onChangeCommitted={handleChange('ratio')}
-                        valueLabelDisplay="auto"
-                        valueLabelFormat={value => `${value}:1`}
-                        step={1}
-                        marks
-                        min={1}
-                        max={4}
+            <>
+                <Typography gutterBottom>Verhältnis Breite:Höhe</Typography>
+                <Slider
+                    value={internalRatio}
+                    onChange={(_e, ratio) => setInternalRatio(ratio as number)}
+                    onChangeCommitted={handleChange('ratio')}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={value => `${value}:1`}
+                    step={1}
+                    marks
+                    min={1}
+                    max={4}
+                />
+
+                <List disablePadding>
+                    <SettingsListItem
+                        checked={config.settings.log}
+                        onChange={handleChange('log')}
+                        primary="Log"
+                        secondary="bi-symmetric log transformation"
+                    />
+                    <SettingsListItem
+                        checked={config.settings.showAxis}
+                        onChange={handleChange('showAxis')}
+                        primary="Achsen"
+                        secondary="Y-Achsen der Diagramme"
                     />
 
-                    <List disablePadding>
-                        <SettingsListItem
-                            checked={config.settings.log}
-                            onChange={handleChange('log')}
-                            primary="Log"
-                            secondary="bi-symmetric log transformation"
-                        />
-                        <SettingsListItem
-                            checked={config.settings.showAxis}
-                            onChange={handleChange('showAxis')}
-                            primary="Achsen"
-                            secondary="Y-Achsen der Diagramme"
-                        />
-
-                        <Slide
-                            mountOnEnter
-                            unmountOnExit
-                            in={config.enabledStates.size > 0}
-                            direction="left">
-                            <div>
-                                <Hidden mdDown>
-                                    <SettingsListItem
-                                        checked={config.settings.grid}
-                                        onChange={handleChange('grid')}
-                                        primary="Gridansicht"
-                                        secondary="Kompakte Ansicht bei hinreichend Platz"
-                                    />
-                                </Hidden>
+                    <Slide
+                        mountOnEnter
+                        unmountOnExit
+                        in={config.enabledStates.size > 0}
+                        direction="left">
+                        <div>
+                            <Hidden mdDown>
                                 <SettingsListItem
-                                    checked={config.settings.normalize}
-                                    onChange={handleChange('normalize')}
-                                    primary="Normalisieren"
-                                    secondary="Einheitlicher Maßstab der Achsen"
+                                    checked={config.settings.grid}
+                                    onChange={handleChange('grid')}
+                                    primary="Gridansicht"
+                                    secondary="Kompakte Ansicht bei hinreichend Platz"
                                 />
-                            </div>
-                        </Slide>
-                    </List>
-                </>
-            )}
+                            </Hidden>
+                            <SettingsListItem
+                                checked={config.settings.normalize}
+                                onChange={handleChange('normalize')}
+                                primary="Normalisieren"
+                                secondary="Einheitlicher Maßstab der Achsen"
+                            />
+                        </div>
+                    </Slide>
+                </List>
+            </>
         </>
     )
 }

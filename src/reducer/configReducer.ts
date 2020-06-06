@@ -62,7 +62,6 @@ const initialState: ConfigState = {
         percentage: true,
         normalize: true,
         ratio: 3,
-        dashboard: true,
     },
     favoriteCounties: new Set(),
 }

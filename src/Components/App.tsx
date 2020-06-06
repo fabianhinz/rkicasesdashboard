@@ -1,19 +1,17 @@
-import { Container, createStyles, makeStyles, Snackbar } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+import { Container, createStyles, makeStyles } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
 import { Summary as SummaryModel, SummaryPercent } from '../model/model'
 import { percentageOf, summUp } from '../services/utility'
+import Actions from './Actions'
 import Charts from './Charts/Charts'
 import { useConfigContext } from './Provider/ConfigProvider'
-import EsriProvider from './Provider/EsriProvider'
 import { useFirestoreContext } from './Provider/FirestoreProvider'
-import Settings from './Settings/Settings'
 import Summary from './Summary/Summary'
 
 const useStyles = makeStyles(theme =>
     createStyles({
-        app: {
+        container: {
             marginTop: theme.spacing(3),
             marginBottom: theme.spacing(3),
             userSelect: 'none',
@@ -22,8 +20,6 @@ const useStyles = makeStyles(theme =>
 )
 
 const App = () => {
-    const [snackbarOpen, setSnackbarOpen] = useState(true)
-
     const { firestoreData, firestoreDispatch } = useFirestoreContext()
     const { config } = useConfigContext()
 
@@ -107,25 +103,13 @@ const App = () => {
     ])
 
     return (
-        <div className={classes.app}>
-            <Container maxWidth="xl">
-                <EsriProvider>
-                    <Summary />
-                    {config.settings.dashboard && <Charts maxAxisDomain={maxAxisDomain} />}
-                </EsriProvider>
+        <>
+            <Container className={classes.container} maxWidth="xl">
+                <Summary />
+                <Charts maxAxisDomain={maxAxisDomain} />
             </Container>
-            <Settings />
-            {firestoreData.summary?.lastUpdate && (
-                <Snackbar
-                    open={snackbarOpen}
-                    onClose={() => setSnackbarOpen(false)}
-                    autoHideDuration={4000}>
-                    <Alert severity="info" onClose={() => setSnackbarOpen(false)}>
-                        Zuletzt aktualisiert am {firestoreData.summary?.lastUpdate.toLocaleString()}
-                    </Alert>
-                </Snackbar>
-            )}
-        </div>
+            <Actions />
+        </>
     )
 }
 
