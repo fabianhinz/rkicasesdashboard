@@ -23,7 +23,7 @@ export interface FirestoreState {
 }
 
 export type FirestoreActions = { type: 'stateChange'; state: Partial<FirestoreState> }
-
+// ? well this is not how a reducer should be used
 const reducer: Reducer<FirestoreState, FirestoreActions> = (state, actions) => ({
     ...state,
     ...actions.state,

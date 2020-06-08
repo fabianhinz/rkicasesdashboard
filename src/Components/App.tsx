@@ -26,7 +26,7 @@ const App = () => {
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
     const classes = useStyles()
-
+    // ToDo split up
     useEffect(() => {
         const forEnabledStates = (state: string) =>
             config.enabledStates.size > 0 ? config.enabledStates.has(state) : true

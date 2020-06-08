@@ -11,11 +11,12 @@ import {
 import { Close, WeatherNight, WeatherSunny } from 'mdi-material-ui'
 import React from 'react'
 
-import useAppLayout from '../../hooks/useAppLayout'
 import db from '../../services/db'
+import { useLayoutContext } from '../Provider/LayoutProvider'
 import { useThemeContext } from '../Provider/ThemeProvider'
 import { Drawer, DrawerAction, DrawerContent, DrawerHeader } from '../Shared/Drawer'
 import SettingsDashboard from './SettingsDashboard'
+import SettingsLayout from './SettingsLayout'
 import SettingsStates from './SettingsStates'
 import SettingsSummary from './SettingsSummary'
 
@@ -38,7 +39,7 @@ const Settings = ({ open, onClose }: Props) => {
 
     const classes = useStyles()
 
-    const { isDesktopLayout } = useAppLayout()
+    const { layout } = useLayoutContext()
 
     const handleThemeFabClick = () => {
         setTheme(prev => {
@@ -50,25 +51,32 @@ const Settings = ({ open, onClose }: Props) => {
 
     return (
         <Drawer open={open} onClose={onClose}>
-            <DrawerHeader>
-                <div>
-                    <Typography variant="h6">Fallzahlen in Deutschland</Typography>
-                    <Typography color="textSecondary">Version: {__VERSION__}</Typography>
-                </div>
-                <Fab onClick={handleThemeFabClick} className={classes.themeFab} size="small">
-                    {theme === 'light' ? <WeatherNight /> : <WeatherSunny />}
-                </Fab>
-            </DrawerHeader>
+            <DrawerHeader
+                title={
+                    <>
+                        <Typography variant="h6">Fallzahlen in Deutschland</Typography>
+                        <Typography color="textSecondary">Version: {__VERSION__}</Typography>
+                    </>
+                }
+                actions={
+                    <Fab onClick={handleThemeFabClick} className={classes.themeFab} size="small">
+                        {theme === 'light' ? <WeatherNight /> : <WeatherSunny />}
+                    </Fab>
+                }
+            />
 
             <DrawerContent>
                 <Grid container spacing={2} justify="center" direction="column">
+                    <Grid item>
+                        <SettingsLayout />
+                    </Grid>
                     <Grid item>
                         <SettingsSummary />
                     </Grid>
                     <Grid item>
                         <SettingsStates />
                     </Grid>
-                    {isDesktopLayout && (
+                    {layout === 'desktop' && (
                         <Grid item>
                             <SettingsDashboard />
                         </Grid>

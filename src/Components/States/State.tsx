@@ -1,7 +1,6 @@
 import { createStyles, makeStyles } from '@material-ui/core'
 import React from 'react'
 
-import db from '../../services/db'
 import { useConfigContext } from '../Provider/ConfigProvider'
 
 interface StyleProps {
@@ -24,22 +23,13 @@ interface Props extends Omit<React.SVGProps<SVGPathElement>, 'name'> {
 }
 
 const State = ({ name, ...svgProps }: Props) => {
-    const { config, configDispatch } = useConfigContext()
+    const { config } = useConfigContext()
 
     const selected = config.enabledStates.has(name)
     const classes = useStyles({ selected })
 
-    const handleClick = () => {
-        const enabledStates = new Set(config.enabledStates)
-        if (enabledStates.has(name)) enabledStates.delete(name)
-        else enabledStates.add(name)
-
-        db.data.put(enabledStates, 'enabledStates')
-        configDispatch({ type: 'enabledStatesChange', enabledStates })
-    }
-
     return (
-        <path {...svgProps} onClick={handleClick} className={classes.path}>
+        <path {...svgProps} className={classes.path}>
             <text>test</text>
         </path>
     )
