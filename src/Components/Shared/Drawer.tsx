@@ -1,5 +1,5 @@
 import { createStyles, Drawer as MuiDrawer, DrawerProps, makeStyles } from '@material-ui/core'
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -10,30 +10,31 @@ const useStyles = makeStyles(theme =>
             },
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+
             overflow: 'hidden',
             userSelect: 'none',
             borderTopLeftRadius: 20,
             borderBottomLeftRadius: 20,
             boxShadow: theme.shadows[4],
+            padding: theme.spacing(2),
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+            paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
         },
         header: {
-            padding: theme.spacing(2),
-            paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            paddingBottom: theme.spacing(1),
+            position: 'relative',
+        },
+        headerActions: {
+            position: 'absolute',
+            top: 0,
+            right: 0,
         },
         content: {
-            flexGrow: 1,
-            paddingLeft: theme.spacing(2),
-            paddingRight: theme.spacing(2),
             willChange: 'transform',
             overflowX: 'hidden',
         },
         actions: {
-            padding: theme.spacing(1),
-            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+            paddingTop: theme.spacing(1),
         },
     })
 )
@@ -59,10 +60,15 @@ const Drawer = ({
     )
 }
 
-const DrawerHeader = (props: WithChildren) => {
+const DrawerHeader = (props: { title: ReactNode; actions?: ReactNode }) => {
     const classes = useStyles()
 
-    return <div className={classes.header}>{props.children}</div>
+    return (
+        <div className={classes.header}>
+            {props.title}
+            {props.actions && <div className={classes.headerActions}>{props.actions}</div>}
+        </div>
+    )
 }
 
 const DrawerContent = (props: WithChildren) => {

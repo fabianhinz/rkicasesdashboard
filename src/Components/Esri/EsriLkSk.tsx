@@ -46,12 +46,6 @@ const useStyles = makeStyles(theme => {
     return createStyles({
         textField: {
             width: '100%',
-            [theme.breakpoints.between('xs', 'sm')]: {
-                minHeight: ({ showLegend }: StyleProps) => (showLegend ? 89 : 48),
-            },
-            [theme.breakpoints.up('md')]: {
-                minHeight: ({ showLegend }: StyleProps) => (showLegend ? 70 : 48),
-            },
         },
         avatar: {
             transition: theme.transitions.create('all', {
@@ -187,16 +181,18 @@ const EsriLkSk = ({ open, onClose }: Props) => {
 
     return (
         <Drawer open={open} onClose={onClose}>
-            <DrawerHeader>
-                <TextField
-                    className={classes.textField}
-                    label="Suche"
-                    placeholder="Land- und Stadtkreise"
-                    value={filterValue}
-                    onChange={e => setFilterValue(e.target.value.toLowerCase())}
-                    helperText={getHelperText()}
-                />
-            </DrawerHeader>
+            <DrawerHeader
+                title={
+                    <TextField
+                        className={classes.textField}
+                        label="Suche"
+                        placeholder="Land- und Stadtkreise"
+                        value={filterValue}
+                        onChange={e => setFilterValue(e.target.value.toLowerCase())}
+                        helperText={getHelperText()}
+                    />
+                }
+            />
 
             <DrawerContent>
                 <Tabs

@@ -9,13 +9,14 @@ import {
     Typography,
 } from '@material-ui/core'
 import Skeleton from '@material-ui/lab/Skeleton'
+import clsx from 'clsx'
 import React, { useMemo } from 'react'
 
 import { LEGEND } from '../../constants'
-import useAppLayout from '../../hooks/useAppLayout'
 import { Summary } from '../../model/model'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
+import { useLayoutContext } from '../Provider/LayoutProvider'
 
 type StyleProps = Pick<Props, 'backgroundColor'> & {
     visible: boolean
@@ -69,7 +70,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     const { config } = useConfigContext()
     const { firestoreData } = useFirestoreContext()
 
-    const { isMobileLayout } = useAppLayout()
+    const { layout } = useLayoutContext()
 
     const legend = useMemo(() => {
         if (!config.settings.showLegend) return undefined
@@ -78,7 +79,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
 
     const classes = useStyles({
         backgroundColor,
-        visible: config.visibleCharts[dataKey] || isMobileLayout,
+        visible: config.visibleCharts[dataKey] || layout === 'mobile',
         percentage: config.settings.percentage,
         legend,
     })
@@ -87,7 +88,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
         return <Skeleton variant="text" width="100%" height={39} />
 
     return (
-        <ButtonBase disabled={isMobileLayout} className={classes.buttonBase} onClick={onClick}>
+        <ButtonBase disabled={layout === 'mobile'} className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
                 <Grid container alignItems="center" spacing={1} wrap="nowrap">
                     <Grid item>
@@ -109,7 +110,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
 
                 <Grow in={Boolean(legend)} mountOnEnter unmountOnExit>
                     <Typography
-                        className={classes.legend}
+                        className={clsx(layout === 'desktop' && classes.legend)}
                         component="div"
                         align="center"
                         variant="caption">
