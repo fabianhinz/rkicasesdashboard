@@ -10,7 +10,6 @@ interface StyleProps {
 const useStyles = makeStyles(theme =>
     createStyles({
         path: {
-            cursor: 'pointer',
             transition: theme.transitions.create('fill'),
             fill: ({ selected }: StyleProps) => (selected ? theme.palette.primary.dark : 'inherit'),
         },
