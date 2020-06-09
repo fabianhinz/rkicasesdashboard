@@ -1,7 +1,8 @@
 import { Card, CardHeader, createStyles, makeStyles, Portal } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
+import { Skeleton } from '@material-ui/lab'
 import { scaleSymlog } from 'd3-scale'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
     Area,
     AxisDomain,
@@ -16,7 +17,6 @@ import {
 
 import { CombinedStateData } from '../../../model/model'
 import { useConfigContext } from '../../Provider/ConfigProvider'
-import ChartBarShape, { ChartBarShapeProps } from './ChartBarShape'
 import ChartSelection from './ChartSelection'
 
 const useStyles = makeStyles(theme =>
@@ -24,8 +24,7 @@ const useStyles = makeStyles(theme =>
         responsiveContainer: {
             padding: theme.spacing(2),
         },
-        card: { position: 'relative' },
-        mostAffectedToggle: { zIndex: 2 },
+        card: { position: 'relative', height: '100%' },
     })
 )
 
@@ -35,17 +34,25 @@ interface Props {
     maxAxisDomain?: number
 }
 
-const Chart = ({ data, maxAxisDomain, state }: Props) => {
-    const [activeLabel, setActiveLabel] = useState<number>(data.length - 1)
+const Chart = (props: Props) => {
+    const [debouncing, setDebouncing] = useState(true)
 
     const { config } = useConfigContext()
+
+    useEffect(() => {
+        setDebouncing(true)
+        const timeout = setTimeout(() => setDebouncing(false), 1000)
+        return () => {
+            clearTimeout(timeout)
+        }
+    }, [props, config])
 
     const chartSelectionContainer = useRef(null)
     const classes = useStyles()
 
-    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = maxAxisDomain
+    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = props.maxAxisDomain
         ? config.settings.normalize
-            ? [0, maxAxisDomain]
+            ? [0, props.maxAxisDomain]
             : undefined
         : undefined
 
@@ -56,29 +63,32 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
         activeDot: { r: 5 },
     }
 
+    if (debouncing)
+        return (
+            <Card className={classes.card}>
+                <Skeleton variant="rect" animation="wave" width="100%" height={400} />
+            </Card>
+        )
+
     return (
         <Card className={classes.card}>
-            <CardHeader title={state || 'Deutschland'} />
+            <CardHeader title={props.state || 'Deutschland'} />
 
             <div ref={chartSelectionContainer} />
 
             <div className={classes.responsiveContainer}>
                 <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
-                    <ComposedChart
-                        margin={{ top: 16, bottom: 16 }}
-                        syncId="sync"
-                        onMouseMove={e => {
-                            if (e?.activeLabel >= 0 && config.visibleCharts.doublingRate)
-                                setActiveLabel(e?.activeLabel)
-                        }}
-                        onMouseLeave={() => setActiveLabel(data.length - 1)}
-                        data={data}>
+                    <ComposedChart margin={{ top: 16, bottom: 16 }} data={props.data}>
                         <Tooltip
-                            content={(props: any) => (
+                            content={(tooltipProps: any) => (
                                 <Portal container={chartSelectionContainer.current}>
                                     <ChartSelection
-                                        activeLabel={props.active ? props.label : data.length - 1}
-                                        data={data}
+                                        activeLabel={
+                                            tooltipProps.active
+                                                ? tooltipProps.label
+                                                : props.data.length - 1
+                                        }
+                                        data={props.data}
                                         visibleCharts={config.visibleCharts}
                                     />
                                 </Portal>
@@ -117,11 +127,6 @@ const Chart = ({ data, maxAxisDomain, state }: Props) => {
                             stroke={orange.A400}
                             dataKey="doublingRate"
                             fill={orange.A400}
-                            shape={props => (
-                                <ChartBarShape
-                                    {...({ ...props, activeLabel } as ChartBarShapeProps)}
-                                />
-                            )}
                         />
 
                         <Line

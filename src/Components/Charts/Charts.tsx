@@ -1,46 +1,22 @@
 import { Card, CardContent, CardHeader, Grid, GridSize } from '@material-ui/core'
 import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import { useLayoutContext } from '../Provider/LayoutProvider'
-import Loading from '../Shared/Loading'
 import Chart from './Chart/Chart'
 
 interface Props {
     maxAxisDomain: number | undefined
 }
 
-let progressIntervall: NodeJS.Timeout
-
 const Charts = ({ maxAxisDomain }: Props) => {
     const { config } = useConfigContext()
     const { firestoreData } = useFirestoreContext()
-    const [showChart, setShowChart] = useState(false)
-    const [showChartProgress, setShowChartProgress] = useState(10)
 
     const { layout } = useLayoutContext()
-
-    useEffect(() => {
-        setShowChart(false)
-        setShowChartProgress(10)
-
-        const ms = Math.max(config.enabledStates.size * 150, 500)
-
-        const timeout = setTimeout(() => setShowChart(true), ms)
-        progressIntervall = setInterval(() => setShowChartProgress(prev => prev + 10), ms / 10)
-
-        return () => {
-            clearTimeout(timeout)
-            clearInterval(progressIntervall)
-        }
-    }, [config.enabledStates, config.visibleCharts, maxAxisDomain])
-
-    useEffect(() => {
-        if (showChartProgress === 100) clearInterval(progressIntervall)
-    }, [showChartProgress])
 
     const gridBreakpointProps: Partial<Record<Breakpoint, boolean | GridSize>> = useMemo(
         () =>
@@ -72,7 +48,6 @@ const Charts = ({ maxAxisDomain }: Props) => {
     )
 
     if (layout === 'mobile') return <></>
-    if (!showChart) return <Loading value={showChartProgress} label="Dashboard wird gebaut" />
 
     return (
         <Grid container spacing={2}>
