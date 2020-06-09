@@ -1,6 +1,8 @@
 import { Chip, ChipProps, createStyles, makeStyles } from '@material-ui/core'
 import React from 'react'
 
+import { useLayoutContext } from '../../Provider/LayoutProvider'
+
 type StyleProps = Pick<Props, 'backgroundColor'>
 
 const useStyles = makeStyles(theme =>
@@ -27,9 +29,11 @@ interface Props extends Omit<ChipProps, 'classes'> {
 
 const ChartSelectionChip = ({ backgroundColor, ...chipProps }: Props) => {
     const classes = useStyles({ backgroundColor })
+    const { layout } = useLayoutContext()
 
     return (
         <Chip
+            size={layout === 'mobile' ? 'small' : 'medium'}
             classes={classes}
             {...chipProps}
             label={
