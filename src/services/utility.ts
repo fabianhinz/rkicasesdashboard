@@ -7,7 +7,8 @@ const summUp = <T>(arr: { [k in keyof T]: any }[], key: keyof T) =>
     }, 0)
 
 const percentageOf = (now: number, prev: number) => {
-    const diffInPercent = (1 - prev / now) * 100
+    let diffInPercent = (1 - prev / now) * 100
+    if (diffInPercent === -Infinity) diffInPercent = -100
 
     return {
         value: diffInPercent,
