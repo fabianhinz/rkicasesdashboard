@@ -14,7 +14,7 @@ type Props = Pick<SwitchProps, 'checked' | 'onChange'> &
 const SettingsListItem = ({ checked, onChange, primary, secondary }: Props) => (
     <ListItem disableGutters>
         <ListItemIcon>
-            <Switch edge="start" checked={checked} onChange={onChange} />
+            <Switch edge="end" checked={checked} onChange={onChange} />
         </ListItemIcon>
         <ListItemText primary={primary} secondary={secondary} />
     </ListItem>

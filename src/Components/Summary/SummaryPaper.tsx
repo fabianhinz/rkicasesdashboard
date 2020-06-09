@@ -15,8 +15,8 @@ import React, { useMemo } from 'react'
 import { LEGEND } from '../../constants'
 import { Summary } from '../../model/model'
 import { useConfigContext } from '../Provider/ConfigProvider'
-import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import { useLayoutContext } from '../Provider/LayoutProvider'
+import { useSummaryContext } from './Summary'
 
 type StyleProps = Pick<Props, 'backgroundColor'> & {
     visible: boolean
@@ -28,7 +28,6 @@ const useStyles = makeStyles(theme =>
     createStyles({
         paper: {
             padding: theme.spacing(2),
-            boxShadow: theme.shadows[4],
             minWidth: 160,
             width: '100%',
             transition: theme.transitions.create('all', {
@@ -68,8 +67,7 @@ interface Props {
 
 const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     const { config } = useConfigContext()
-    const { firestoreData } = useFirestoreContext()
-
+    const { summary, summaryPercent } = useSummaryContext()
     const { layout } = useLayoutContext()
 
     const legend = useMemo(() => {
@@ -84,8 +82,7 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
         legend,
     })
 
-    if (!firestoreData.summary || !firestoreData.summaryPercent)
-        return <Skeleton variant="text" width="100%" height={39} />
+    if (!summary || !summaryPercent) return <Skeleton variant="text" width="100%" height={39} />
 
     return (
         <ButtonBase disabled={layout === 'mobile'} className={classes.buttonBase} onClick={onClick}>
@@ -96,13 +93,13 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                     </Grid>
                     <Grid item>
                         <Typography align="left" variant="h6">
-                            {Number.isInteger(firestoreData.summary[dataKey])
-                                ? firestoreData.summary[dataKey]
-                                : firestoreData.summary[dataKey].toFixed(1)}
+                            {Number.isInteger(summary[dataKey])
+                                ? summary[dataKey]
+                                : summary[dataKey].toFixed(1)}
                         </Typography>
                         <Grow in={config.settings.percentage} mountOnEnter unmountOnExit>
                             <Typography align="left" component="div" variant="caption">
-                                {firestoreData.summaryPercent[dataKey]}
+                                {summaryPercent[dataKey]}
                             </Typography>
                         </Grow>
                     </Grid>
