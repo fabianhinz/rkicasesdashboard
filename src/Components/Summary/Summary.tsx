@@ -1,11 +1,12 @@
 import { createStyles, Grid, GridProps, makeStyles, Snackbar } from '@material-ui/core'
-import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
+import { amber, cyan, green, lime, orange, red, yellow } from '@material-ui/core/colors'
 import { Alert } from '@material-ui/lab'
 import {
     AccountMultiple,
     CalendarRange,
     ChartTimelineVariant,
     HandHeart,
+    MedicalBag,
     Sigma,
     Skull,
 } from 'mdi-material-ui'
@@ -89,8 +90,11 @@ const Summary = () => {
         const today = firestoreData.today.filter(
             ({ state }) => config.enabledStates.size === 0 || config.enabledStates.has(state)
         )
+        const cases = summUp(today, 'cases')
+        const recovered = summUp(recoveredToday, 'recovered')
+
         setSummary({
-            cases: summUp(today, 'cases'),
+            cases,
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
             rate:
@@ -100,7 +104,8 @@ const Summary = () => {
                     : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: getDoublingRates('today'),
-            recovered: summUp(recoveredToday, 'recovered'),
+            recovered,
+            activeCases: cases - recovered,
         })
     }, [
         config.enabledStates,
@@ -117,18 +122,22 @@ const Summary = () => {
         const yesterday = firestoreData.yesterday.filter(
             ({ state }) => config.enabledStates.size === 0 || config.enabledStates.has(state)
         )
+        const cases = percentageOf(summary.cases, summUp(yesterday, 'cases'))
+        const recovered = percentageOf(
+            summary.recovered,
+            summary.recovered - summUp(recoveredToday, 'delta')
+        )
+
         setSummaryPercent({
-            cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
+            cases: cases.formatted,
             deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
             delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
             rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
                 .formatted,
             doublingRate: percentageOf(summary.doublingRate, getDoublingRates('yesterday'))
                 .formatted,
-            recovered: percentageOf(
-                summary.recovered,
-                summary.recovered - summUp(recoveredToday, 'delta')
-            ).formatted,
+            recovered: recovered.formatted,
+            activeCases: (cases.value - recovered.value).toFixed(2) + ' %',
         })
     }, [config.enabledStates, firestoreData.yesterday, getDoublingRates, recoveredToday, summary])
 
@@ -163,10 +172,19 @@ const Summary = () => {
 
                     <Grid item {...memoBreakpointProps}>
                         <SummaryPaper
-                            dataKey="doublingRate"
-                            onClick={handleSummaryClick('doublingRate')}
-                            backgroundColor={orange.A400}
-                            icon={<CalendarRange />}
+                            dataKey="activeCases"
+                            onClick={handleSummaryClick('activeCases')}
+                            backgroundColor={yellow.A400}
+                            icon={<MedicalBag />}
+                        />
+                    </Grid>
+
+                    <Grid item {...memoBreakpointProps}>
+                        <SummaryPaper
+                            dataKey="rate"
+                            onClick={handleSummaryClick('rate')}
+                            backgroundColor={cyan.A400}
+                            icon={<AccountMultiple />}
                         />
                     </Grid>
 
@@ -181,10 +199,10 @@ const Summary = () => {
 
                     <Grid item {...memoBreakpointProps}>
                         <SummaryPaper
-                            dataKey="rate"
-                            onClick={handleSummaryClick('rate')}
-                            backgroundColor={cyan.A400}
-                            icon={<AccountMultiple />}
+                            dataKey="doublingRate"
+                            onClick={handleSummaryClick('doublingRate')}
+                            backgroundColor={orange.A400}
+                            icon={<CalendarRange />}
                         />
                     </Grid>
 

@@ -3,6 +3,7 @@ import { Breakpoint } from '@material-ui/core/styles/createBreakpoints'
 import Skeleton from '@material-ui/lab/Skeleton'
 import React, { useMemo } from 'react'
 
+import { CombinedStateData } from '../../model/model'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import { useLayoutContext } from '../Provider/LayoutProvider'
@@ -38,12 +39,16 @@ const Charts = ({ maxAxisDomain }: Props) => {
         [config.enabledStates, firestoreData.byState]
     )
 
-    const combinedStateData = useMemo(
+    const combinedStateData: CombinedStateData[] = useMemo(
         () =>
-            [...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
-                ...byDay,
-                recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
-            })),
+            [...firestoreData.byDay.entries()].map(([localdate, byDay]) => {
+                const recovered = firestoreData.recoveredByDay.get(localdate)?.recovered
+                return {
+                    ...byDay,
+                    recovered,
+                    activeCases: recovered ? byDay.cases - recovered : undefined,
+                }
+            }),
         [firestoreData.byDay, firestoreData.recoveredByDay]
     )
 
@@ -69,10 +74,13 @@ const Charts = ({ maxAxisDomain }: Props) => {
                                         recovered.timestamp.toDate().toLocaleDateString() ===
                                         data.timestamp.toDate().toLocaleDateString()
                                 )
-                            return {
+                            const recovered = stateRecoveredData?.recovered
+                            const combinedData: CombinedStateData = {
                                 ...data,
-                                recovered: stateRecoveredData?.recovered,
+                                recovered: recovered,
+                                activeCases: recovered ? data.cases - recovered : undefined,
                             }
+                            return combinedData
                         })}
                         maxAxisDomain={maxAxisDomain}
                     />

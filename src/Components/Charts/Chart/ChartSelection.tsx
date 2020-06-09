@@ -1,10 +1,11 @@
-import { createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
-import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
+import { createStyles, Grid, makeStyles, Typography } from '@material-ui/core'
+import { amber, cyan, green, lime, orange, red, yellow } from '@material-ui/core/colors'
 import {
     AccountMultiple,
     CalendarRange,
     ChartTimelineVariant,
     HandHeart,
+    MedicalBag,
     Sigma,
     Skull,
 } from 'mdi-material-ui'
@@ -17,6 +18,7 @@ const useStyles = makeStyles(theme =>
     createStyles({
         chartSelection: {
             padding: theme.spacing(2),
+            paddingTop: 0,
         },
     })
 )
@@ -35,19 +37,14 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
     return (
         <div className={classes.chartSelection}>
             <Grid container spacing={1}>
-                <Grid item>
-                    <ChartSelectionChip
-                        variant="outlined"
-                        label={data[activeLabel].timestamp.toDate().toLocaleDateString()}
-                    />
-                </Grid>
-
-                <Grid item>
-                    <Divider orientation="vertical" />
+                <Grid item xs={12}>
+                    <Typography color="textSecondary" variant="subtitle2">
+                        {data[activeLabel].timestamp.toDate().toLocaleDateString()}
+                    </Typography>
                 </Grid>
 
                 {visibleCharts.cases && (
-                    <Grid item>
+                    <Grid item xs={6} sm={3} md="auto">
                         <ChartSelectionChip
                             backgroundColor={amber.A400}
                             icon={<Sigma />}
@@ -56,28 +53,18 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                     </Grid>
                 )}
 
-                {visibleCharts.doublingRate && (
-                    <Grid item>
+                {visibleCharts.activeCases && (
+                    <Grid item xs={6} sm={3} md="auto">
                         <ChartSelectionChip
-                            backgroundColor={orange.A400}
-                            icon={<CalendarRange />}
-                            label={data[activeLabel].doublingRate}
-                        />
-                    </Grid>
-                )}
-
-                {visibleCharts.delta && (
-                    <Grid item>
-                        <ChartSelectionChip
-                            backgroundColor={lime.A400}
-                            icon={<ChartTimelineVariant />}
-                            label={data[activeLabel].delta}
+                            backgroundColor={yellow.A400}
+                            icon={<MedicalBag />}
+                            label={data[activeLabel].activeCases}
                         />
                     </Grid>
                 )}
 
                 {visibleCharts.rate && (
-                    <Grid item>
+                    <Grid item xs={6} sm={3} md="auto">
                         <ChartSelectionChip
                             backgroundColor={cyan.A400}
                             icon={<AccountMultiple />}
@@ -86,8 +73,28 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                     </Grid>
                 )}
 
+                {visibleCharts.delta && (
+                    <Grid item xs={6} sm={3} md="auto">
+                        <ChartSelectionChip
+                            backgroundColor={lime.A400}
+                            icon={<ChartTimelineVariant />}
+                            label={data[activeLabel].delta}
+                        />
+                    </Grid>
+                )}
+
+                {visibleCharts.doublingRate && (
+                    <Grid item xs={6} sm={3} md="auto">
+                        <ChartSelectionChip
+                            backgroundColor={orange.A400}
+                            icon={<CalendarRange />}
+                            label={data[activeLabel].doublingRate}
+                        />
+                    </Grid>
+                )}
+
                 {visibleCharts.recovered && (
-                    <Grid item>
+                    <Grid item xs={6} sm={3} md="auto">
                         <ChartSelectionChip
                             backgroundColor={green.A400}
                             icon={<HandHeart />}
@@ -97,7 +104,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                 )}
 
                 {visibleCharts.deaths && (
-                    <Grid item>
+                    <Grid item xs={6} sm={3} md="auto">
                         <ChartSelectionChip
                             backgroundColor={red.A400}
                             icon={<Skull />}

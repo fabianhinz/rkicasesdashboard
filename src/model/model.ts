@@ -16,6 +16,7 @@ export interface Summary
     > {
     lastUpdate: Date
     recovered: number
+    activeCases: number
 }
 
 export type SummaryPercent = Record<keyof Omit<Summary, 'lastUpdate'>, string>
@@ -67,4 +68,5 @@ export interface Recovered {
 
 export type RecoveredData = Omit<Recovered, 'state' | 'esriTimestamp'>
 
-export type CombinedStateData = StateData & Partial<Pick<RecoveredData, 'recovered'>>
+export type CombinedStateData = StateData &
+    Partial<Pick<RecoveredData, 'recovered'>> & { activeCases?: number }
