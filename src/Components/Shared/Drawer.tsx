@@ -10,7 +10,6 @@ const useStyles = makeStyles(theme =>
             },
             display: 'flex',
             flexDirection: 'column',
-
             overflow: 'hidden',
             userSelect: 'none',
             borderTopLeftRadius: 20,
@@ -45,6 +44,7 @@ interface WithChildren {
 
 const Drawer = ({
     children,
+    onClose,
     ...drawerProps
 }: WithChildren & Omit<DrawerProps, 'anchor' | 'PaperProps'>) => {
     const classes = useStyles()
@@ -54,6 +54,7 @@ const Drawer = ({
             variant="persistent"
             PaperProps={{ className: classes.paper }}
             anchor="right"
+            SlideProps={{ mountOnEnter: true, unmountOnExit: true }}
             {...drawerProps}>
             {children}
         </MuiDrawer>

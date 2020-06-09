@@ -54,6 +54,23 @@ const Charts = ({ maxAxisDomain }: Props) => {
         [config.settings.grid]
     )
 
+    const states = useMemo(
+        () =>
+            [...firestoreData.byState.entries()].filter(([state]) =>
+                config.enabledStates.has(state)
+            ),
+        [config.enabledStates, firestoreData.byState]
+    )
+
+    const combinedStateData = useMemo(
+        () =>
+            [...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
+                ...byDay,
+                recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
+            })),
+        [firestoreData.byDay, firestoreData.recoveredByDay]
+    )
+
     if (layout === 'mobile') return <></>
     if (!showChart) return <Loading value={showChartProgress} label="Dashboard wird gebaut" />
 
@@ -61,39 +78,31 @@ const Charts = ({ maxAxisDomain }: Props) => {
         <Grid container spacing={2}>
             {config.enabledStates.size === 0 && (
                 <Grid item xs={12}>
-                    <Chart
-                        data={[...firestoreData.byDay.entries()].map(([localdate, byDay]) => ({
-                            ...byDay,
-                            recovered: firestoreData.recoveredByDay.get(localdate)?.recovered,
-                        }))}
-                    />
+                    <Chart data={combinedStateData} />
                 </Grid>
             )}
 
-            {[...firestoreData.byState.entries()]
-                .filter(([state]) => config.enabledStates.has(state))
-                .map(([state, stateData]) => (
-                    <Grid item {...gridBreakpointProps} key={state}>
-                        <Chart
-                            state={state}
-                            data={stateData.map(data => {
-                                const stateRecoveredData = firestoreData.recoveredByState
-                                    .get(state)
-                                    ?.find(
-                                        recovered =>
-                                            recovered.timestamp.toDate().toLocaleDateString() ===
-                                            data.timestamp.toDate().toLocaleDateString()
-                                    )
-
-                                return {
-                                    ...data,
-                                    recovered: stateRecoveredData?.recovered,
-                                }
-                            })}
-                            maxAxisDomain={maxAxisDomain}
-                        />
-                    </Grid>
-                ))}
+            {states.map(([state, stateData]) => (
+                <Grid item {...gridBreakpointProps} key={state}>
+                    <Chart
+                        state={state}
+                        data={stateData.map(data => {
+                            const stateRecoveredData = firestoreData.recoveredByState
+                                .get(state)
+                                ?.find(
+                                    recovered =>
+                                        recovered.timestamp.toDate().toLocaleDateString() ===
+                                        data.timestamp.toDate().toLocaleDateString()
+                                )
+                            return {
+                                ...data,
+                                recovered: stateRecoveredData?.recovered,
+                            }
+                        })}
+                        maxAxisDomain={maxAxisDomain}
+                    />
+                </Grid>
+            ))}
 
             {firestoreData.byState.size === 0 &&
                 new Array(config.enabledStates.size).fill(1).map((_dummy, index) => (

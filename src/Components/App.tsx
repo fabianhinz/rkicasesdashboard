@@ -1,8 +1,6 @@
 import { Container, createStyles, makeStyles } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
-import { Summary as SummaryModel, SummaryPercent } from '../model/model'
-import { percentageOf, summUp } from '../services/utility'
 import Actions from './Actions'
 import Charts from './Charts/Charts'
 import { useConfigContext } from './Provider/ConfigProvider'
@@ -20,66 +18,20 @@ const useStyles = makeStyles(theme =>
 )
 
 const App = () => {
-    const { firestoreData, firestoreDispatch } = useFirestoreContext()
+    const { firestoreData } = useFirestoreContext()
     const { config } = useConfigContext()
 
     const [maxAxisDomain, setMaxAxisDomain] = useState<number | undefined>(undefined)
 
     const classes = useStyles()
-    // ToDo split up
+
     useEffect(() => {
-        const forEnabledStates = (state: string) =>
-            config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
-
-        const doublingRates = (from: 'today' | 'yesterday') =>
-            summUp(
-                Array.from(firestoreData.byState.entries())
-                    .filter(([state]) => forEnabledStates(state))
-                    .map(
-                        ([_state, dayData]) =>
-                            dayData[from === 'today' ? dayData.length - 1 : dayData.length - 2]
-                    ),
-                'doublingRate'
-            ) / (config.enabledStates.size > 0 ? config.enabledStates.size : 16)
-
-        const today = firestoreData.today.filter(({ state }) => forEnabledStates(state))
-        const recoveredToday = firestoreData.recoveredToday.filter(({ state }) =>
-            forEnabledStates(state)
-        )
-        const summary: SummaryModel = {
-            cases: summUp(today, 'cases'),
-            deaths: summUp(today, 'deaths'),
-            delta: summUp(today, 'delta'),
-            rate:
-                config.enabledStates.size === 16 || config.enabledStates.size === 0
-                    ? // ? pupulation 83,02 Millionen (2019)
-                      summUp(today, 'cases') / 830
-                    : summUp(today, 'rate') / today.length,
-            lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
-            doublingRate: doublingRates('today'),
-            recovered: summUp(recoveredToday, 'recovered'),
-        }
-
-        const yesterday = firestoreData.yesterday.filter(({ state }) => forEnabledStates(state))
-        const summaryPercent: SummaryPercent = {
-            cases: percentageOf(summary.cases, summUp(yesterday, 'cases')).formatted,
-            deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
-            delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
-            rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
-                .formatted,
-            doublingRate: percentageOf(summary.doublingRate, doublingRates('yesterday')).formatted,
-            recovered: percentageOf(
-                summary.recovered,
-                summary.recovered - summUp(recoveredToday, 'delta')
-            ).formatted,
-        }
-        firestoreDispatch({ type: 'stateChange', state: { summary, summaryPercent } })
-
         if (config.enabledStates.size === 0) return
-        // ? lets get our domain data (the max value of visible charts)
-        const recoveredDomain = recoveredToday.map(data => data.recovered).sort((a, b) => b - a)[0]
-        const byStateDomain: number | undefined = Array.from(firestoreData.byState.entries())
-            .filter(([state]) => forEnabledStates(state))
+
+        let newMaxAxisDomain: number | undefined = Array.from(firestoreData.byState.entries())
+            .filter(([state]) =>
+                config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
+            )
             .map(([_, data]) => data)
             .flat()
             .map(data =>
@@ -91,15 +43,21 @@ const App = () => {
             .flat()
             .sort((a, b) => b - a)[0]
 
-        setMaxAxisDomain(Math.ceil(byStateDomain || recoveredDomain))
+        if (newMaxAxisDomain === undefined)
+            newMaxAxisDomain = firestoreData.recoveredToday
+                .filter(
+                    ({ state }) =>
+                        config.enabledStates.size === 0 || config.enabledStates.has(state)
+                )
+                .map(data => data.recovered)
+                .sort((a, b) => b - a)[0]
+
+        setMaxAxisDomain(Math.ceil(newMaxAxisDomain))
     }, [
         config.enabledStates,
         config.visibleCharts,
         firestoreData.byState,
         firestoreData.recoveredToday,
-        firestoreData.today,
-        firestoreData.yesterday,
-        firestoreDispatch,
     ])
 
     return (

@@ -1,20 +1,11 @@
 import { Reducer, useReducer } from 'react'
 
-import {
-    Recovered,
-    RecoveredData,
-    RkiData,
-    StateData,
-    Summary,
-    SummaryPercent,
-} from '../model/model'
+import { Recovered, RecoveredData, RkiData, StateData } from '../model/model'
 
 export interface FirestoreState {
     loading: boolean
     byDay: Map<string, StateData>
     byState: Map<string, StateData[]>
-    summary: Summary | null
-    summaryPercent: SummaryPercent | null
     today: RkiData[]
     yesterday: RkiData[]
     recoveredToday: Recovered[]
@@ -33,8 +24,7 @@ const initialState: FirestoreState = {
     loading: true,
     byDay: new Map(),
     byState: new Map(),
-    summary: null,
-    summaryPercent: null,
+
     today: [],
     yesterday: [],
     recoveredToday: [],
