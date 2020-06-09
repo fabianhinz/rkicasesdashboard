@@ -1,4 +1,4 @@
-import { Hidden, List, ListSubheader, Slide, Slider, Typography } from '@material-ui/core'
+import { Box, Hidden, List, ListSubheader, Slide, Slider, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
 
 import { Settings } from '../../model/model'
@@ -23,18 +23,22 @@ const SettingsDashboard = () => {
             </ListSubheader>
 
             <>
-                <Typography gutterBottom>Verhältnis Breite:Höhe</Typography>
-                <Slider
-                    value={internalRatio}
-                    onChange={(_e, ratio) => setInternalRatio(ratio as number)}
-                    onChangeCommitted={handleChange('ratio')}
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={value => `${value}:1`}
-                    step={1}
-                    marks
-                    min={1}
-                    max={4}
-                />
+                <Box marginLeft={2} marginRight={2}>
+                    <Typography align="center" gutterBottom>
+                        Verhältnis Breite:Höhe
+                    </Typography>
+                    <Slider
+                        value={internalRatio}
+                        onChange={(_e, ratio) => setInternalRatio(ratio as number)}
+                        onChangeCommitted={handleChange('ratio')}
+                        valueLabelDisplay="auto"
+                        valueLabelFormat={value => `${value}:1`}
+                        step={1}
+                        marks
+                        min={1}
+                        max={4}
+                    />
+                </Box>
 
                 <List disablePadding>
                     <SettingsListItem

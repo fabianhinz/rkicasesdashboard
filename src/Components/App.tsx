@@ -28,7 +28,7 @@ const App = () => {
     useEffect(() => {
         if (config.enabledStates.size === 0) return
 
-        let newMaxAxisDomain: number | undefined = Array.from(firestoreData.byState.entries())
+        const stateDomain: number | undefined = Array.from(firestoreData.byState.entries())
             .filter(([state]) =>
                 config.enabledStates.size > 0 ? config.enabledStates.has(state) : true
             )
@@ -43,16 +43,14 @@ const App = () => {
             .flat()
             .sort((a, b) => b - a)[0]
 
-        if (newMaxAxisDomain === undefined)
-            newMaxAxisDomain = firestoreData.recoveredToday
-                .filter(
-                    ({ state }) =>
-                        config.enabledStates.size === 0 || config.enabledStates.has(state)
-                )
-                .map(data => data.recovered)
-                .sort((a, b) => b - a)[0]
+        const recoveredDomain: number | undefined = firestoreData.recoveredToday
+            .filter(
+                ({ state }) => config.enabledStates.size === 0 || config.enabledStates.has(state)
+            )
+            .map(data => data.recovered)
+            .sort((a, b) => b - a)[0]
 
-        setMaxAxisDomain(Math.ceil(newMaxAxisDomain))
+        setMaxAxisDomain(Math.ceil(stateDomain || recoveredDomain))
     }, [
         config.enabledStates,
         config.visibleCharts,

@@ -1,4 +1,4 @@
-import { createStyles, Divider, Grid, Grow, makeStyles } from '@material-ui/core'
+import { createStyles, Divider, Grid, makeStyles } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red } from '@material-ui/core/colors'
 import {
     AccountMultiple,
@@ -46,7 +46,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                     <Divider orientation="vertical" />
                 </Grid>
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.cases}>
+                {visibleCharts.cases && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={amber.A400}
@@ -54,9 +54,9 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].cases}
                         />
                     </Grid>
-                </Grow>
+                )}
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.doublingRate}>
+                {visibleCharts.doublingRate && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={orange.A400}
@@ -64,9 +64,9 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].doublingRate}
                         />
                     </Grid>
-                </Grow>
+                )}
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.delta}>
+                {visibleCharts.delta && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={lime.A400}
@@ -74,9 +74,9 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].delta}
                         />
                     </Grid>
-                </Grow>
+                )}
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.rate}>
+                {visibleCharts.rate && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={cyan.A400}
@@ -84,9 +84,9 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].rate}
                         />
                     </Grid>
-                </Grow>
+                )}
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.recovered}>
+                {visibleCharts.recovered && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={green.A400}
@@ -94,9 +94,9 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].recovered}
                         />
                     </Grid>
-                </Grow>
+                )}
 
-                <Grow mountOnEnter unmountOnExit in={visibleCharts.deaths}>
+                {visibleCharts.deaths && (
                     <Grid item>
                         <ChartSelectionChip
                             backgroundColor={red.A400}
@@ -104,7 +104,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                             label={data[activeLabel].deaths}
                         />
                     </Grid>
-                </Grow>
+                )}
             </Grid>
         </div>
     )
