@@ -10,6 +10,7 @@ const useStyles = makeStyles(theme =>
             },
             display: 'flex',
             flexDirection: 'column',
+            justifyContent: 'space-between',
             overflow: 'hidden',
             userSelect: 'none',
             borderTopLeftRadius: 20,
@@ -29,8 +30,9 @@ const useStyles = makeStyles(theme =>
             right: 0,
         },
         content: {
-            willChange: 'transform',
+            willChange: 'auto',
             overflowX: 'hidden',
+            flexGrow: 1,
         },
         actions: {
             paddingTop: theme.spacing(1),
