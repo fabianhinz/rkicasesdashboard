@@ -127,6 +127,7 @@ const Summary = () => {
             summary.recovered,
             summary.recovered - summUp(recoveredToday, 'delta')
         )
+        const activeCases = cases.value - recovered.value
 
         setSummaryPercent({
             cases: cases.formatted,
@@ -137,7 +138,7 @@ const Summary = () => {
             doublingRate: percentageOf(summary.doublingRate, getDoublingRates('yesterday'))
                 .formatted,
             recovered: recovered.formatted,
-            activeCases: (cases.value - recovered.value).toFixed(2) + ' %',
+            activeCases: `${activeCases > 0 ? '+' : ''}${activeCases.toFixed(2)} %`,
         })
     }, [config.enabledStates, firestoreData.yesterday, getDoublingRates, recoveredToday, summary])
 
