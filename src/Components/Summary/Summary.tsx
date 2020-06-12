@@ -12,7 +12,12 @@ import {
 } from 'mdi-material-ui'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-import { Summary as SummaryModel, SummaryPercent, VisibleCharts } from '../../model/model'
+import {
+    StateData,
+    Summary as SummaryModel,
+    SummaryPercent,
+    VisibleCharts,
+} from '../../model/model'
 import db from '../../services/db'
 import { percentageOf, summUp } from '../../services/utility'
 import { useConfigContext } from '../Provider/ConfigProvider'
@@ -43,9 +48,12 @@ const useStyles = makeStyles(theme =>
     })
 )
 
+export type SummaryChartData = Partial<Omit<SummaryModel, 'lastUpdate'>>
+
 interface SummaryContextModel {
     summary: SummaryModel | null
     summaryPercent: SummaryPercent | null
+    summaryChartData: SummaryChartData[]
 }
 const SummaryContext = React.createContext<SummaryContextModel | null>(null)
 export const useSummaryContext = () => useContext(SummaryContext) as SummaryContextModel
@@ -54,6 +62,7 @@ const Summary = () => {
     const [summary, setSummary] = useState<SummaryModel | null>(null)
     const [summaryPercent, setSummaryPercent] = useState<SummaryPercent | null>(null)
     const [snackbarOpen, setSnackbarOpen] = useState(true)
+    const [summaryChartData, setSummaryChartData] = useState<SummaryChartData[]>([])
 
     const { config, configDispatch } = useConfigContext()
     const { firestoreData } = useFirestoreContext()
@@ -95,6 +104,7 @@ const Summary = () => {
 
         setSummary({
             cases,
+            recovered,
             deaths: summUp(today, 'deaths'),
             delta: summUp(today, 'delta'),
             rate:
@@ -104,7 +114,6 @@ const Summary = () => {
                     : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: getDoublingRates('today'),
-            recovered,
             activeCases: cases - recovered,
         })
     }, [
@@ -142,6 +151,51 @@ const Summary = () => {
         })
     }, [config.enabledStates, firestoreData.yesterday, getDoublingRates, recoveredToday, summary])
 
+    useEffect(() => {
+        const lastThirtyDays = new Set<string>()
+        const stateDataFlattened = Array.from(
+            firestoreData.byState.entries(),
+            ([state, stateData]) => {
+                if (config.enabledStates.size === 0 || config.enabledStates.has(state)) {
+                    const slicedData = stateData.slice(-14).map(v => {
+                        const timestamp = v.timestamp.toDate().toLocaleDateString()
+
+                        return {
+                            ...v,
+                            timestamp,
+                            recovered: firestoreData.recoveredByState
+                                .get(state)
+                                ?.find(r => r.timestamp.toDate().toLocaleDateString() === timestamp)
+                                ?.recovered,
+                        }
+                    })
+                    slicedData.forEach(({ timestamp }) => lastThirtyDays.add(timestamp))
+                    return slicedData
+                } else return false
+            }
+        )
+            .filter(Boolean)
+            .flat() as (Omit<StateData, 'timestamp'> & { timestamp: string; recovered: number })[]
+
+        const newSummaryChartData: SummaryChartData[] = []
+        lastThirtyDays.forEach(day => {
+            const dayData = stateDataFlattened.filter(({ timestamp }) => timestamp === day)
+
+            const cases = summUp(dayData, 'cases')
+            const recovered = summUp(dayData, 'recovered')
+            newSummaryChartData.push({
+                cases,
+                recovered,
+                deaths: summUp(dayData, 'deaths'),
+                activeCases: cases - recovered,
+                delta: summUp(dayData, 'delta'),
+                doublingRate: summUp(dayData, 'doublingRate'),
+                rate: summUp(dayData, 'rate'),
+            })
+        })
+        setSummaryChartData(newSummaryChartData)
+    }, [config.enabledStates, firestoreData.byState, firestoreData.recoveredByState])
+
     const handleSummaryClick = (key: keyof VisibleCharts) => () => {
         const visibleCharts = { ...config.visibleCharts, [key]: !config.visibleCharts[key] }
 
@@ -154,9 +208,11 @@ const Summary = () => {
         [layout]
     )
 
+    useEffect(() => console.log(summaryChartData), [summaryChartData])
+
     return (
         <>
-            <SummaryContext.Provider value={{ summary, summaryPercent }}>
+            <SummaryContext.Provider value={{ summary, summaryPercent, summaryChartData }}>
                 <Grid
                     container
                     spacing={2}
