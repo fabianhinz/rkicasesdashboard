@@ -7,16 +7,17 @@ import {
     makeStyles,
     Paper,
     Typography,
+    useTheme,
 } from '@material-ui/core'
 import Skeleton from '@material-ui/lab/Skeleton'
 import clsx from 'clsx'
 import React, { useMemo } from 'react'
+import { Line, LineChart, ResponsiveContainer } from 'recharts'
 
 import { LEGEND } from '../../constants'
-import { Summary } from '../../model/model'
 import { useConfigContext } from '../Provider/ConfigProvider'
 import { useLayoutContext } from '../Provider/LayoutProvider'
-import { useSummaryContext } from './Summary'
+import { SummaryChartData, useSummaryContext } from './Summary'
 
 type StyleProps = Pick<Props, 'backgroundColor'> & {
     visible: boolean
@@ -59,7 +60,7 @@ const useStyles = makeStyles(theme =>
 )
 
 interface Props {
-    dataKey: keyof Omit<Summary, 'lastUpdate'>
+    dataKey: keyof SummaryChartData
     onClick: () => void
     icon: JSX.Element
     backgroundColor: string
@@ -67,8 +68,9 @@ interface Props {
 
 const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     const { config } = useConfigContext()
-    const { summary, summaryPercent } = useSummaryContext()
+    const { summary, summaryPercent, summaryChartData } = useSummaryContext()
     const { layout } = useLayoutContext()
+    const theme = useTheme()
 
     const legend = useMemo(() => {
         if (!config.settings.showLegend) return undefined
@@ -87,11 +89,16 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
     return (
         <ButtonBase disabled={layout === 'mobile'} className={classes.buttonBase} onClick={onClick}>
             <Paper className={classes.paper}>
-                <Grid container alignItems="center" spacing={1} wrap="nowrap">
-                    <Grid item>
+                <Grid
+                    container
+                    alignItems="center"
+                    justify="space-between"
+                    spacing={1}
+                    wrap="nowrap">
+                    <Grid item xs="auto">
                         <Avatar className={classes.avatar}>{icon}</Avatar>
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={8}>
                         <Typography align="left" variant="h6">
                             {Number.isInteger(summary[dataKey])
                                 ? summary[dataKey]
@@ -103,6 +110,21 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                             </Typography>
                         </Grow>
                     </Grid>
+                    {layout === 'mobile' && (
+                        <Grid item xs={4}>
+                            <ResponsiveContainer width="100%" aspect={3}>
+                                <LineChart data={summaryChartData}>
+                                    <Line
+                                        type="monotone"
+                                        dataKey={dataKey}
+                                        stroke={theme.palette.getContrastText(backgroundColor)}
+                                        dot={false}
+                                        strokeWidth={3}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </Grid>
+                    )}
                 </Grid>
 
                 <Grow in={Boolean(legend)} mountOnEnter unmountOnExit>
