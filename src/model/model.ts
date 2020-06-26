@@ -69,4 +69,4 @@ export interface Recovered {
 export type RecoveredData = Omit<Recovered, 'state' | 'esriTimestamp'>
 
 export type CombinedStateData = StateData &
-    Partial<Pick<RecoveredData, 'recovered'>> & { activeCases?: number }
+    Partial<Pick<RecoveredData, 'recovered'>> & { activeCases?: number; [key: string]: any }

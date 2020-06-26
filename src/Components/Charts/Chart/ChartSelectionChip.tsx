@@ -39,7 +39,7 @@ const ChartSelectionChip = ({ backgroundColor, ...chipProps }: Props) => {
             label={
                 typeof chipProps.label === 'number'
                     ? Math.trunc(chipProps.label)
-                    : chipProps.label || 'unbekannt'
+                    : chipProps.label || '???'
             }
         />
     )

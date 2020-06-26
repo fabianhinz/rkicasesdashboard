@@ -208,8 +208,6 @@ const Summary = () => {
         [layout]
     )
 
-    useEffect(() => console.log(summaryChartData), [summaryChartData])
-
     return (
         <>
             <SummaryContext.Provider value={{ summary, summaryPercent, summaryChartData }}>
