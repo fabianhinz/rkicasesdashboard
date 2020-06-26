@@ -25,21 +25,19 @@ const useStyles = makeStyles(theme =>
 
 interface Props {
     activeLabel: number
-    data: CombinedStateData[]
+    data: Partial<CombinedStateData>[]
     visibleCharts: VisibleCharts
 }
 
 const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
     const classes = useStyles()
 
-    if (activeLabel < 0) return <></>
-
     return (
         <div className={classes.chartSelection}>
             <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Typography color="textSecondary" variant="subtitle2">
-                        {data[activeLabel].timestamp.toDate().toLocaleDateString()}
+                        {data[activeLabel].timestamp?.toDate().toLocaleDateString()}
                     </Typography>
                 </Grid>
 

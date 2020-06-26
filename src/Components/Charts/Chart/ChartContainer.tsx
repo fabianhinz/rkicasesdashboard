@@ -1,7 +1,7 @@
 import { Portal } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red, yellow } from '@material-ui/core/colors'
 import { scaleSymlog } from 'd3-scale'
-import React, { useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import {
     Area,
     AxisDomain,
@@ -27,36 +27,59 @@ const ChartContainer = (props: Props) => {
     const chartSelectionContainer = useRef(null)
     const { config } = useConfigContext()
 
-    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = props.maxAxisDomain
-        ? config.settings.normalize
-            ? [0, props.maxAxisDomain]
-            : undefined
-        : undefined
+    const domain: Readonly<[AxisDomain, AxisDomain]> | undefined = useMemo(
+        () =>
+            props.maxAxisDomain
+                ? config.settings.normalize
+                    ? [0, props.maxAxisDomain]
+                    : [0, 'dataMax']
+                : undefined,
+        [config.settings.normalize, props.maxAxisDomain]
+    )
 
-    const sharedLineProps: Partial<LineProps> = {
-        dot: false,
-        type: 'monotone',
-        strokeWidth: 5,
-        activeDot: { r: 7 },
-    }
+    const sharedLineProps: Partial<LineProps> = useMemo(
+        () => ({
+            dot: false,
+            type: 'monotone',
+            strokeWidth: 5,
+            activeDot: { r: 7 },
+        }),
+        []
+    )
+
+    const data = useMemo(
+        () =>
+            props.data
+                .map(component => {
+                    const dataObj: Partial<CombinedStateData> = {}
+                    Object.keys(config.visibleCharts).forEach(key => {
+                        if (config.visibleCharts[key] && component[key]) {
+                            dataObj.timestamp = component.timestamp
+                            dataObj[key] = component[key]
+                        }
+                    })
+                    return dataObj
+                })
+                .filter(component => Object.keys(component).length > 0),
+        [config.visibleCharts, props.data]
+    )
 
     return (
         <>
             <div ref={chartSelectionContainer} />
             <ResponsiveContainer width="100%" aspect={config.settings.ratio}>
                 <ComposedChart
+                    syncId="chart"
                     margin={{ top: 16, bottom: 16, right: 16, left: 16 }}
-                    data={props.data}>
+                    data={data}>
                     <Tooltip
                         content={(tooltipProps: any) => (
                             <Portal container={chartSelectionContainer.current}>
                                 <ChartSelection
                                     activeLabel={
-                                        tooltipProps.active
-                                            ? tooltipProps.label
-                                            : props.data.length - 1
+                                        tooltipProps.active ? tooltipProps.label : data.length - 1
                                     }
-                                    data={props.data}
+                                    data={data}
                                     visibleCharts={config.visibleCharts}
                                 />
                             </Portal>
