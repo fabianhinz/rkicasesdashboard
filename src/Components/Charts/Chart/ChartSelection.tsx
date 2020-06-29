@@ -24,20 +24,21 @@ const useStyles = makeStyles(theme =>
 )
 
 interface Props {
-    activeLabel: number
-    data: Partial<CombinedStateData>[]
+    data: Partial<CombinedStateData> | undefined
     visibleCharts: VisibleCharts
 }
 
-const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
+const ChartSelection = ({ data, visibleCharts }: Props) => {
     const classes = useStyles()
+
+    if (!data) return <></>
 
     return (
         <div className={classes.chartSelection}>
             <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Typography color="textSecondary" variant="subtitle2">
-                        {data[activeLabel].timestamp?.toDate().toLocaleDateString()}
+                        {data.timestamp?.toDate().toLocaleDateString()}
                     </Typography>
                 </Grid>
 
@@ -46,7 +47,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={amber.A400}
                             icon={<Sigma />}
-                            label={data[activeLabel].cases}
+                            label={data.cases}
                         />
                     </Grid>
                 )}
@@ -56,7 +57,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={yellow.A400}
                             icon={<MedicalBag />}
-                            label={data[activeLabel].activeCases}
+                            label={data.activeCases}
                         />
                     </Grid>
                 )}
@@ -66,7 +67,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={cyan.A400}
                             icon={<AccountMultiple />}
-                            label={data[activeLabel].rate}
+                            label={data.rate}
                         />
                     </Grid>
                 )}
@@ -76,7 +77,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={lime.A400}
                             icon={<ChartTimelineVariant />}
-                            label={data[activeLabel].delta}
+                            label={data.delta}
                         />
                     </Grid>
                 )}
@@ -86,7 +87,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={orange.A400}
                             icon={<CalendarRange />}
-                            label={data[activeLabel].doublingRate}
+                            label={data.doublingRate}
                         />
                     </Grid>
                 )}
@@ -96,7 +97,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={green.A400}
                             icon={<HandHeart />}
-                            label={data[activeLabel].recovered}
+                            label={data.recovered}
                         />
                     </Grid>
                 )}
@@ -106,7 +107,7 @@ const ChartSelection = ({ activeLabel, data, visibleCharts }: Props) => {
                         <ChartSelectionChip
                             backgroundColor={red.A400}
                             icon={<Skull />}
-                            label={data[activeLabel].deaths}
+                            label={data.deaths}
                         />
                     </Grid>
                 )}

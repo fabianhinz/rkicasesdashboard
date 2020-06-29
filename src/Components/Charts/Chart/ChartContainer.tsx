@@ -76,10 +76,13 @@ const ChartContainer = (props: Props) => {
                         content={(tooltipProps: any) => (
                             <Portal container={chartSelectionContainer.current}>
                                 <ChartSelection
-                                    activeLabel={
-                                        tooltipProps.active ? tooltipProps.label : data.length - 1
+                                    data={
+                                        data[
+                                            tooltipProps.active
+                                                ? tooltipProps.label
+                                                : data.length - 1
+                                        ]
                                     }
-                                    data={data}
                                     visibleCharts={config.visibleCharts}
                                 />
                             </Portal>
