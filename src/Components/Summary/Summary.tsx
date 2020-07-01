@@ -101,11 +101,12 @@ const Summary = () => {
         )
         const cases = summUp(today, 'cases')
         const recovered = summUp(recoveredToday, 'recovered')
+        const deaths = summUp(today, 'deaths')
 
         setSummary({
             cases,
             recovered,
-            deaths: summUp(today, 'deaths'),
+            deaths,
             delta: summUp(today, 'delta'),
             rate:
                 config.enabledStates.size === 16 || config.enabledStates.size === 0
@@ -114,7 +115,7 @@ const Summary = () => {
                     : summUp(today, 'rate') / today.length,
             lastUpdate: today.reduce((acc, doc) => (acc = doc.timestamp.toDate()), new Date()),
             doublingRate: getDoublingRates('today'),
-            activeCases: cases - recovered,
+            activeCases: cases - recovered - deaths,
         })
     }, [
         config.enabledStates,
@@ -136,11 +137,12 @@ const Summary = () => {
             summary.recovered,
             summary.recovered - summUp(recoveredToday, 'delta')
         )
-        const activeCases = cases.value - recovered.value
+        const deaths = percentageOf(summary.deaths, summUp(yesterday, 'deaths'))
+        const activeCases = cases.value - recovered.value - deaths.value
 
         setSummaryPercent({
             cases: cases.formatted,
-            deaths: percentageOf(summary.deaths, summUp(yesterday, 'deaths')).formatted,
+            deaths: deaths.formatted,
             delta: percentageOf(summary.delta, summUp(yesterday, 'delta')).formatted,
             rate: percentageOf(summary.rate, summUp(yesterday, 'rate') / yesterday.length)
                 .formatted,
@@ -152,7 +154,7 @@ const Summary = () => {
     }, [config.enabledStates, firestoreData.yesterday, getDoublingRates, recoveredToday, summary])
 
     useEffect(() => {
-        const lastThirtyDays = new Set<string>()
+        const lastTwoWeeks = new Set<string>()
         const stateDataFlattened = Array.from(
             firestoreData.byState.entries(),
             ([state, stateData]) => {
@@ -169,7 +171,7 @@ const Summary = () => {
                                 ?.recovered,
                         }
                     })
-                    slicedData.forEach(({ timestamp }) => lastThirtyDays.add(timestamp))
+                    slicedData.forEach(({ timestamp }) => lastTwoWeeks.add(timestamp))
                     return slicedData
                 } else return false
             }
@@ -178,7 +180,7 @@ const Summary = () => {
             .flat() as (Omit<StateData, 'timestamp'> & { timestamp: string; recovered: number })[]
 
         const newSummaryChartData: SummaryChartData[] = []
-        lastThirtyDays.forEach(day => {
+        lastTwoWeeks.forEach(day => {
             const dayData = stateDataFlattened.filter(({ timestamp }) => timestamp === day)
 
             const cases = summUp(dayData, 'cases')
@@ -204,7 +206,7 @@ const Summary = () => {
     }
 
     const memoBreakpointProps: Pick<GridProps, 'xs' | 'sm'> | undefined = useMemo(
-        () => (layout === 'desktop' ? undefined : { xs: 12 }),
+        () => (layout === 'desktop' ? undefined : { xs: 12, sm: 6 }),
         [layout]
     )
 
