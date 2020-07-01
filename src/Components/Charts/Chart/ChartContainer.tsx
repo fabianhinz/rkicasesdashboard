@@ -73,6 +73,7 @@ const ChartContainer = (props: Props) => {
                     margin={{ top: 16, bottom: 16, right: 16, left: 16 }}
                     data={data}>
                     <Tooltip
+                        cursor={false}
                         content={(tooltipProps: any) => (
                             <Portal container={chartSelectionContainer.current}>
                                 <ChartSelection

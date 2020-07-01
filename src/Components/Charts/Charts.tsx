@@ -46,7 +46,7 @@ const Charts = ({ maxAxisDomain }: Props) => {
                 return {
                     ...byDay,
                     recovered,
-                    activeCases: recovered ? byDay.cases - recovered : undefined,
+                    activeCases: recovered ? byDay.cases - recovered - byDay.deaths : undefined,
                 }
             }),
         [firestoreData.byDay, firestoreData.recoveredByDay]
@@ -78,7 +78,9 @@ const Charts = ({ maxAxisDomain }: Props) => {
                             const combinedData: CombinedStateData = {
                                 ...data,
                                 recovered: recovered,
-                                activeCases: recovered ? data.cases - recovered : undefined,
+                                activeCases: recovered
+                                    ? data.cases - recovered - data.deaths
+                                    : undefined,
                             }
                             return combinedData
                         })}
