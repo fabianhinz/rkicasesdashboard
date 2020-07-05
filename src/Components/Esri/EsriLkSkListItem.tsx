@@ -1,7 +1,6 @@
 import {
     Avatar,
     Checkbox,
-    createStyles,
     ListItem,
     ListItemIcon,
     ListItemSecondaryAction,
@@ -17,17 +16,15 @@ import { CountyWithName } from './EsriLkSk'
 
 type StyleProps = Pick<Props, 'avatarColor'>
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        avatar: {
-            transition: theme.transitions.create('all', {
-                easing: theme.transitions.easing.easeOut,
-            }),
-            backgroundColor: ({ avatarColor }: StyleProps) => avatarColor,
-            color: ({ avatarColor }: StyleProps) => theme.palette.getContrastText(avatarColor),
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    avatar: {
+        transition: theme.transitions.create('all', {
+            easing: theme.transitions.easing.easeOut,
+        }),
+        backgroundColor: ({ avatarColor }: StyleProps) => avatarColor,
+        color: ({ avatarColor }: StyleProps) => theme.palette.getContrastText(avatarColor),
+    },
+}))
 
 interface Props {
     data: CountyWithName

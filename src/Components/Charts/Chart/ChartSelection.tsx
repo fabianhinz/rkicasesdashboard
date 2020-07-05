@@ -1,4 +1,4 @@
-import { createStyles, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red, yellow } from '@material-ui/core/colors'
 import {
     AccountMultiple,
@@ -14,14 +14,12 @@ import React from 'react'
 import { CombinedStateData, VisibleCharts } from '../../../model/model'
 import ChartSelectionChip from './ChartSelectionChip'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        chartSelection: {
-            padding: theme.spacing(2),
-            paddingTop: 0,
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    chartSelection: {
+        padding: theme.spacing(2),
+        paddingTop: 0,
+    },
+}))
 
 interface Props {
     data: Partial<CombinedStateData> | undefined

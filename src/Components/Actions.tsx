@@ -1,4 +1,4 @@
-import { createStyles, makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab'
 import { HomeGroup, Tune } from 'mdi-material-ui'
 import React, { useState } from 'react'
@@ -7,16 +7,14 @@ import EsriLkSk from './Esri/EsriLkSk'
 import EsriProvider from './Provider/EsriProvider'
 import Settings from './Settings/Settings'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        speedDial: {
-            position: 'fixed',
-            bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(3)}px)`,
-            zIndex: theme.zIndex.modal + 1,
-            right: theme.spacing(3),
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    speedDial: {
+        position: 'fixed',
+        bottom: `calc(env(safe-area-inset-bottom) + ${theme.spacing(3)}px)`,
+        zIndex: theme.zIndex.modal + 1,
+        right: theme.spacing(3),
+    },
+}))
 
 const Actions = () => {
     const [speedDialOpen, setSpeedDialOpen] = useState(false)

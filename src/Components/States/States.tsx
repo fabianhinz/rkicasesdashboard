@@ -1,21 +1,19 @@
-import { createStyles, makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import React from 'react'
 
 import State from './State'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        states: {
-            position: 'fixed',
-            zIndex: -1,
-            bottom: 0,
-            left: 0,
-            opacity: theme.palette.type === 'dark' ? 0.1 : 0.2,
-            padding: theme.spacing(4),
-            height: '95vh',
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    states: {
+        position: 'fixed',
+        zIndex: -1,
+        bottom: 0,
+        left: 0,
+        opacity: theme.palette.type === 'dark' ? 0.1 : 0.2,
+        padding: theme.spacing(4),
+        height: '95vh',
+    },
+}))
 
 const States = () => {
     const classes = useStyles()

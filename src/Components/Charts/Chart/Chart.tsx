@@ -1,4 +1,4 @@
-import { Card, CardHeader, createStyles, makeStyles } from '@material-ui/core'
+import { Card, CardHeader, makeStyles } from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 import React, { useEffect, useState } from 'react'
 
@@ -6,11 +6,9 @@ import { CombinedStateData } from '../../../model/model'
 import { useConfigContext } from '../../Provider/ConfigProvider'
 import ChartContainer from './ChartContainer'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        card: { position: 'relative', height: '100%' },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    card: { position: 'relative', height: '100%' },
+}))
 
 interface ChartProps {
     state?: string

@@ -1,7 +1,6 @@
 import {
     Avatar,
     ButtonBase,
-    createStyles,
     Grid,
     Grow,
     makeStyles,
@@ -25,39 +24,37 @@ type StyleProps = Pick<Props, 'backgroundColor'> & {
     percentage: boolean
 }
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        paper: {
-            padding: theme.spacing(2),
-            minWidth: 160,
-            width: '100%',
-            transition: theme.transitions.create('all', {
-                easing: theme.transitions.easing.easeOut,
-            }),
-            backgroundColor: ({ backgroundColor, visible }: StyleProps) =>
-                visible ? backgroundColor : theme.palette.background.paper,
-            color: ({ backgroundColor, visible }: StyleProps) =>
-                visible ? theme.palette.getContrastText(backgroundColor) : 'inherit',
-        },
-        avatar: {
-            backgroundColor: ({ backgroundColor, visible }: StyleProps) =>
-                visible ? backgroundColor : theme.palette.background.paper,
-            color: ({ backgroundColor, visible }: StyleProps) =>
-                visible ? theme.palette.getContrastText(backgroundColor) : 'inherit',
-            filter: 'brightness(80%)',
-        },
-        buttonBase: {
-            borderRadius: 20,
-            width: '100%',
-        },
-        legend: {
-            maxWidth: 120,
-            margin: 'auto',
-            marginTop: theme.spacing(0.5),
-            height: 38,
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    paper: {
+        padding: theme.spacing(2),
+        minWidth: 160,
+        width: '100%',
+        transition: theme.transitions.create('all', {
+            easing: theme.transitions.easing.easeOut,
+        }),
+        backgroundColor: ({ backgroundColor, visible }: StyleProps) =>
+            visible ? backgroundColor : theme.palette.background.paper,
+        color: ({ backgroundColor, visible }: StyleProps) =>
+            visible ? theme.palette.getContrastText(backgroundColor) : 'inherit',
+    },
+    avatar: {
+        backgroundColor: ({ backgroundColor, visible }: StyleProps) =>
+            visible ? backgroundColor : theme.palette.background.paper,
+        color: ({ backgroundColor, visible }: StyleProps) =>
+            visible ? theme.palette.getContrastText(backgroundColor) : 'inherit',
+        filter: 'brightness(80%)',
+    },
+    buttonBase: {
+        borderRadius: 20,
+        width: '100%',
+    },
+    legend: {
+        maxWidth: 120,
+        margin: 'auto',
+        marginTop: theme.spacing(0.5),
+        height: 38,
+    },
+}))
 
 interface Props {
     dataKey: keyof SummaryChartData

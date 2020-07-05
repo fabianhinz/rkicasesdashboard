@@ -1,4 +1,4 @@
-import { createStyles, Grid, GridProps, makeStyles, Snackbar } from '@material-ui/core'
+import { Grid, GridProps, makeStyles, Snackbar } from '@material-ui/core'
 import { amber, cyan, green, lime, orange, red, yellow } from '@material-ui/core/colors'
 import { Alert } from '@material-ui/lab'
 import {
@@ -25,28 +25,26 @@ import { useFirestoreContext } from '../Provider/FirestoreProvider'
 import { useLayoutContext } from '../Provider/LayoutProvider'
 import SummaryPaper from './SummaryPaper'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        summary: {
-            [theme.breakpoints.up('md')]: {
-                position: 'sticky',
-                top: 'calc(env(safe-area-inset-top) + 16px)',
-                zIndex: theme.zIndex.appBar,
-            },
-            marginBottom: theme.spacing(2),
-            overflowX: 'auto',
+const useStyles = makeStyles(theme => ({
+    summary: {
+        [theme.breakpoints.up('md')]: {
+            position: 'sticky',
+            top: 'calc(env(safe-area-inset-top) + 16px)',
+            zIndex: theme.zIndex.appBar,
         },
-        snackbar: {
-            top: 0,
-        },
-        alert: {
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
-            paddingTop: 'calc(env(safe-area-inset-top) + 6px)',
-            boxShadow: theme.shadows[4],
-        },
-    })
-)
+        marginBottom: theme.spacing(2),
+        overflowX: 'auto',
+    },
+    snackbar: {
+        top: 0,
+    },
+    alert: {
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        paddingTop: 'calc(env(safe-area-inset-top) + 6px)',
+        boxShadow: theme.shadows[4],
+    },
+}))
 
 export type SummaryChartData = Partial<Omit<SummaryModel, 'lastUpdate'>>
 
