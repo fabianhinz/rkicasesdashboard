@@ -1,44 +1,42 @@
-import { createStyles, Drawer as MuiDrawer, DrawerProps, makeStyles } from '@material-ui/core'
+import { Drawer as MuiDrawer, DrawerProps, makeStyles } from '@material-ui/core'
 import React, { ReactNode } from 'react'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        paper: {
-            width: 320,
-            [theme.breakpoints.up('sm')]: {
-                width: 425,
-            },
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            overflow: 'hidden',
-            userSelect: 'none',
-            borderTopLeftRadius: 20,
-            borderBottomLeftRadius: 20,
-            boxShadow: theme.shadows[4],
-            padding: theme.spacing(2),
-            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
-            paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+const useStyles = makeStyles(theme => ({
+    paper: {
+        width: 320,
+        [theme.breakpoints.up('sm')]: {
+            width: 425,
         },
-        header: {
-            paddingBottom: theme.spacing(1),
-            position: 'relative',
-        },
-        headerActions: {
-            position: 'absolute',
-            top: 0,
-            right: 0,
-        },
-        content: {
-            willChange: 'auto',
-            overflowX: 'hidden',
-            flexGrow: 1,
-        },
-        actions: {
-            paddingTop: theme.spacing(1),
-        },
-    })
-)
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        overflow: 'hidden',
+        userSelect: 'none',
+        borderTopLeftRadius: 20,
+        borderBottomLeftRadius: 20,
+        boxShadow: theme.shadows[4],
+        padding: theme.spacing(2),
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)',
+        paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+    },
+    header: {
+        paddingBottom: theme.spacing(1),
+        position: 'relative',
+    },
+    headerActions: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+    },
+    content: {
+        willChange: 'auto',
+        overflowX: 'hidden',
+        flexGrow: 1,
+    },
+    actions: {
+        paddingTop: theme.spacing(1),
+    },
+}))
 
 interface WithChildren {
     children: React.ReactNode

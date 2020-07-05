@@ -1,26 +1,24 @@
-import { createStyles, LinearProgress, makeStyles, Typography } from '@material-ui/core'
+import { LinearProgress, makeStyles, Typography } from '@material-ui/core'
 import React, { ReactText } from 'react'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        loadingContainer: {
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+const useStyles = makeStyles(theme => ({
+    loadingContainer: {
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+    },
+    linearProgress: {
+        height: 14,
+        borderRadius: 6,
+        [theme.breakpoints.between('xs', 'md')]: {
+            width: 320,
         },
-        linearProgress: {
-            height: 14,
-            borderRadius: 6,
-            [theme.breakpoints.between('xs', 'md')]: {
-                width: 320,
-            },
-            [theme.breakpoints.up('lg')]: {
-                width: 640,
-            },
+        [theme.breakpoints.up('lg')]: {
+            width: 640,
         },
-    })
-)
+    },
+}))
 
 interface Props {
     label: ReactText

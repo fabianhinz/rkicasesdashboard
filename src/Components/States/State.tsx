@@ -1,4 +1,4 @@
-import { createStyles, makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import React from 'react'
 
 import { useConfigContext } from '../Provider/ConfigProvider'
@@ -7,14 +7,12 @@ interface StyleProps {
     selected: boolean
 }
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        path: {
-            transition: theme.transitions.create('fill'),
-            fill: ({ selected }: StyleProps) => (selected ? theme.palette.primary.dark : 'inherit'),
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    path: {
+        transition: theme.transitions.create('fill'),
+        fill: ({ selected }: StyleProps) => (selected ? theme.palette.primary.dark : 'inherit'),
+    },
+}))
 
 interface Props extends Omit<React.SVGProps<SVGPathElement>, 'name'> {
     // ? name of the state

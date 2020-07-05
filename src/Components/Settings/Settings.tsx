@@ -1,13 +1,4 @@
-import {
-    Button,
-    createStyles,
-    Divider,
-    Fab,
-    Grid,
-    Link,
-    makeStyles,
-    Typography,
-} from '@material-ui/core'
+import { Button, Divider, Fab, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import { Close, WeatherNight, WeatherSunny } from 'mdi-material-ui'
 import React from 'react'
 
@@ -20,14 +11,12 @@ import SettingsLayout from './SettingsLayout'
 import SettingsStates from './SettingsStates'
 import SettingsSummary from './SettingsSummary'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        themeFab: {
-            flexShrink: 0,
-            boxShadow: theme.shadows[0],
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    themeFab: {
+        flexShrink: 0,
+        boxShadow: theme.shadows[0],
+    },
+}))
 
 interface Props {
     open: boolean

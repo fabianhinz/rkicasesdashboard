@@ -1,20 +1,18 @@
-import { createStyles, ListSubheader, makeStyles } from '@material-ui/core'
+import { ListSubheader, makeStyles } from '@material-ui/core'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import { Cellphone, Laptop, Responsive } from 'mdi-material-ui'
 import React from 'react'
 
 import { useLayoutContext } from '../Provider/LayoutProvider'
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        buttonGroup: {
-            width: '100%',
-        },
-        button: {
-            flexGrow: 1,
-        },
-    })
-)
+const useStyles = makeStyles(() => ({
+    buttonGroup: {
+        width: '100%',
+    },
+    button: {
+        flexGrow: 1,
+    },
+}))
 
 const SettingsLayout = () => {
     const { layoutSetting, onLayoutSettingChange } = useLayoutContext()

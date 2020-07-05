@@ -1,4 +1,4 @@
-import { Container, createStyles, makeStyles } from '@material-ui/core'
+import { Container, makeStyles } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
 import Actions from './Actions'
@@ -7,15 +7,13 @@ import { useConfigContext } from './Provider/ConfigProvider'
 import { useFirestoreContext } from './Provider/FirestoreProvider'
 import Summary from './Summary/Summary'
 
-const useStyles = makeStyles(theme =>
-    createStyles({
-        container: {
-            marginTop: theme.spacing(3),
-            marginBottom: theme.spacing(3),
-            userSelect: 'none',
-        },
-    })
-)
+const useStyles = makeStyles(theme => ({
+    container: {
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+        userSelect: 'none',
+    },
+}))
 
 const App = () => {
     const { firestoreData } = useFirestoreContext()

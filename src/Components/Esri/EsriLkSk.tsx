@@ -1,6 +1,5 @@
 import {
     Button,
-    createStyles,
     Divider,
     List,
     ListItem,
@@ -31,7 +30,7 @@ interface StyleProps {
 }
 
 const useStyles = makeStyles(() => {
-    return createStyles({
+    return {
         textField: {
             width: '100%',
         },
@@ -51,7 +50,7 @@ const useStyles = makeStyles(() => {
             overflowY: 'auto',
             overflowX: 'hidden',
         },
-    })
+    }
 })
 
 export type CountyWithName = County & { name?: string }
