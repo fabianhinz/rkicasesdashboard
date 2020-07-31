@@ -54,7 +54,6 @@ const Drawer = ({
             variant="persistent"
             PaperProps={{ className: classes.paper }}
             anchor="right"
-            SlideProps={{ mountOnEnter: true, unmountOnExit: true }}
             {...drawerProps}>
             {children}
         </MuiDrawer>
