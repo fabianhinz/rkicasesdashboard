@@ -19,6 +19,14 @@ Das Dashboard beinhaltet Daten ab dem 20.03.2020. Verdopplungsraten werden auf B
 
 ___
 
-![](./examples/example-light.png)
+> mobile layout
 
-![](./examples/example-dark.png)
+![](./examples/mobile-layout.png)
+
+> state layout
+
+![](./examples/state-layout.png)
+
+> country layout
+
+![](./examples/country-layout.png)
