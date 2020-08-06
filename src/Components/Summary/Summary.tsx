@@ -56,6 +56,27 @@ interface SummaryContextModel {
 const SummaryContext = React.createContext<SummaryContextModel | null>(null)
 export const useSummaryContext = () => useContext(SummaryContext) as SummaryContextModel
 
+const reduceByAverage = (data: SummaryChartData[]) =>
+    data.reduce(
+        (acc, data, currentIndex) => {
+            Object.keys(data).forEach(key => {
+                const divideBy = currentIndex === 10 ? 10 : 1
+                return ((acc as any)[key] += (data as any)[key] / divideBy)
+            })
+
+            return acc
+        },
+        {
+            activeCases: 0,
+            cases: 0,
+            deaths: 0,
+            delta: 0,
+            doublingRate: 0,
+            rate: 0,
+            recovered: 0,
+        } as SummaryChartData
+    )
+
 const Summary = () => {
     const [summary, setSummary] = useState<SummaryModel | null>(null)
     const [summaryPercent, setSummaryPercent] = useState<SummaryPercent | null>(null)
@@ -152,12 +173,12 @@ const Summary = () => {
     }, [config.enabledStates, firestoreData.yesterday, getDoublingRates, recoveredToday, summary])
 
     useEffect(() => {
-        const lastTwoWeeks = new Set<string>()
+        const lastMonth = new Set<string>()
         const stateDataFlattened = Array.from(
             firestoreData.byState.entries(),
             ([state, stateData]) => {
                 if (config.enabledStates.size === 0 || config.enabledStates.has(state)) {
-                    const slicedData = stateData.slice(-14).map(v => {
+                    const slicedData = stateData.slice(-31).map(v => {
                         const timestamp = v.timestamp.toDate().toLocaleDateString()
 
                         return {
@@ -169,7 +190,7 @@ const Summary = () => {
                                 ?.recovered,
                         }
                     })
-                    slicedData.forEach(({ timestamp }) => lastTwoWeeks.add(timestamp))
+                    slicedData.forEach(({ timestamp }) => lastMonth.add(timestamp))
                     return slicedData
                 } else return false
             }
@@ -178,7 +199,7 @@ const Summary = () => {
             .flat() as (Omit<StateData, 'timestamp'> & { timestamp: string; recovered: number })[]
 
         const newSummaryChartData: SummaryChartData[] = []
-        lastTwoWeeks.forEach(day => {
+        lastMonth.forEach(day => {
             const dayData = stateDataFlattened.filter(({ timestamp }) => timestamp === day)
 
             const cases = summUp(dayData, 'cases')
@@ -193,7 +214,13 @@ const Summary = () => {
                 rate: summUp(dayData, 'rate'),
             })
         })
-        setSummaryChartData(newSummaryChartData)
+        // ? to visualise trend changes we split the summary into three chunks
+
+        setSummaryChartData([
+            reduceByAverage(newSummaryChartData.slice(0, 10)),
+            reduceByAverage(newSummaryChartData.slice(10, 20)),
+            reduceByAverage(newSummaryChartData.slice(-10)),
+        ])
     }, [config.enabledStates, firestoreData.byState, firestoreData.recoveredByState])
 
     const handleSummaryClick = (key: keyof VisibleCharts) => () => {
