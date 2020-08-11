@@ -109,11 +109,6 @@ const SummaryPaper = ({ dataKey, onClick, icon, backgroundColor }: Props) => {
                     </Grid>
                     {layout === 'mobile' && (
                         <Grid item xs={4}>
-                            {layout === 'mobile' && Boolean(legend) && (
-                                <Typography gutterBottom variant="caption">
-                                    30 Tage Trend
-                                </Typography>
-                            )}
                             <ResponsiveContainer width="100%" aspect={3}>
                                 <LineChart data={summaryChartData}>
                                     <Line
