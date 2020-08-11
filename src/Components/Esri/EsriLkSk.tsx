@@ -16,7 +16,7 @@ interface Props {
 }
 
 const EsriLkSk = ({ open, onClose }: Props) => {
-    const [tabIndex, setTabIndex] = useState(0)
+    const [tabIndex, setTabIndex] = useState(2)
 
     const tabsindicatorColor =
         tabIndex === 0 ? amber.A400 : tabIndex === 1 || tabIndex === 2 ? cyan.A400 : red.A400

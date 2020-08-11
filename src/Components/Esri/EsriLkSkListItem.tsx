@@ -29,7 +29,6 @@ const useStyles = makeStyles(theme => ({
 interface Props {
     data: CountyWithName
     avatarColor: string
-    favoriteCounties: Set<string>
 }
 
 const EsriLkSkListItem = ({ data, avatarColor }: Props) => {
