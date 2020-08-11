@@ -1,5 +1,4 @@
 import {
-    Divider,
     List,
     ListItem,
     ListItemIcon,
@@ -37,9 +36,6 @@ const useStyles = makeStyles(theme => {
             top: 0,
             backgroundColor: theme.palette.background.paper,
             zIndex: theme.zIndex.appBar,
-        },
-        paginationUl: {
-            justifyContent: 'space-between',
         },
     }
 })
@@ -98,7 +94,7 @@ const EsriLkSkList = ({ tabIndex, tabsindicatorColor }: Props) => {
     return (
         <>
             <Pagination
-                classes={{ ul: classes.paginationUl, root: classes.paginationRoot }}
+                className={classes.paginationRoot}
                 shape="rounded"
                 variant="outlined"
                 page={page}
@@ -123,18 +119,14 @@ const EsriLkSkList = ({ tabIndex, tabsindicatorColor }: Props) => {
                     <EsriLkSkListItem
                         data={data}
                         key={data.county}
-                        favoriteCounties={config.favoriteCounties}
                         avatarColor={tabsindicatorColor}
                     />
                 ))}
-
-                {config.favoriteCounties.size > 0 && <Divider className={classes.divider} />}
 
                 {paginatedCounties.map(data => (
                     <EsriLkSkListItem
                         data={data}
                         key={data.county}
-                        favoriteCounties={config.favoriteCounties}
                         avatarColor={tabsindicatorColor}
                     />
                 ))}
